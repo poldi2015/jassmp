@@ -15,15 +15,6 @@
  */
 package com.jams.music.player.LauncherActivity;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,9 +23,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
@@ -49,23 +37,26 @@ import android.view.View;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.Fields;
 import com.google.analytics.tracking.android.MapBuilder;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.jams.music.player.R;
 import com.jams.music.player.Helpers.TypefaceHelper;
 import com.jams.music.player.InAppBilling.IabHelper;
-import com.jams.music.player.InAppBilling.IabResult;
-import com.jams.music.player.InAppBilling.Inventory;
-import com.jams.music.player.InAppBilling.Purchase;
 import com.jams.music.player.MainActivity.MainActivity;
 import com.jams.music.player.MiscFragments.TrialFragment;
+import com.jams.music.player.R;
 import com.jams.music.player.Services.BuildMusicLibraryService;
 import com.jams.music.player.Utils.Common;
 import com.jams.music.player.WelcomeActivity.WelcomeActivity;
+
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 public class LauncherActivity extends FragmentActivity {
 
@@ -660,7 +651,7 @@ public class LauncherActivity extends FragmentActivity {
 	
 	private void launchMainActivity() {
 		Intent intent = new Intent(mContext, MainActivity.class);
-		int startupScreen = mApp.getSharedPreferences().getInt("STARTUP_SCREEN", 0);
+		int startupScreen = 3;//mApp.getSharedPreferences().getInt("STARTUP_SCREEN", 3);
 		
 		switch (startupScreen) {
 		case 0:

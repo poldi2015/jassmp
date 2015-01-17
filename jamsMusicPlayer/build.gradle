@@ -11,12 +11,11 @@ android {
 
         //RenderScript backward compatibility for guassian blurs.
         renderscriptTargetApi 19
-        renderscriptSupportMode true
+        renderscriptSupportModeEnabled true
     }
-
     buildTypes {
         release {
-            runProguard true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
     }
@@ -29,6 +28,11 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
+
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 repositories {
@@ -36,7 +40,6 @@ repositories {
 }
 
 dependencies {
-
     compile project(':licensesdialoglibrary')
     compile project(':quickScroll')
     compile project(':velocityviewpagerlibrary')

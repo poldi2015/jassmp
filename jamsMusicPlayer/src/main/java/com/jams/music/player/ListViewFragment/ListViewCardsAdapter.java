@@ -20,7 +20,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,7 +27,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.RelativeLayout;
@@ -42,11 +40,11 @@ import com.jams.music.player.Dialogs.CautionEditArtistsDialog;
 import com.jams.music.player.Dialogs.ID3sArtistEditorDialog;
 import com.jams.music.player.Helpers.TypefaceHelper;
 import com.jams.music.player.Helpers.UIElementsHelper;
+import com.jams.music.player.ImageTransformers.PicassoCircularTransformer;
 import com.jams.music.player.R;
 import com.jams.music.player.Utils.Common;
-import com.jams.music.player.ImageTransformers.PicassoCircularTransformer;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Generic ListView adapter for ListViewFragment.
@@ -62,8 +60,9 @@ public class ListViewCardsAdapter extends SimpleCursorAdapter implements Scrolla
     private String mName = "";
     
     //HashMap for DB column names.
-    private HashMap<Integer, String> mDBColumnsMap;
+    private Map<Integer, String> mDBColumnsMap;
     public static final int TITLE_TEXT = 0;
+    public static final int SUB_TITLE_TEXT = 9;
     public static final int SOURCE = 1;
     public static final int FILE_PATH = 2;
     public static final int ARTWORK_PATH = 3;
@@ -74,7 +73,7 @@ public class ListViewCardsAdapter extends SimpleCursorAdapter implements Scrolla
     public static final int FIELD_5 = 8;
     
     public ListViewCardsAdapter(Context context, ListViewFragment listViewFragment, 
-    					   		HashMap<Integer, String> dbColumnsMap) {
+    					   		Map<Integer, String> dbColumnsMap) {
     	
         super(context, -1, listViewFragment.getCursor(), new String[] {}, new int[] {}, 0);
         mContext = context;
@@ -106,6 +105,8 @@ public class ListViewCardsAdapter extends SimpleCursorAdapter implements Scrolla
 		return childPosition;
 	}
 
+
+
 	/**
 	 * Returns the individual row/child in the list/grid.
 	 */
@@ -119,9 +120,9 @@ public class ListViewCardsAdapter extends SimpleCursorAdapter implements Scrolla
 			mHolder = new ListViewHolder();
 			mHolder.leftImage = (ImageView) convertView.findViewById(R.id.listViewLeftIcon);
 			mHolder.titleText = (TextView) convertView.findViewById(R.id.listViewTitleText);
-			mHolder.subText = (TextView) convertView.findViewById(R.id.listViewSubText);
-			mHolder.rightSubText = (TextView) convertView.findViewById(R.id.listViewRightSubText);
-            mHolder.overflowIcon = (ImageButton) convertView.findViewById(R.id.listViewOverflow);
+			mHolder.subTitleText = (TextView) convertView.findViewById(R.id.listViewSubTitle );
+			mHolder.rightField1Text = (TextView) convertView.findViewById(R.id.listViewRightField1 );
+            mHolder.actionIcon = (ImageButton) convertView.findViewById(R.id.listViewActions );
             mHolder.subTextParent = (RelativeLayout) convertView.findViewById(R.id.listViewSubTextParent);
 
             //Remove the sub text's parent layout for playlists list view.
@@ -134,18 +135,21 @@ public class ListViewCardsAdapter extends SimpleCursorAdapter implements Scrolla
             }
 
 			mHolder.titleText.setTextColor(UIElementsHelper.getThemeBasedTextColor(mContext));
-            mHolder.subText.setTextColor(UIElementsHelper.getSmallTextColor(mContext));
-            mHolder.rightSubText.setTextColor(UIElementsHelper.getSmallTextColor(mContext));
-            mHolder.leftImage.setImageResource(UIElementsHelper.getEmptyCircularColorPatch(mContext));
+            mHolder.subTitleText.setTextColor( UIElementsHelper.getSmallTextColor( mContext ) );
+            mHolder.rightField1Text.setTextColor( UIElementsHelper.getSmallTextColor( mContext ) );
+            mHolder.leftImage.setImageResource(
+                    UIElementsHelper.getEmptyCircularColorPatch( mContext ) );
 			
 			mHolder.titleText.setTypeface(TypefaceHelper.getTypeface(mContext, "Roboto-Regular"));
-			mHolder.subText.setTypeface(TypefaceHelper.getTypeface(mContext, "Roboto-Regular"));
-			mHolder.rightSubText.setTypeface(TypefaceHelper.getTypeface(mContext, "Roboto-Regular"));
+			mHolder.subTitleText.setTypeface( TypefaceHelper.getTypeface( mContext, "Roboto-Regular" ) );
+			mHolder.rightField1Text.setTypeface(
+                    TypefaceHelper.getTypeface( mContext, "Roboto-Regular" ) );
 
-            mHolder.overflowIcon.setImageResource(UIElementsHelper.getIcon(mContext, "ic_action_overflow"));
-			mHolder.overflowIcon.setOnClickListener(overflowClickListener);
-			mHolder.overflowIcon.setFocusable(false);
-			mHolder.overflowIcon.setFocusableInTouchMode(false);
+            mHolder.actionIcon.setImageResource(
+                    UIElementsHelper.getIcon( mContext, "ic_action_overflow" ) );
+			mHolder.actionIcon.setOnClickListener(overflowClickListener);
+			mHolder.actionIcon.setFocusable( false );
+			mHolder.actionIcon.setFocusableInTouchMode( false );
 			
 			convertView.setTag(mHolder);
 		} else {
@@ -154,6 +158,7 @@ public class ListViewCardsAdapter extends SimpleCursorAdapter implements Scrolla
 
 		//Retrieve data from the cursor.
 		String titleText = "";
+        String subTitleText = "";
 		String source = "";
 		String filePath = "";
 		String artworkPath = "";
@@ -164,6 +169,7 @@ public class ListViewCardsAdapter extends SimpleCursorAdapter implements Scrolla
 		String field5 = "";
 		try {
 			titleText = c.getString(c.getColumnIndex(mDBColumnsMap.get(TITLE_TEXT)));
+            subTitleText = c.getString(c.getColumnIndex(mDBColumnsMap.get(SUB_TITLE_TEXT)));
 			source = c.getString(c.getColumnIndex(mDBColumnsMap.get(SOURCE)));
 			filePath = c.getString(c.getColumnIndex(mDBColumnsMap.get(FILE_PATH)));
 			artworkPath = c.getString(c.getColumnIndex(mDBColumnsMap.get(ARTWORK_PATH)));
@@ -179,6 +185,7 @@ public class ListViewCardsAdapter extends SimpleCursorAdapter implements Scrolla
 		
 		//Set the tags for this grid item.
 		convertView.setTag(R.string.title_text, titleText);
+        convertView.setTag(R.string.sub_title_text, subTitleText);
 		convertView.setTag(R.string.song_source, source);
 		convertView.setTag(R.string.song_file_path, filePath);
 		convertView.setTag(R.string.album_art, artworkPath);
@@ -189,19 +196,21 @@ public class ListViewCardsAdapter extends SimpleCursorAdapter implements Scrolla
 		convertView.setTag(R.string.field_5, field5);
 		
 		//Set the tags for this list item's overflow button.
-		mHolder.overflowIcon.setTag(R.string.title_text, titleText);
-		mHolder.overflowIcon.setTag(R.string.source, source);
-		mHolder.overflowIcon.setTag(R.string.file_path, filePath);
-		mHolder.overflowIcon.setTag(R.string.field_1, field1);
-		mHolder.overflowIcon.setTag(R.string.field_2, field2);
-		mHolder.overflowIcon.setTag(R.string.field_3, field3);
-		mHolder.overflowIcon.setTag(R.string.field_4, field4);
-		mHolder.overflowIcon.setTag(R.string.field_5, field5);
+		mHolder.actionIcon.setTag(R.string.title_text, titleText);
+        mHolder.actionIcon.setTag(R.string.sub_title_text, subTitleText);
+		mHolder.actionIcon.setTag( R.string.source, source );
+		mHolder.actionIcon.setTag(R.string.file_path, filePath);
+		mHolder.actionIcon.setTag( R.string.field_1, field1 );
+		mHolder.actionIcon.setTag(R.string.field_2, field2);
+		mHolder.actionIcon.setTag( R.string.field_3, field3 );
+		mHolder.actionIcon.setTag(R.string.field_4, field4);
+		mHolder.actionIcon.setTag( R.string.field_5, field5 );
 		
 		//Set the title text in the ListView.
 		mHolder.titleText.setText(titleText);
-		mHolder.subText.setText(field2);
-		mHolder.rightSubText.setText(field1);
+        mHolder.subTitleText.setText(subTitleText);
+		mHolder.rightField1Text.setText( field1 );
+
 
 		//Load the album art.
         mApp.getPicasso().load(artworkPath)
@@ -322,9 +331,9 @@ public class ListViewCardsAdapter extends SimpleCursorAdapter implements Scrolla
 	static class ListViewHolder {
 	    public ImageView leftImage;
 	    public TextView titleText;
-	    public TextView subText;
-	    public TextView rightSubText;
-	    public ImageButton overflowIcon;
+	    public TextView subTitleText;
+	    public TextView rightField1Text;
+	    public ImageButton actionIcon;
         public RelativeLayout subTextParent;
 
 	}

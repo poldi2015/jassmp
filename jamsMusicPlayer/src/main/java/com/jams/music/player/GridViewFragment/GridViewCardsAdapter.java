@@ -19,23 +19,18 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.RelativeLayout;
@@ -218,7 +213,7 @@ public class GridViewCardsAdapter extends SimpleCursorAdapter implements Scrolla
 		convertView.setTag(R.string.field_5, field5);
 		
 		/*//Set the tags for this grid item's overflow button.
-		mHolder.overflowButton.setTag(R.string.title_text, titleText);
+		mHolder.overflowButton.setTag(R.string.title_text, titleView);
 		mHolder.overflowButton.setTag(R.string.source, source);
 		mHolder.overflowButton.setTag(R.string.file_path, filePath);
 		mHolder.overflowButton.setTag(R.string.field_1, field1);

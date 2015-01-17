@@ -16,7 +16,6 @@
 package com.jams.music.player.FoldersFragment;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -83,10 +82,10 @@ public class FoldersListViewAdapter extends ArrayAdapter<String> {
 
 			holder = new FoldersViewHolder();
 			holder.fileFolderIcon = (ImageView) convertView.findViewById(R.id.listViewLeftIcon);
-			holder.fileFolderSizeText = (TextView) convertView.findViewById(R.id.listViewSubText);
+			holder.fileFolderSizeText = (TextView) convertView.findViewById(R.id.listViewSubTitle );
 			holder.fileFolderNameText = (TextView) convertView.findViewById(R.id.listViewTitleText);
-            holder.overflowButton = (ImageButton) convertView.findViewById(R.id.listViewOverflow);
-            holder.rightSubText = (TextView) convertView.findViewById(R.id.listViewRightSubText);
+            holder.overflowButton = (ImageButton) convertView.findViewById(R.id.listViewActions );
+            holder.rightSubText = (TextView) convertView.findViewById(R.id.listViewRightField1 );
 
             holder.fileFolderIcon.setScaleX(0.5f);
             holder.fileFolderIcon.setScaleY(0.55f);

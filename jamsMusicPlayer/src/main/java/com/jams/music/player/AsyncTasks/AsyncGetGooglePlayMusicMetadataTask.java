@@ -15,12 +15,6 @@
  */
 package com.jams.music.player.AsyncTasks;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-
-import org.json.JSONArray;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -32,11 +26,16 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.PowerManager;
 
-import com.jams.music.player.R;
 import com.jams.music.player.DBHelpers.DBAccessHelper;
-import com.jams.music.player.Services.BuildMusicLibraryService;
+import com.jams.music.player.R;
 import com.jams.music.player.Services.AudioPlaybackService;
 import com.jams.music.player.Utils.Common;
+
+import org.json.JSONArray;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 /**
  * Checks if the Google Play Music app is installed on the user's device. If it
@@ -280,7 +279,7 @@ public class AsyncGetGooglePlayMusicMetadataTask extends AsyncTask<String, Strin
             	values.put(DBAccessHelper.SONG_LAST_MODIFIED, "");
             	values.put(DBAccessHelper.BLACKLIST_STATUS, "FALSE"); //Keep the song whitelisted by default.
             	values.put(DBAccessHelper.ADDED_TIMESTAMP, date.getTime());
-            	values.put(DBAccessHelper.RATING, songRating);
+            	values.put(DBAccessHelper.SONG_RATING, songRating);
             	values.put(DBAccessHelper.SONG_SOURCE, songSource);
             	values.put(DBAccessHelper.SONG_ALBUM_ART_PATH, songAlbumArtPath);
             	values.put(DBAccessHelper.SONG_ID, songID);
@@ -462,7 +461,7 @@ public class AsyncGetGooglePlayMusicMetadataTask extends AsyncTask<String, Strin
             	values.put(DBAccessHelper.SONG_LAST_MODIFIED, "");
             	values.put(DBAccessHelper.BLACKLIST_STATUS, "FALSE"); //Keep the song whitelisted by default.
             	values.put(DBAccessHelper.ADDED_TIMESTAMP, date.getTime());
-            	values.put(DBAccessHelper.RATING, songRating);
+            	values.put(DBAccessHelper.SONG_RATING, songRating);
             	values.put(DBAccessHelper.LAST_PLAYED_TIMESTAMP, songLastPlayed);
             	values.put(DBAccessHelper.SONG_SOURCE, songSource);
             	values.put(DBAccessHelper.SONG_ALBUM_ART_PATH, songAlbumArtPath);

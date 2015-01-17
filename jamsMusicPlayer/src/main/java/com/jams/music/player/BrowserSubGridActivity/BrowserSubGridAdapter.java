@@ -18,29 +18,19 @@ package com.jams.music.player.BrowserSubGridActivity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.andraskindler.quickscroll.Scrollable;
-import com.jams.music.player.AsyncTasks.AsyncAddToQueueTask;
-import com.jams.music.player.Dialogs.AddToPlaylistDialog;
-import com.jams.music.player.Dialogs.CautionEditArtistsDialog;
-import com.jams.music.player.Dialogs.ID3sArtistEditorDialog;
-import com.jams.music.player.GridViewFragment.GridViewFragment;
 import com.jams.music.player.Helpers.TypefaceHelper;
 import com.jams.music.player.Helpers.UIElementsHelper;
 import com.jams.music.player.R;
@@ -209,7 +199,7 @@ public class BrowserSubGridAdapter extends SimpleCursorAdapter implements Scroll
 		convertView.setTag(R.string.field_5, field5);
 		
 		/*//Set the tags for this grid item's overflow button.
-		mHolder.overflowButton.setTag(R.string.title_text, titleText);
+		mHolder.overflowButton.setTag(R.string.title_text, titleView);
 		mHolder.overflowButton.setTag(R.string.source, source);
 		mHolder.overflowButton.setTag(R.string.file_path, filePath);
 		mHolder.overflowButton.setTag(R.string.field_1, field1);

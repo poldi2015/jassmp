@@ -38,11 +38,13 @@ import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.andraskindler.quickscroll.QuickScroll;
+import com.andraskindler.quickscroll.Scrollable;
 import com.jams.music.player.DBHelpers.DBAccessHelper;
 import com.jams.music.player.DBHelpers.MediaStoreAccessHelper;
 import com.jams.music.player.Helpers.PauseOnScrollHelper;
@@ -53,6 +55,7 @@ import com.jams.music.player.R;
 import com.jams.music.player.Utils.Common;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Generic, multipurpose ListView fragment.
@@ -69,8 +72,8 @@ public class ListViewFragment extends Fragment {
     private String mFragmentTitle;
 	
 	private QuickScroll mQuickScroll;
-	private ListViewCardsAdapter mListViewAdapter;
-    private HashMap<Integer, String> mDBColumnsMap;
+	private Scrollable mListViewAdapter;
+    private Map<Integer, String> mDBColumnsMap;
 	private ListView mListView;
 	private TextView mEmptyTextView;
 	
@@ -80,10 +83,10 @@ public class ListViewFragment extends Fragment {
 	public Handler mHandler = new Handler();
 	private Cursor mCursor;
 	private String mQuerySelection = "";
-	
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = (ViewGroup) inflater.inflate(R.layout.fragment_list_view, container, false);
+        mRootView = inflater.inflate(R.layout.fragment_list_view, container, false);
         mContext = getActivity().getApplicationContext();
 	    mApp = (Common) mContext;
         mFragment = this;
@@ -331,14 +334,6 @@ public class ListViewFragment extends Fragment {
 				mDBColumnsMap.put(ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH);
 				mDBColumnsMap.put(ListViewCardsAdapter.ARTWORK_PATH, DBAccessHelper.SONG_ALBUM_ART_PATH);
 				break;
-			case Common.SONGS_FRAGMENT:
-				mDBColumnsMap.put(ListViewCardsAdapter.TITLE_TEXT, DBAccessHelper.SONG_TITLE);
-				mDBColumnsMap.put(ListViewCardsAdapter.SOURCE, DBAccessHelper.SONG_SOURCE);
-				mDBColumnsMap.put(ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH);
-				mDBColumnsMap.put(ListViewCardsAdapter.ARTWORK_PATH, DBAccessHelper.SONG_ALBUM_ART_PATH);
-				mDBColumnsMap.put(ListViewCardsAdapter.FIELD_1, DBAccessHelper.SONG_DURATION);
-				mDBColumnsMap.put(ListViewCardsAdapter.FIELD_2, DBAccessHelper.SONG_ARTIST);
-				break;
 			case Common.PLAYLISTS_FRAGMENT:
                 mDBColumnsMap.put(ListViewCardsAdapter.TITLE_TEXT, MediaStore.Audio.Playlists.NAME);
                 mDBColumnsMap.put(ListViewCardsAdapter.FIELD_1, MediaStore.Audio.Playlists._COUNT);
@@ -362,9 +357,15 @@ public class ListViewFragment extends Fragment {
 
 			animation.setDuration(600);
 			animation.setInterpolator(new AccelerateDecelerateInterpolator());
-			
-        	mListViewAdapter = new ListViewCardsAdapter(mContext, mFragment, mDBColumnsMap);
-	        mListView.setAdapter(mListViewAdapter);
+
+            switch (mFragmentId) {
+                case Common.SONGS_FRAGMENT:
+                    mListViewAdapter = new SongListViewCardsAdapter(mContext, mFragment );
+                    break;
+                default:
+                    mListViewAdapter = new ListViewCardsAdapter(mContext, mFragment, mDBColumnsMap);
+            }
+	        mListView.setAdapter((ListAdapter)mListViewAdapter);
             mListView.setOnItemClickListener(onItemClickListener);
 	        
 	     /* SwingBottomInAnimationAdapter animationAdapter = new SwingBottomInAnimationAdapter(mListViewAdapter);
@@ -376,7 +377,7 @@ public class ListViewFragment extends Fragment {
 	        //Init the quick scroll widget.
 	        mQuickScroll.init(QuickScroll.TYPE_INDICATOR_WITH_HANDLE, 
 	        				  mListView,
-	        				  (ListViewCardsAdapter) mListViewAdapter,
+	        				  mListViewAdapter,
 	        				  QuickScroll.STYLE_HOLO);
 	        
 	        int[] quickScrollColors = UIElementsHelper.getQuickScrollColors(mContext);

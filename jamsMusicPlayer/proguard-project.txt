@@ -22,6 +22,9 @@
 -renamesourcefileattribute SourceFile
 -keepattributes SourceFile,LineNumberTable
 
+-dontskipnonpubliclibraryclasses
+-dontskipnonpubliclibraryclassmembers
+
 -dontwarn org.apache.**
 -dontwarn org.jaudiotagger.**
 -dontwarn com.google.**

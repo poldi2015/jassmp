@@ -805,6 +805,7 @@
     <string name="go_to">Go to</string>
     <string name="hide_lyrics">Hide lyrics</string>
     <string name="title_text">titleText</string>
+    <string name="sub_title_text">subTitleText</string>
     <string name="source">source</string>
     <string name="file_path">filePath</string>
     <string name="field_1">field1</string>

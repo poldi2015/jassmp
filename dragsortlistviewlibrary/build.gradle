@@ -5,14 +5,14 @@ android {
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "com.mobeta.android.dslv"
+        //applicationId "com.mobeta.android.dslv"
         minSdkVersion 10
         targetSdkVersion 19
     }
 
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }

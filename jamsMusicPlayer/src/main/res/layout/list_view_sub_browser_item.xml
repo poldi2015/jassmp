@@ -4,7 +4,7 @@
     android:layout_height="84dp" >
 
     <TextView
-        android:id="@+id/listViewRightSubText"
+        android:id="@+id/listViewRightField1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
@@ -32,7 +32,7 @@
         android:layout_height="75dp"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/listViewTrackNumber"
-        android:layout_toLeftOf="@+id/listViewRightSubText"
+        android:layout_toLeftOf="@+id/listViewRightField1"
         android:orientation="vertical" >
 
         <RelativeLayout
@@ -64,7 +64,7 @@
             android:layout_weight="1" >
             
             <TextView
-                android:id="@+id/listViewSubText"
+                android:id="@+id/listViewSubTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_alignParentLeft="true"
@@ -84,7 +84,7 @@
     </LinearLayout>
 
     <ImageButton
-        android:id="@+id/listViewOverflow"
+        android:id="@+id/listViewActions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

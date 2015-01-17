@@ -4,16 +4,20 @@ android {
     buildToolsVersion '20.0.0'
 
     defaultConfig {
-        applicationId "com.andraskindler.quickscroll"
+        //applicationId "com.andraskindler.quickscroll"
         minSdkVersion 14
         targetSdkVersion 19
     }
 
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
+    }
+
+    lintOptions {
+        abortOnError false
     }
 }
 

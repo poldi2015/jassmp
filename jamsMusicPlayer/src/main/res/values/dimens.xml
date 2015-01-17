@@ -69,5 +69,9 @@
     <dimen name="app_widget_bottom_margin">4.0dip</dimen>
 
     <dimen name="list_view_left_icon_size">78dp</dimen>
+
+    <dimen name="song_list_view_icon_height">78dp</dimen>
+    <dimen name="song_list_view_album_icon_width">78dp</dimen>
+    <dimen name="song_list_view_rating_icon_width">32dp</dimen>
     
 </resources>

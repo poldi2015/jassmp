@@ -420,10 +420,10 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
     	} else if (mCallingFragment.equals("TOP_RATED")) {
     		String selection = "";
         	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-        		selection = DBAccessHelper.RATING + "<>" + "'0'" + " AND "
+        		selection = DBAccessHelper.SONG_RATING + "<>" + "'0'" + " AND "
    					      + DBAccessHelper.BLACKLIST_STATUS + "=" + "'FALSE'";
         	} else {
-        		selection = DBAccessHelper.RATING + "<>" + "'0'" + " AND "
+        		selection = DBAccessHelper.SONG_RATING + "<>" + "'0'" + " AND "
    					      + DBAccessHelper.BLACKLIST_STATUS + "=" + "'FALSE'"
         	              + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
         	}
@@ -434,7 +434,7 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
 					  null, 
 					  null, 
 					  null, 
-					  DBAccessHelper.RATING + "*1 DESC");
+					  DBAccessHelper.SONG_RATING + "*1 DESC");
 
 			mApp.getNowPlayingActivity().setCursor(mCursor);
 			mApp.getService().setCursor(mCursor);
