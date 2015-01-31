@@ -94,7 +94,7 @@ public class AudioFileReader {
         if( tag == null ) return -1;
         final String first = tag.getFirst( key );
         try {
-            return first != null && !"".equals( first) ? Integer.parseInt( first ) : 0;
+            return first != null && !"".equals( first ) ? Integer.parseInt( first ) : 0;
         } catch( NumberFormatException e ) {
             return -1;
         }

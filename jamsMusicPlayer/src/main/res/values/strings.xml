@@ -861,4 +861,14 @@
     <string name="select_music_folders">Select Music Folders</string>
     <string name="refresh_music_library">Refresh Music Library</string>
 
+    <string name="song_list_sort_name">Sort by Name</string>
+    <string name="song_list_sort_rating">Sort by Rating</string>
+    <string name="song_list_sort_bpm">Sort by BPM</string>
+    <string name="song_list_sort_artist">Sort by artist</string>
+    <string name="song_list_sort_duration">Sort by duration</string>
+
+    <string name="option_button_filter">Filter</string>
+    <string name="option_button_order">Order</string>
+    <string name="dialog_menu_filter">Filter songs</string>
+    <string name="dialog_menu_order">Sort by</string>
 </resources>

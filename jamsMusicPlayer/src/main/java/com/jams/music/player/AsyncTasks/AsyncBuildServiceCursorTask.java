@@ -34,7 +34,7 @@ import com.jams.music.player.Utils.Common;
 
 *//**
  * Builds the cursor that will be used by the app's main service.
- * 
+ *
  * @author Saravan Pantham
  *//*
 public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Boolean> {
@@ -91,17 +91,26 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
 		
 		 Save the current cursor parameters to mApp.getSharedPreferences().
 		 * This will allow the user to resume their previous playlist
-		 * even if they manually kill it.
+		 * even if they manually dispose it.
 		 
-		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_CALLING_FRAGMENT", mCallingFragment).commit();
-		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_CURRENT_LIBRARY", mCurrentLibrary).commit();
-		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_SONG_TITLE", mSongTitle).commit();
-		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_SONG_ARTIST", mSongArtist).commit();
-		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_SONG_ALBUM", mSongAlbum).commit();
-		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_SONG_GENRE", mSongGenre).commit();
-		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_SONG_ALBUM_ARTIST", mSongAlbumArtist).commit();
-		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_PLAY_ALL", mBundle.getString("PLAY_ALL")).commit();
-		mApp.getSharedPreferences().edit().putBoolean("LAST_CURSOR_SEARCHED", mBundle.getBoolean("SEARCHED")).commit();
+		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_CALLING_FRAGMENT",
+		mCallingFragment).commit();
+		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_CURRENT_LIBRARY",
+		mCurrentLibrary).commit();
+		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_SONG_TITLE",
+		mSongTitle).commit();
+		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_SONG_ARTIST",
+		mSongArtist).commit();
+		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_SONG_ALBUM",
+		mSongAlbum).commit();
+		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_SONG_GENRE",
+		mSongGenre).commit();
+		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_SONG_ALBUM_ARTIST",
+		mSongAlbumArtist).commit();
+		mApp.getSharedPreferences().edit().putString("LAST_CURSOR_PLAY_ALL",
+		mBundle.getString("PLAY_ALL")).commit();
+		mApp.getSharedPreferences().edit().putBoolean("LAST_CURSOR_SEARCHED",
+		mBundle.getBoolean("SEARCHED")).commit();
 		
 		if (mAudioFilePathsInFolder!=null) {
 			
@@ -109,8 +118,10 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
 				
 				try {
 					ContentValues values = new ContentValues();
-					values.put(LastCursorInfoDBHelper.AUDIO_FILE_PATH, mAudioFilePathsInFolder.get(i));
-					mApp.getDBAccessHelper().getWritableDatabase().insert(LastCursorInfoDBHelper.LAST_CURSOR_INFO, null, values);
+					values.put(LastCursorInfoDBHelper.AUDIO_FILE_PATH, mAudioFilePathsInFolder.get
+					(i));
+					mApp.getDBAccessHelper().getWritableDatabase().insert(LastCursorInfoDBHelper
+					.LAST_CURSOR_INFO, null, values);
 					
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -226,36 +237,47 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
             
     		String selection = "";
             if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.all_libraries))) {
-            	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
+            	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+            	false)==true) {
             		selection = "";
             	} else {
-            		selection = " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
+            		selection = " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
+            		"'GOOGLE_PLAY_MUSIC'";
             	}
             	mCursor = mApp.getDBAccessHelper().getAllSongsSearchable(selection);
             	mApp.getNowPlayingActivity().setCursor(mCursor);
-    	    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.google_play_music_no_asterisk))) {
+    	    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    	    .google_play_music_no_asterisk))) {
     		    selection = " AND " + DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'";
     	        mCursor = mApp.getDBAccessHelper().getAllSongsSearchable(selection);
     	        mApp.getNowPlayingActivity().setCursor(mCursor);
-    	    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.on_this_device))) { 
+    	    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    	    .on_this_device))) {
     	    	//Check if Google Play Music is enabled.
-    	    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    	    		selection = " AND (" + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'" + " OR "
+    	    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    	    	false)==true) {
+    	    		selection = " AND (" + DBAccessHelper.SONG_SOURCE + "<>" +
+    	    		"'GOOGLE_PLAY_MUSIC'" + " OR "
     	    				  + DBAccessHelper.LOCAL_COPY_PATH + "<> '')";
     	    		mCursor = mApp.getDBAccessHelper().getAllSongsSearchable(selection);
     	    		mApp.getNowPlayingActivity().setCursor(mCursor);
     	    	} else {
-    	    		selection = " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'"; 
+    	    		selection = " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
+    	    		"'GOOGLE_PLAY_MUSIC'";
     		        mCursor = mApp.getDBAccessHelper().getAllSongsSearchable(selection);
     		        mApp.getNowPlayingActivity().setCursor(mCursor);
     	    	}
     	    	
         	} else {
-            	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-            		selection = " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'";
+            	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+            	false)==true) {
+            		selection = " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" +
+            		mCurrentLibrary + "'";
             	} else {
-            		selection = " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'"
-            	              + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
+            		selection = " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" +
+            		mCurrentLibrary + "'"
+            	              + " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
+            	              "'GOOGLE_PLAY_MUSIC'";
             	}
     		    
     	        mCursor = mApp.getDBAccessHelper().getAllSongsInLibrarySearchable(selection);
@@ -267,28 +289,41 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
     	} else if (mCallingFragment.equals("ALBUM_ARTISTS_FLIPPED_FRAGMENT")) {
             
     		String selection = "";
-    		if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.all_libraries))) {
-    	    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist  + "'";
+    		if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.all_libraries)
+    		)) {
+    	    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    	    	false)==true) {
+    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    	    		mSongAlbumArtist  + "'";
     	    	} else {
-    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist  + "'"
-    						  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " + "'GOOGLE_PLAY_MUSIC'";
+    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    	    		mSongAlbumArtist  + "'"
+    						  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " +
+    						  "'GOOGLE_PLAY_MUSIC'";
     	    	}
     		    
     	        mCursor = mApp.getDBAccessHelper().getAllSongsByAlbumArtist(selection);
-    	    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.google_play_music_no_asterisk))) {
-	    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'" 
+    	    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    	    .google_play_music_no_asterisk))) {
+	    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+	    		mSongAlbumArtist + "'"
 	    				  + " AND " + DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'";
 	    		mCursor = mApp.getDBAccessHelper().getAllSongsByAlbumArtist(selection);
     		    
     	    } else {
-    	    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist  + "'" 
-    	    				  + " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'";
+    	    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    	    	false)==true) {
+    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    	    		mSongAlbumArtist  + "'"
+    	    				  + " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" +
+    	    				  mCurrentLibrary + "'";
     	    	} else {
-    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist  + "'" 
-    	    				  + " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'" 
-    	    				  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " + "'GOOGLE_PLAY_MUSIC'";
+    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    	    		mSongAlbumArtist  + "'"
+    	    				  + " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" +
+    	    				  mCurrentLibrary + "'"
+    	    				  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " +
+    	    				  "'GOOGLE_PLAY_MUSIC'";
     	    	}
     	        mCursor = mApp.getDBAccessHelper().getAllSongsByAlbumArtistInLibrary(selection);
     	    }
@@ -320,31 +355,41 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
     		//The cursor needs to be built from the songs table.
     		
     		String selection = "";
-    		if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.all_libraries))) {
-    	    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
+    		if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.all_libraries)
+    		)) {
+    	    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    	    	false)==true) {
+    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  +
+    	    		"'" + " AND "
     						  + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre + "'";
     	    	} else {
-    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
+    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  +
+    	    		"'" + " AND "
     						  + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre + "'"
-    						  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " + "'GOOGLE_PLAY_MUSIC'";
+    						  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " +
+    						  "'GOOGLE_PLAY_MUSIC'";
     	    	}
     		    
     	        mCursor = mApp.getDBAccessHelper().getAllSongsInAlbumInGenre(selection);
     	        mApp.getNowPlayingActivity().setCursor(mCursor);
-    	    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.google_play_music_no_asterisk))) {
-    	    	selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
+    	    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    	    .google_play_music_no_asterisk))) {
+    	    	selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" +
+    	    	" AND "
 						  + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre + "'" + " AND " + 
 						  DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'";
 	    		mCursor = mApp.getDBAccessHelper().getAllSongsInAlbumInGenre(selection);
 	    		mApp.getNowPlayingActivity().setCursor(mCursor);
 	    		
-    	    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.on_this_device))) { 
+    	    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    	    .on_this_device))) {
     	    	//Check if Google Play Music is enabled.
-    	    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
+    	    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    	    	false)==true) {
     	    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre + "'"
     	    				  + " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum + "'"
-    	    			      + " AND (" + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'" + " OR "
+    	    			      + " AND (" + DBAccessHelper.SONG_SOURCE + "<>" +
+    	    			      "'GOOGLE_PLAY_MUSIC'" + " OR "
     	    				  + DBAccessHelper.LOCAL_COPY_PATH + "<> '')";
     	    		mCursor = mApp.getDBAccessHelper().getAllSongsInAlbumInGenre(selection);
     	    		mApp.getNowPlayingActivity().setCursor(mCursor);
@@ -352,20 +397,25 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
     	    	} else {
     	    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre + "'"
     	    				  + " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum + "'"
-    	    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'"; 
+    	    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
+    	    				  "'GOOGLE_PLAY_MUSIC'";
     	    		mCursor = mApp.getDBAccessHelper().getAllSongsInAlbumInGenre(selection);
     	    		mApp.getNowPlayingActivity().setCursor(mCursor);
     	    		
     	    	}
     	    	
         	} else {
-    	    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
+    	    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    	    	false)==true) {
+    	    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  +
+    	    		"'" + " AND "
     						  + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre + "'" + " AND " 
     						  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'";
-    	    	} else {selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
+    	    	} else {selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum
+    	    	+ "'" + " AND "
     					  + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre + "'" + " AND " 
-    					  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'" + " AND "
+    					  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'" + "
+    					  AND "
     					  + DBAccessHelper.SONG_SOURCE + " <> " + "'GOOGLE_PLAY_MUSIC'";
     	    	}
     	        mCursor = mApp.getDBAccessHelper().getAllSongsByInAlbumInGenreInLibrary(selection);
@@ -384,13 +434,15 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
         	              + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
         	}
     		
-			mCursor = mApp.getDBAccessHelper().getReadableDatabase().query(DBAccessHelper.MUSIC_LIBRARY_TABLE, 
+			mCursor = mApp.getDBAccessHelper().getReadableDatabase().query(DBAccessHelper
+			.MUSIC_LIBRARY_TABLE,
 														  null, 
 														  selection, 
 														  null, 
 														  null, 
 														  null, 
-														  DBAccessHelper.SONG_PLAY_COUNT + "*1 DESC", 
+														  DBAccessHelper.SONG_PLAY_COUNT + "*1
+														  DESC",
 														  "25");
 			
 			mApp.getNowPlayingActivity().setCursor(mCursor);
@@ -406,13 +458,16 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
         	              + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
         	}
         	
-			mCursor = mApp.getDBAccessHelper().getReadableDatabase().query(DBAccessHelper.MUSIC_LIBRARY_TABLE, 
+			mCursor = mApp.getDBAccessHelper().getReadableDatabase().query(DBAccessHelper
+			.MUSIC_LIBRARY_TABLE,
 																			  null, 
 																			  selection, 
 																			  null, 
 																			  null, 
 																			  null, 
-																			  DBAccessHelper.ADDED_TIMESTAMP + "*1 DESC");
+																			  DBAccessHelper
+																			  .ADDED_TIMESTAMP +
+																			  "*1 DESC");
 
 			mApp.getNowPlayingActivity().setCursor(mCursor);
 			mApp.getService().setCursor(mCursor);
@@ -428,7 +483,8 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
         	              + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
         	}
     		
-			mCursor = mApp.getDBAccessHelper().getReadableDatabase().query(DBAccessHelper.MUSIC_LIBRARY_TABLE, 
+			mCursor = mApp.getDBAccessHelper().getReadableDatabase().query(DBAccessHelper
+			.MUSIC_LIBRARY_TABLE,
 					  null, 
 					  selection, 
 					  null, 
@@ -450,7 +506,8 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
         	              + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
         	}
         	
-			mCursor = mApp.getDBAccessHelper().getReadableDatabase().query(DBAccessHelper.MUSIC_LIBRARY_TABLE, 
+			mCursor = mApp.getDBAccessHelper().getReadableDatabase().query(DBAccessHelper
+			.MUSIC_LIBRARY_TABLE,
 					  null, 
 					  selection, 
 					  null, 
@@ -463,7 +520,8 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
 			
     	} else if (mCallingFragment.equals("FOLDERS_FRAGMENT")) {
     		
-    		//We'll create a matrix mCursor that includes all the audio files within the specified folder.
+    		//We'll create a matrix mCursor that includes all the audio files within the specified
+    		 f older.
     		String[] foldersCursorColumns = {  DBAccessHelper.SONG_ARTIST,  
 											   DBAccessHelper.SONG_ALBUM, 
 											   DBAccessHelper.SONG_TITLE, 
@@ -476,7 +534,8 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
 											   DBAccessHelper.LOCAL_COPY_PATH, 
 											   DBAccessHelper.LAST_PLAYBACK_POSITION };
 						    		
-    		MatrixCursor foldersCursor = new MatrixCursor(foldersCursorColumns, mAudioFilePathsInFolder.size());
+    		MatrixCursor foldersCursor = new MatrixCursor(foldersCursorColumns,
+    		mAudioFilePathsInFolder.size());
     		MediaMetadataRetriever mmdr = new MediaMetadataRetriever();
 
     		String genre = "";
@@ -493,10 +552,12 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
         			try {
         				mmdr.setDataSource(mAudioFilePathsInFolder.get(i));
         			} catch (Exception e) {
-        				//Just keep going. The service will handle the resulting error from this file.
+        				//Just keep going. The service will handle the resulting error from this
+        				file.
         			}
         			
-        			String artist = mmdr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+        			String artist = mmdr.extractMetadata(MediaMetadataRetriever
+        			.METADATA_KEY_ARTIST);
         			if (artist==null || artist.isEmpty()) {
         				artist = "Unknown Artist";
         			}
@@ -512,7 +573,8 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
         			}
         			
         			String filePath = mAudioFilePathsInFolder.get(i);
-        			String duration = mmdr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        			String duration = mmdr.extractMetadata(MediaMetadataRetriever
+        			.METADATA_KEY_DURATION);
         			if (duration==null || duration.isEmpty()) {
         				duration = "0";
         			}
@@ -556,43 +618,62 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
     		if (mBundle.getString("PLAY_ALL").equals("ARTIST")) {
 
     			String selection = "";
-    		    if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.all_libraries))) {
+    		    if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    		    .all_libraries))) {
 
-    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    		    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'";
+    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    		    	false)==true) {
+    		    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist
+    		    		 + "'";
     		    	} else {
-    		    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'"
-    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
+    		    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist
+    		    		 + "'"
+    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
+    		    				  "'GOOGLE_PLAY_MUSIC'";
     		    	}
 
-    		        mCursor = mApp.getDBAccessHelper().playAllArtistsFlippedAllLibraries(selection);
+    		        mCursor = mApp.getDBAccessHelper().playAllArtistsFlippedAllLibraries
+    		        (selection);
     		        mApp.getNowPlayingActivity().setCursor(mCursor);
-    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.google_play_music_no_asterisk))) {
-    			    selection = " AND " + DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'" + " AND "
+    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    		    .google_play_music_no_asterisk))) {
+    			    selection = " AND " + DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'"
+    			     + " AND "
     			    		  + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'";
     		        mCursor = mApp.getDBAccessHelper().getAllSongsByArtistSearchable(selection);
     		        mApp.getNowPlayingActivity().setCursor(mCursor);
-    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.on_this_device))) { 
+    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    		    .on_this_device))) {
     		    	//Check if Google Play Music is enabled.
-    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    		    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'"
-    		    				  + " AND (" + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'" + " OR "
+    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    		    	false)==true) {
+    		    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist
+    		    		 + "'"
+    		    				  + " AND (" + DBAccessHelper.SONG_SOURCE + "<>" +
+    		    				  "'GOOGLE_PLAY_MUSIC'" + " OR "
     		    				  + DBAccessHelper.LOCAL_COPY_PATH + "<> '')";
     		    	} else {
-    		    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'"
-    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " + "'GOOGLE_PLAY_MUSIC'";
+    		    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist
+    		    		 + "'"
+    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " +
+    		    				  "'GOOGLE_PLAY_MUSIC'";
     		    	}
     		    	
     		    	mCursor = mApp.getDBAccessHelper().getAllSongsByArtistSearchable(selection);
     		    	mApp.getNowPlayingActivity().setCursor(mCursor);
     	    	} else {
-    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    		    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'" + " AND "
-      		    			      + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'";
+    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    		    	false)==true) {
+    		    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist
+    		    		 + "'" + " AND "
+      		    			      + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary +
+      		    			      "'";
     		    	} else {
-    		    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'" + " AND "
+    		    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist
+    		    		 + "'" + " AND "
     		    			      + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'"
-    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
+    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
+    		    				  "'GOOGLE_PLAY_MUSIC'";
     		    	}
     		    	
     		        mCursor = mApp.getDBAccessHelper().getAllSongsByArtistInLibrary(selection);
@@ -604,106 +685,159 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
     		} else if (mBundle.getString("PLAY_ALL").equals("ALBUM_ARTIST")) {
     			
     			String selection = "";
-    		    if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.all_libraries))) {
+    		    if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    		    .all_libraries))) {
 
-    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'";
+    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    		    	false)==true) {
+    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    		    		mSongAlbumArtist + "'";
     		    	} else {
-    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'"
-    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
+    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    		    		mSongAlbumArtist + "'"
+    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
+    		    				  "'GOOGLE_PLAY_MUSIC'";
     		    	}
 
-    		        mCursor = mApp.getDBAccessHelper().playAllAlbumArtistsFlippedAllLibraries(selection);
+    		        mCursor = mApp.getDBAccessHelper().playAllAlbumArtistsFlippedAllLibraries
+    		        (selection);
     		        mApp.getNowPlayingActivity().setCursor(mCursor);
-    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.google_play_music_no_asterisk))) {
-    			    selection = " AND " + DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'" + " AND "
-    			    		  + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'";
-    		        mCursor = mApp.getDBAccessHelper().getAllSongsByAlbumArtistSearchable(selection);
+    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    		    .google_play_music_no_asterisk))) {
+    			    selection = " AND " + DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'"
+    			     + " AND "
+    			    		  + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist +
+    			    		  "'";
+    		        mCursor = mApp.getDBAccessHelper().getAllSongsByAlbumArtistSearchable
+    		        (selection);
     		        mApp.getNowPlayingActivity().setCursor(mCursor);
-    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.on_this_device))) { 
+    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    		    .on_this_device))) {
     		    	//Check if Google Play Music is enabled.
-    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'"
-    		    				  + " AND (" + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'" + " OR "
+    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    		    	false)==true) {
+    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    		    		mSongAlbumArtist + "'"
+    		    				  + " AND (" + DBAccessHelper.SONG_SOURCE + "<>" +
+    		    				  "'GOOGLE_PLAY_MUSIC'" + " OR "
     		    				  + DBAccessHelper.LOCAL_COPY_PATH + "<> '')";
-    		    		mCursor = mApp.getDBAccessHelper().getAllUniqueAlbumsByAlbumArtist(selection);
+    		    		mCursor = mApp.getDBAccessHelper().getAllUniqueAlbumsByAlbumArtist
+    		    		(selection);
     		    		mApp.getNowPlayingActivity().setCursor(mCursor);
     		    	} else {
-    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'"
-    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'"; 
-    			        mCursor = mApp.getDBAccessHelper().getAllUniqueAlbumsByAlbumArtist(selection);
+    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    		    		mSongAlbumArtist + "'"
+    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
+    		    				  "'GOOGLE_PLAY_MUSIC'";
+    			        mCursor = mApp.getDBAccessHelper().getAllUniqueAlbumsByAlbumArtist
+    			        (selection);
     			        mApp.getNowPlayingActivity().setCursor(mCursor);
     		    	}
     		    	
     	    	} else {
-    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'" + " AND "
-      		    			      + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'";
+    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    		    	false)==true) {
+    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    		    		mSongAlbumArtist + "'" + " AND "
+      		    			      + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary +
+      		    			      "'";
     		    	} else {
-    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'" + " AND "
+    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    		    		mSongAlbumArtist + "'" + " AND "
     		    			      + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'"
-    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
+    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
+    		    				  "'GOOGLE_PLAY_MUSIC'";
     		    	}
     		    	
-    		        mCursor = mApp.getDBAccessHelper().getAllSongsByAlbumArtistInLibrary(selection);
+    		        mCursor = mApp.getDBAccessHelper().getAllSongsByAlbumArtistInLibrary
+    		        (selection);
     		        mApp.getNowPlayingActivity().setCursor(mCursor);
     		    }
     			
     			mApp.getService().setCursor(mCursor);
     			
     		} else if (mBundle.getString("PLAY_ALL").equals("ALBUM") && 
-    				   mBundle.getString("CALLING_FRAGMENT").equals("ALBUM_ARTISTS_FLIPPED_SONGS_FRAGMENT")) {
+    				   mBundle.getString("CALLING_FRAGMENT").equals
+    				   ("ALBUM_ARTISTS_FLIPPED_SONGS_FRAGMENT")) {
     			
     			String selection = "";
-    			if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.all_libraries))) {
-    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
-    							  + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'";
+    			if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    			.all_libraries))) {
+    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    		    	false)==true) {
+    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum
+    		    		+ "'" + " AND "
+    							  + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    							  mSongAlbumArtist + "'";
     		    	} else {
-    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
-    							  + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'"
-    							  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " + "'GOOGLE_PLAY_MUSIC'";
+    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum
+    		    		+ "'" + " AND "
+    							  + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    							  mSongAlbumArtist + "'"
+    							  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " +
+    							  "'GOOGLE_PLAY_MUSIC'";
     		    	}
     			    
     		        mCursor = mApp.getDBAccessHelper().getAllSongsByAlbumArtistAlbum(selection);
     		        mApp.getNowPlayingActivity().setCursor(mCursor);
     		        
-    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.google_play_music_no_asterisk))) {
-		    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
-							  + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'" + " AND " + 
+    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    		    .google_play_music_no_asterisk))) {
+		    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  +
+		    		"'" + " AND "
+							  + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist +
+							  "'" + " AND " +
 							  DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'";
 		    		mCursor = mApp.getDBAccessHelper().getAllSongsByAlbumArtistAlbum(selection);
 		    		mApp.getNowPlayingActivity().setCursor(mCursor);
     			    
-    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.on_this_device))) { 
+    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    		    .on_this_device))) {
     		    	//Check if Google Play Music is enabled.
-    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'"
-    		    				  + " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum + "'"
-    		    				  + " AND (" + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'" + " OR "
+    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    		    	false)==true) {
+    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    		    		mSongAlbumArtist + "'"
+    		    				  + " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum +
+    		    				   "'"
+    		    				  + " AND (" + DBAccessHelper.SONG_SOURCE + "<>" +
+    		    				  "'GOOGLE_PLAY_MUSIC'" + " OR "
     		    				  + DBAccessHelper.LOCAL_COPY_PATH + "<> '')";
-    		    		mCursor = mApp.getDBAccessHelper().getAllUniqueAlbumsByAlbumArtist(selection);
+    		    		mCursor = mApp.getDBAccessHelper().getAllUniqueAlbumsByAlbumArtist
+    		    		(selection);
     		    		mApp.getNowPlayingActivity().setCursor(mCursor);
     		    		
     		    	} else {
-    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'"
-    		    				  + " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum + "'"
-    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'"; 
-    			        mCursor = mApp.getDBAccessHelper().getAllUniqueAlbumsByAlbumArtist(selection);
+    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    		    		mSongAlbumArtist + "'"
+    		    				  + " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum +
+    		    				   "'"
+    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
+    		    				  "'GOOGLE_PLAY_MUSIC'";
+    			        mCursor = mApp.getDBAccessHelper().getAllUniqueAlbumsByAlbumArtist
+    			        (selection);
     			        mApp.getNowPlayingActivity().setCursor(mCursor);
     		    	}
     		    	
     	    	} else {
-    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
-    							  + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'" + " AND " 
-    							  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'";
-    		    	} else {selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
-    						  + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist + "'" + " AND " 
-    						  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'" + " AND "
+    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    		    	false)==true) {
+    		    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum
+    		    		+ "'" + " AND "
+    							  + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" +
+    							  mSongAlbumArtist + "'" + " AND "
+    							  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary +
+    							  "'";
+    		    	} else {selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" +
+    		    	mSongAlbum  + "'" + " AND "
+    						  + DBAccessHelper.SONG_ALBUM_ARTIST + "=" + "'" + mSongAlbumArtist +
+    						  "'" + " AND "
+    						  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'" +
+    						  " AND "
     						  + DBAccessHelper.SONG_SOURCE + " <> " + "'GOOGLE_PLAY_MUSIC'";
     		    	}
-    		    	mCursor = mApp.getDBAccessHelper().getAllSongsByAlbumArtistAlbumInLibrary(selection);
+    		    	mCursor = mApp.getDBAccessHelper().getAllSongsByAlbumArtistAlbumInLibrary
+    		    	(selection);
     		    	mApp.getNowPlayingActivity().setCursor(mCursor);
     		    }
     			
@@ -712,55 +846,79 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
     		} else if (mBundle.getString("PLAY_ALL").equals("ALBUM")) {
     	    				 
     	    	String selection = "";
-			    if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.all_libraries))) {
+			    if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+			    .all_libraries))) {
 			    	
-			    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-			    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
+			    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+			    	false)==true) {
+			    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum
+			    		+ "'" + " AND "
 								  + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'";
 			    	} else {
-			    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
+			    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum
+			    		+ "'" + " AND "
 								  + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'"
-								  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
+								  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
+								  "'GOOGLE_PLAY_MUSIC'";
 			    	}
 
 			        mCursor = mApp.getDBAccessHelper().getAllSongsByArtistAlbum(selection);
 			        mApp.getNowPlayingActivity().setCursor(mCursor);
-			    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.google_play_music_no_asterisk))) {
-				    selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
-							  + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'" + " AND " + 
+			    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+			    .google_play_music_no_asterisk))) {
+				    selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  +
+				    "'" + " AND "
+							  + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'" + " AND
+							   " +
 							  DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'";
 			        mCursor = mApp.getDBAccessHelper().getAllSongsByArtistAlbum(selection);
 			        mApp.getNowPlayingActivity().setCursor(mCursor);
 			        
-			    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.on_this_device))) { 
+			    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+			    .on_this_device))) {
 			    	//Check if Google Play Music is enabled.
-			    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-			    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'"
-			    				  + " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum + "'"
-			    				  + " AND (" + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'" + " OR "
+			    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+			    	false)==true) {
+			    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist
+			    		 + "'"
+			    				  + " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum +
+			    				   "'"
+			    				  + " AND (" + DBAccessHelper.SONG_SOURCE + "<>" +
+			    				  "'GOOGLE_PLAY_MUSIC'" + " OR "
 			    				  + DBAccessHelper.LOCAL_COPY_PATH + "<> '')";
 			    	} else {
-			    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'"
-			    				  + " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum + "'"
-			    				  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " + "'GOOGLE_PLAY_MUSIC'";
+			    		selection = " AND " + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist
+			    		 + "'"
+			    				  + " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum +
+			    				   "'"
+			    				  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " +
+			    				  "'GOOGLE_PLAY_MUSIC'";
 			    	}
 			    	
 			    	mCursor = mApp.getDBAccessHelper().getAllSongsByArtistAlbum(selection);
 			    	mApp.getNowPlayingActivity().setCursor(mCursor);
 			    	
 		    	} else {
-			    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-			    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
-								  + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'" + " AND " 
-								  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'";
+			    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+			    	false)==true) {
+			    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum
+			    		+ "'" + " AND "
+								  + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'" + "
+								   AND "
+								  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary +
+								  "'";
 			    	} else {
-			    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum  + "'" + " AND "
-								  + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'" + " AND " 
+			    		selection = " AND " + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum
+			    		+ "'" + " AND "
+								  + DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'" + "
+								   AND "
 								  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'"
-								  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
+								  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
+								  "'GOOGLE_PLAY_MUSIC'";
 			    	}
 				    
-			        mCursor = mApp.getDBAccessHelper().getAllSongsByArtistAlbumInLibrary(selection);
+			        mCursor = mApp.getDBAccessHelper().getAllSongsByArtistAlbumInLibrary
+			        (selection);
 			        mApp.getNowPlayingActivity().setCursor(mCursor);
 			    }
     			
@@ -769,45 +927,63 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
     		} else if (mBundle.getString("PLAY_ALL").equals("GENRE")) {
 				 
     			String selection = "";
-    			if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.all_libraries))) {
-    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    		    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre + "'";
+    			if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    			.all_libraries))) {
+    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    		    	false)==true) {
+    		    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre +
+    		    		 "'";
     		    	} else {
-    		    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre + "'"
-    							  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " + "'GOOGLE_PLAY_MUSIC'";
+    		    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre +
+    		    		 "'"
+    							  + " AND " + DBAccessHelper.SONG_SOURCE + " <> " +
+    							  "'GOOGLE_PLAY_MUSIC'";
     		    	}
     			    
     		        mCursor = mApp.getDBAccessHelper().getAllSongsInGenre(selection);
     		        mApp.getNowPlayingActivity().setCursor(mCursor);
     		        
-    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.google_play_music_no_asterisk))) {
+    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    		    .google_play_music_no_asterisk))) {
     		    	selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre  + "'"
-		    				  + " AND " +  DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'";
+		    				  + " AND " +  DBAccessHelper.SONG_SOURCE + "=" +
+		    				  "'GOOGLE_PLAY_MUSIC'";
     		    	mCursor = mApp.getDBAccessHelper().getAllSongsInGenre(selection);
     		    	mApp.getNowPlayingActivity().setCursor(mCursor);		    		
     		    	
-    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string.on_this_device))) { 
+    		    } else if (mCurrentLibrary.equals(mContext.getResources().getString(R.string
+    		    .on_this_device))) {
     		    	//Check if Google Play Music is enabled.
-    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    		    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre + "'"
-    		    			      + " AND (" + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'" + " OR "
+    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    		    	false)==true) {
+    		    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre +
+    		    		 "'"
+    		    			      + " AND (" + DBAccessHelper.SONG_SOURCE + "<>" +
+    		    			      "'GOOGLE_PLAY_MUSIC'" + " OR "
     		    				  + DBAccessHelper.LOCAL_COPY_PATH + "<> '')";
     		    		mCursor = mApp.getDBAccessHelper().getAllSongsInGenre(selection);
     		    		mApp.getNowPlayingActivity().setCursor(mCursor);
     		    	} else {
-    		    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre + "'"
-    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'"; 
+    		    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre +
+    		    		 "'"
+    		    				  + " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
+    		    				  "'GOOGLE_PLAY_MUSIC'";
     		    		mCursor = mApp.getDBAccessHelper().getAllSongsInGenre(selection);
     		    		mApp.getNowPlayingActivity().setCursor(mCursor);
     		    	}
     		    	
     	    	} else {
-    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-    		    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre  + "'" + " AND " 
-    							  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'";
+    		    	if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    		    	false)==true) {
+    		    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre
+    		    		+ "'" + " AND "
+    							  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary +
+    							  "'";
     		    	} else {
-    		    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre  + "'" + " AND " 
-    		    				  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary + "'" + " AND "
+    		    		selection = " AND " + DBAccessHelper.SONG_GENRE + "=" + "'" + mSongGenre
+    		    		+ "'" + " AND "
+    		    				  + DBAccessHelper.LIBRARY_NAME + "=" + "'" + mCurrentLibrary +
+    		    				  "'" + " AND "
     		    				  + DBAccessHelper.SONG_SOURCE + " <> " + "'GOOGLE_PLAY_MUSIC'";
     		    	}
     		    	
@@ -829,13 +1005,16 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
 
     			String selection = "";
     			
-    			if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED", false)==true) {
-        			selection = DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'" + " AND "
+    			if (mApp.getSharedPreferences().getBoolean("GOOGLE_PLAY_MUSIC_ENABLED",
+    			false)==true) {
+        			selection = DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'" + "
+        			AND "
       					      + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum + "'" + " AND "
      						  + DBAccessHelper.SONG_TITLE + "=" + "'" + mSongTitle + "'" + " AND "
      		    			  + DBAccessHelper.BLACKLIST_STATUS + "=" + "'FALSE'";
     			} else {
-        			selection = DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'" + " AND "
+        			selection = DBAccessHelper.SONG_ARTIST + "=" + "'" + mSongArtist + "'" + "
+        			AND "
       					      + DBAccessHelper.SONG_ALBUM + "=" + "'" + mSongAlbum + "'" + " AND "
      						  + DBAccessHelper.SONG_TITLE + "=" + "'" + mSongTitle + "'" + " AND "
      		    			  + DBAccessHelper.BLACKLIST_STATUS + "=" + "'FALSE'" + " AND "
@@ -843,13 +1022,15 @@ public class AsyncBuildServiceCursorTask extends AsyncTask<String, Integer, Bool
     			}
 
     			
-    			mCursor = mApp.getDBAccessHelper().getReadableDatabase().query(DBAccessHelper.MUSIC_LIBRARY_TABLE, 
+    			mCursor = mApp.getDBAccessHelper().getReadableDatabase().query(DBAccessHelper
+    			.MUSIC_LIBRARY_TABLE,
 		   													  null, 
 		   													  selection, 
 		   													  null, 
 		   													  null, 
 		   													  null, 
-		   													  DBAccessHelper.SONG_TRACK_NUMBER + "*1 ASC");
+		   													  DBAccessHelper.SONG_TRACK_NUMBER +
+		   													  "*1 ASC");
     			
     			mApp.getService().setCursor(mCursor);
     			

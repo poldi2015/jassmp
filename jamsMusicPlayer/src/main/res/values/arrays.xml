@@ -10,46 +10,60 @@
         <item>Folders</item>
         <item>Settings</item>
     </string-array>
-    
+
     <string-array name="animations">
-        <item >Slide Away</item>
-        <item >Zoom out and Slide Away</item>
-        <item >Depth Transformer</item>
+        <item>Slide Away</item>
+        <item>Zoom out and Slide Away</item>
+        <item>Depth Transformer</item>
     </string-array>
-    
+
     <string-array name="enable_disable">
-        <item >Enable</item>
-        <item >Disable</item>
+        <item>Enable</item>
+        <item>Disable</item>
     </string-array>
-    
+
     <string-array name="headphones_unplug_actions">
-        <item >Do nothing</item>
-        <item >Pause music playback</item>
+        <item>Do nothing</item>
+        <item>Pause music playback</item>
     </string-array>
-    
+
     <string-array name="album_art_sources">
-        <item >Prefer embedded art</item>
-        <item >Prefer folder art</item>
-        <item >Use embedded art only</item>
-        <item >Use folder art only</item>
+        <item>Prefer embedded art</item>
+        <item>Prefer folder art</item>
+        <item>Use embedded art only</item>
+        <item>Use folder art only</item>
     </string-array>
-    
+
     <string-array name="scrobbling_options">
         <item>Don\'t Scrobble</item>
         <item>Simple Last.fm Scrobbler</item>
         <item>ScrobbleDroid</item>
     </string-array>
-    
+
     <string-array name="show_more_menu">
-        <item>Go to artist</item> 
-        <item>Go to album artist</item> 
-        <item>Go to album</item> 
-        <item>Go to genre</item> 
+        <item>Go to artist</item>
+        <item>Go to album artist</item>
+        <item>Go to album</item>
+        <item>Go to genre</item>
     </string-array>
-    
+
     <string-array name="widget_color_options">
-        <item>Light</item> 
-        <item>Dark</item> 
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+
+    <string-array name="dialog_menu_filter_items">
+        <item>Genre</item>
+        <item>Artist</item>
+        <item>Album</item>
+    </string-array>
+
+    <string-array name="dialog_menu_order_items">
+        <item>Sort by name</item>
+        <item>Sort by rating</item>
+        <item>Sort by tempo</item>
+        <item>Sort by artist</item>
+        <item>Sort by duration</item>
     </string-array>
 
 </resources>

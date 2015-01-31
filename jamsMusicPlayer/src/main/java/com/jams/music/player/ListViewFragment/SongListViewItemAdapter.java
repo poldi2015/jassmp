@@ -50,19 +50,20 @@ import com.squareup.picasso.RequestCreator;
  *
  * @author Saravan Pantham
  */
-public class SongListViewCardsAdapter extends SimpleCursorAdapter implements Scrollable {
+public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scrollable {
 
     //
     // private members
 
-    private Context mContext;
-    private Common mApp;
-    private ListViewFragment mListViewFragment;
+    private final Context mContext;
+    private final Common mApp;
+    private SongListViewFragment mListViewFragment;
     public static Holder mHolder = null;
     private String mName = "";
 
-    public SongListViewCardsAdapter( Context context, ListViewFragment listViewFragment ) {
-        super( context, -1, listViewFragment.getCursor(), new String[]{ }, new int[]{ }, 0 );
+    public SongListViewItemAdapter( final Context context, final Cursor cursor,
+                                    final SongListViewFragment listViewFragment ) {
+        super( context, -1, cursor, new String[]{ }, new int[]{ }, 0 );
         mContext = context;
         mListViewFragment = listViewFragment;
         mApp = (Common) mContext.getApplicationContext();
@@ -258,9 +259,7 @@ public class SongListViewCardsAdapter extends SimpleCursorAdapter implements Scr
                             .show();
 
                     //Update the ListView.
-                    mListViewFragment.mHandler.post( mListViewFragment.queryRunnable );
-                    mListViewFragment.getListViewAdapter().notifyDataSetChanged();
-
+                    mListViewFragment.reloadDatabase( 0, null );
                     break;
 
             }

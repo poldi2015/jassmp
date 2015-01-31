@@ -59,362 +59,383 @@ import java.util.Map;
 
 /**
  * Generic, multipurpose ListView fragment.
- * 
+ *
  * @author Saravan Pantham
  */
 public class ListViewFragment extends Fragment {
-	
-	private Context mContext;
-	private ListViewFragment mFragment;
-	private Common mApp;
-	private View mRootView;
-	private int mFragmentId;
+
+    private Context mContext;
+    private Common mApp;
+    private View mRootView;
+    private int mFragmentId;
     private String mFragmentTitle;
-	
-	private QuickScroll mQuickScroll;
-	private Scrollable mListViewAdapter;
+
+    private QuickScroll mQuickScroll;
+    private Scrollable mListViewAdapter;
     private Map<Integer, String> mDBColumnsMap;
-	private ListView mListView;
-	private TextView mEmptyTextView;
-	
-	private RelativeLayout mSearchLayout;
-	private EditText mSearchEditText;
-	
-	public Handler mHandler = new Handler();
-	private Cursor mCursor;
-	private String mQuerySelection = "";
+    private ListView mListView;
+    private TextView mEmptyTextView;
+
+    private RelativeLayout mSearchLayout;
+    private EditText mSearchEditText;
+
+    public Handler mHandler = new Handler();
+    private Cursor mCursor;
+    private String mQuerySelection = "";
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.fragment_list_view, container, false);
+    public View onCreateView( LayoutInflater inflater, ViewGroup container,
+                              Bundle savedInstanceState ) {
+        mRootView = inflater.inflate( R.layout.fragment_list_view, container, false );
         mContext = getActivity().getApplicationContext();
-	    mApp = (Common) mContext;
-        mFragment = this;
-        
-        //Set the background. We're using getGridViewBackground() since the list doesn't have card items.
-        mRootView.setBackgroundColor(UIElementsHelper.getGridViewBackground(mContext));
-        
-        //Grab the fragment. This will determine which data to load into the cursor.
-        mFragmentId = getArguments().getInt(Common.FRAGMENT_ID);
-        mFragmentTitle = getArguments().getString(MainActivity.FRAGMENT_HEADER);
-        mDBColumnsMap = new HashMap<Integer, String>();
-        
-	    //Init the search fields.
-	    mSearchLayout = (RelativeLayout) mRootView.findViewById(R.id.search_layout);
-	    mSearchEditText = (EditText) mRootView.findViewById(R.id.search_field);
-	    
-	    mSearchEditText.setTypeface(TypefaceHelper.getTypeface(mContext, "RobotoCondensed-Regular"));
-	    mSearchEditText.setPaintFlags(mSearchEditText.getPaintFlags() | Paint.ANTI_ALIAS_FLAG | Paint.SUBPIXEL_TEXT_FLAG);
-	    mSearchEditText.setTextColor(UIElementsHelper.getThemeBasedTextColor(mContext));
-	    mSearchEditText.setFocusable(true);
-	    mSearchEditText.setCursorVisible(true);
-	    
-        mQuickScroll = (QuickScroll) mRootView.findViewById(R.id.quickscroll);
+        mApp = (Common) mContext;
 
-	    mListView = (ListView) mRootView.findViewById(R.id.generalListView);
-        mListView.setVerticalScrollBarEnabled(false);
+        //Set the background. We're using getGridViewBackground() since the list doesn't have
+        // card items.
+        mRootView.setBackgroundColor( UIElementsHelper.getGridViewBackground( mContext ) );
+
+        //Grab the fragment. This will determine which data to load into the cursor.
+        mFragmentId = getArguments().getInt( Common.FRAGMENT_ID );
+        mFragmentTitle = getArguments().getString( MainActivity.FRAGMENT_HEADER );
+        mDBColumnsMap = new HashMap<Integer, String>();
+
+        //Init the search fields.
+        mSearchLayout = (RelativeLayout) mRootView.findViewById( R.id.search_layout );
+        mSearchEditText = (EditText) mRootView.findViewById( R.id.search_field );
+
+        mSearchEditText
+                .setTypeface( TypefaceHelper.getTypeface( mContext, "RobotoCondensed-Regular" ) );
+        mSearchEditText.setPaintFlags( mSearchEditText.getPaintFlags() | Paint.ANTI_ALIAS_FLAG |
+                Paint.SUBPIXEL_TEXT_FLAG );
+        mSearchEditText.setTextColor( UIElementsHelper.getThemeBasedTextColor( mContext ) );
+        mSearchEditText.setFocusable( true );
+        mSearchEditText.setCursorVisible( true );
+
+        mQuickScroll = (QuickScroll) mRootView.findViewById( R.id.quickscroll );
+
+        mListView = (ListView) mRootView.findViewById( R.id.generalListView );
+        mListView.setVerticalScrollBarEnabled( false );
 
         //Apply the ListViews' dividers.
-        if (mApp.getCurrentTheme()==Common.DARK_THEME) {
-            mListView.setDivider(mContext.getResources().getDrawable(R.drawable.icon_list_divider));
+        if( mApp.getCurrentTheme() == Common.DARK_THEME ) {
+            mListView.setDivider(
+                    mContext.getResources().getDrawable( R.drawable.icon_list_divider ) );
         } else {
-            mListView.setDivider(mContext.getResources().getDrawable(R.drawable.icon_list_divider_light));
+            mListView.setDivider(
+                    mContext.getResources().getDrawable( R.drawable.icon_list_divider_light ) );
         }
 
-		mListView.setDividerHeight(1);
-        
+        mListView.setDividerHeight( 1 );
+
         //KitKat translucent navigation/status bar.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-        	int topPadding = Common.getStatusBarHeight(mContext);
-            
+        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ) {
+            int topPadding = Common.getStatusBarHeight( mContext );
+
             //Calculate navigation bar height.
             int navigationBarHeight = 0;
-            int resourceId = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
-            if (resourceId > 0) {
-                navigationBarHeight = getResources().getDimensionPixelSize(resourceId);
+            int resourceId =
+                    getResources().getIdentifier( "navigation_bar_height", "dimen", "android" );
+            if( resourceId > 0 ) {
+                navigationBarHeight = getResources().getDimensionPixelSize( resourceId );
             }
-            
-            mListView.setClipToPadding(false);
-            mListView.setPadding(0, topPadding, 0, navigationBarHeight);
-            mQuickScroll.setPadding(0, topPadding, 0, navigationBarHeight);
 
-            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mListView.getLayoutParams();
+            mListView.setClipToPadding( false );
+            mListView.setPadding( 0, topPadding, 0, navigationBarHeight );
+            mQuickScroll.setPadding( 0, topPadding, 0, navigationBarHeight );
+
+            RelativeLayout.LayoutParams layoutParams =
+                    (RelativeLayout.LayoutParams) mListView.getLayoutParams();
             layoutParams = (RelativeLayout.LayoutParams) mSearchLayout.getLayoutParams();
-            layoutParams.setMargins(15, topPadding + 15, 15, 0);
-            mSearchLayout.setLayoutParams(layoutParams);
-            
+            layoutParams.setMargins( 15, topPadding + 15, 15, 0 );
+            mSearchLayout.setLayoutParams( layoutParams );
+
         }
 
         //Set the empty views.
-        mEmptyTextView = (TextView) mRootView.findViewById(R.id.empty_view_text);
-	    mEmptyTextView.setTypeface(TypefaceHelper.getTypeface(mContext, "Roboto-Light"));
-	    mEmptyTextView.setPaintFlags(mEmptyTextView.getPaintFlags() | Paint.ANTI_ALIAS_FLAG | Paint.SUBPIXEL_TEXT_FLAG);
-        
+        mEmptyTextView = (TextView) mRootView.findViewById( R.id.empty_view_text );
+        mEmptyTextView.setTypeface( TypefaceHelper.getTypeface( mContext, "Roboto-Light" ) );
+        mEmptyTextView.setPaintFlags(
+                mEmptyTextView.getPaintFlags() | Paint.ANTI_ALIAS_FLAG | Paint.SUBPIXEL_TEXT_FLAG );
+
         //Create a set of options to optimize the bitmap memory usage.
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         options.inJustDecodeBounds = false;
         options.inPurgeable = true;
-	    
-        mHandler.postDelayed(queryRunnable, 400);
+
+        mHandler.postDelayed( queryRunnable, 400 );
         return mRootView;
     }
-    
+
     /**
      * Query runnable.
      */
     public Runnable queryRunnable = new Runnable() {
 
-		@Override
-		public void run() {
-			new AsyncRunQuery().execute();
-			
-		}
-    	
+        @Override
+        public void run() {
+            new AsyncRunQuery().execute();
+
+        }
+
     };
-    
+
     /**
      * Displays the search field.
      */
     private void showSearch() {
-    	mSearchLayout.setVisibility(View.VISIBLE);
-    	final TranslateAnimation searchAnim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0f, 
-    														   		 Animation.RELATIVE_TO_SELF, 0f, 
-    														   		 Animation.RELATIVE_TO_SELF, -2f, 
-    														   		 Animation.RELATIVE_TO_SELF, 0f);
-    	searchAnim.setDuration(500l);
-    	searchAnim.setInterpolator(new AccelerateDecelerateInterpolator());
-    	
-    	final TranslateAnimation gridListAnim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0f, 
-		   		 													   Animation.RELATIVE_TO_SELF, 0f, 
-		   		 													   Animation.RELATIVE_TO_SELF, 0f, 
-		   		 													   Animation.RELATIVE_TO_SELF, 2f);
+        mSearchLayout.setVisibility( View.VISIBLE );
+        final TranslateAnimation searchAnim =
+                new TranslateAnimation( Animation.RELATIVE_TO_SELF, 0f,
+                        Animation.RELATIVE_TO_SELF, 0f,
+                        Animation.RELATIVE_TO_SELF, -2f,
+                        Animation.RELATIVE_TO_SELF, 0f );
+        searchAnim.setDuration( 500l );
+        searchAnim.setInterpolator( new AccelerateDecelerateInterpolator() );
 
-    	gridListAnim.setDuration(500l);
-    	gridListAnim.setInterpolator(new LinearInterpolator());
-    	
-    	gridListAnim.setAnimationListener(new AnimationListener() {
+        final TranslateAnimation gridListAnim =
+                new TranslateAnimation( Animation.RELATIVE_TO_SELF, 0f,
+                        Animation.RELATIVE_TO_SELF, 0f,
+                        Animation.RELATIVE_TO_SELF, 0f,
+                        Animation.RELATIVE_TO_SELF, 2f );
 
-			@Override
-			public void onAnimationEnd(Animation animation) {
-				mListView.setAdapter(null);
-				
-			}
+        gridListAnim.setDuration( 500l );
+        gridListAnim.setInterpolator( new LinearInterpolator() );
 
-			@Override
-			public void onAnimationRepeat(Animation animation) {
-				// TODO Auto-generated method stub
-				
-			}
+        gridListAnim.setAnimationListener( new AnimationListener() {
 
-			@Override
-			public void onAnimationStart(Animation animation) {
-				mSearchLayout.startAnimation(searchAnim);
-				mSearchLayout.setVisibility(View.VISIBLE);
-				
-			}
-    		
-    	});
-    	
-    	searchAnim.setAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationEnd( Animation animation ) {
+                mListView.setAdapter( null );
 
-			@Override
-			public void onAnimationEnd(Animation animation) {
-				if (mSearchEditText.requestFocus()) {
-				    mFragment.getActivity()
-				    		.getWindow()
-				    		.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-				}
-				
-			}
+            }
 
-			@Override
-			public void onAnimationRepeat(Animation animation) {
-				// TODO Auto-generated method stub
-				
-			}
+            @Override
+            public void onAnimationRepeat( Animation animation ) {
+                // TODO Auto-generated method stub
 
-			@Override
-			public void onAnimationStart(Animation animation) {
-				// TODO Auto-generated method stub
-				
-			}
-    		
-    	});
-    	
-    	mListView.startAnimation(gridListAnim);
-    	
+            }
+
+            @Override
+            public void onAnimationStart( Animation animation ) {
+                mSearchLayout.startAnimation( searchAnim );
+                mSearchLayout.setVisibility( View.VISIBLE );
+
+            }
+
+        } );
+
+        searchAnim.setAnimationListener( new AnimationListener() {
+
+            @Override
+            public void onAnimationEnd( Animation animation ) {
+                if( mSearchEditText.requestFocus() ) {
+                    ListViewFragment.this.getActivity()
+                            .getWindow()
+                            .setSoftInputMode(
+                                    WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE );
+                }
+
+            }
+
+            @Override
+            public void onAnimationRepeat( Animation animation ) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onAnimationStart( Animation animation ) {
+                // TODO Auto-generated method stub
+
+            }
+
+        } );
+
+        mListView.startAnimation( gridListAnim );
+
     }
-    
+
     /**
      * Item click listener for the ListView.
      */
     private OnItemClickListener onItemClickListener = new OnItemClickListener() {
 
-		@Override
-		public void onItemClick(AdapterView<?> arg0, View view, int index, long id) {
-            switch (mFragmentId) {
+        @Override
+        public void onItemClick( AdapterView<?> arg0, View view, int index, long id ) {
+            switch( mFragmentId ) {
                 case Common.SONGS_FRAGMENT:
                     mApp.getPlaybackKickstarter()
-                        .initPlayback(mContext,
-                                      mQuerySelection,
-                                      Common.PLAY_ALL_SONGS,
-                                      index,
-                                      true,
-                                      false);
+                            .initPlayback( mContext,
+                                    mQuerySelection,
+                                    Common.PLAY_ALL_SONGS,
+                                    index,
+                                    true,
+                                    false );
                     break;
                 case Common.PLAYLISTS_FRAGMENT:
-                    
+
                     break;
             }
-			
-		}
-    	
+
+        }
+
     };
-    
+
     @Override
     public void onDestroyView() {
-    	super.onDestroyView();
-    	mRootView = null;
-    	
-    	if (mCursor!=null) {
-        	mCursor.close();
-        	mCursor = null;
-    	}
-    	
-    	onItemClickListener = null;
-    	mListView = null;
-    	mListView = null;
-    	mListViewAdapter = null;
-    	mContext = null;
-    	mHandler = null;
-    	
+        super.onDestroyView();
+        mRootView = null;
+
+        if( mCursor != null ) {
+            mCursor.close();
+            mCursor = null;
+        }
+
+        onItemClickListener = null;
+        mListView = null;
+        mListView = null;
+        mListViewAdapter = null;
+        mContext = null;
+        mHandler = null;
+
     }
-    
+
     /**
-     * Runs the correct DB query based on the passed in fragment id and 
+     * Runs the correct DB query based on the passed in fragment id and
      * displays the ListView.
-     * 
+     *
      * @author Saravan Pantham
      */
     public class AsyncRunQuery extends AsyncTask<Void, Void, Void> {
 
-		@Override
-		protected Void doInBackground(Void... params) {
-            if (mFragmentId==Common.PLAYLISTS_FRAGMENT)
-                mCursor = MediaStoreAccessHelper.getAllUniquePlaylists(mContext);
+        @Override
+        protected Void doInBackground( Void... params ) {
+            if( mFragmentId == Common.PLAYLISTS_FRAGMENT )
+                mCursor = MediaStoreAccessHelper.getAllUniquePlaylists( mContext );
             else
-                mCursor = mApp.getDBAccessHelper().getFragmentCursor(mContext, mQuerySelection, mFragmentId);
+                mCursor = mApp.getDBAccessHelper()
+                        .getFragmentCursor( mContext, mQuerySelection, mFragmentId );
 
             loadDBColumnNames();
-	        return null;
-		}
-		
-		/**
-		 * Populates the DB column names based on the specifed fragment id.
-		 */
-		private void loadDBColumnNames() {
-			
-			switch (mFragmentId) {
-			case Common.ARTISTS_FRAGMENT:
-				mDBColumnsMap.put(ListViewCardsAdapter.TITLE_TEXT, DBAccessHelper.SONG_ARTIST);
-				mDBColumnsMap.put(ListViewCardsAdapter.SOURCE, DBAccessHelper.SONG_SOURCE);
-				mDBColumnsMap.put(ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH);
-				mDBColumnsMap.put(ListViewCardsAdapter.ARTWORK_PATH, DBAccessHelper.SONG_ALBUM_ART_PATH);
-				break;
-			case Common.ALBUM_ARTISTS_FRAGMENT:
-				mDBColumnsMap.put(ListViewCardsAdapter.TITLE_TEXT, DBAccessHelper.SONG_ALBUM_ARTIST);
-				mDBColumnsMap.put(ListViewCardsAdapter.SOURCE, DBAccessHelper.SONG_SOURCE);
-				mDBColumnsMap.put(ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH);
-				mDBColumnsMap.put(ListViewCardsAdapter.ARTWORK_PATH, DBAccessHelper.SONG_ALBUM_ART_PATH);
-				break;
-			case Common.ALBUMS_FRAGMENT:
-				mDBColumnsMap.put(ListViewCardsAdapter.TITLE_TEXT, DBAccessHelper.SONG_ALBUM);
-				mDBColumnsMap.put(ListViewCardsAdapter.SOURCE, DBAccessHelper.SONG_SOURCE);
-				mDBColumnsMap.put(ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH);
-				mDBColumnsMap.put(ListViewCardsAdapter.ARTWORK_PATH, DBAccessHelper.SONG_ALBUM_ART_PATH);
-				break;
-			case Common.PLAYLISTS_FRAGMENT:
-                mDBColumnsMap.put(ListViewCardsAdapter.TITLE_TEXT, MediaStore.Audio.Playlists.NAME);
-                mDBColumnsMap.put(ListViewCardsAdapter.FIELD_1, MediaStore.Audio.Playlists._COUNT);
-				break;
-			case Common.GENRES_FRAGMENT:
-				break;
-			case Common.FOLDERS_FRAGMENT:
-				break;
-			}
-			
-		}
-    	
-		@Override
-		public void onPostExecute(Void result) {
-			super.onPostExecute(result);
-			
-			TranslateAnimation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f, 
-					  											  Animation.RELATIVE_TO_SELF, 0.0f, 
-					  											  Animation.RELATIVE_TO_SELF, 2.0f, 
-					  											  Animation.RELATIVE_TO_SELF, 0.0f);
+            return null;
+        }
 
-			animation.setDuration(600);
-			animation.setInterpolator(new AccelerateDecelerateInterpolator());
+        /**
+         * Populates the DB column names based on the specifed fragment id.
+         */
+        private void loadDBColumnNames() {
 
-            switch (mFragmentId) {
-                case Common.SONGS_FRAGMENT:
-                    mListViewAdapter = new SongListViewCardsAdapter(mContext, mFragment );
+            switch( mFragmentId ) {
+                case Common.ARTISTS_FRAGMENT:
+                    mDBColumnsMap
+                            .put( ListViewCardsAdapter.TITLE_TEXT, DBAccessHelper.SONG_ARTIST );
+                    mDBColumnsMap.put( ListViewCardsAdapter.SOURCE, DBAccessHelper.SONG_SOURCE );
+                    mDBColumnsMap
+                            .put( ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH );
+                    mDBColumnsMap.put( ListViewCardsAdapter.ARTWORK_PATH,
+                            DBAccessHelper.SONG_ALBUM_ART_PATH );
                     break;
-                default:
-                    mListViewAdapter = new ListViewCardsAdapter(mContext, mFragment, mDBColumnsMap);
+                case Common.ALBUM_ARTISTS_FRAGMENT:
+                    mDBColumnsMap.put( ListViewCardsAdapter.TITLE_TEXT,
+                            DBAccessHelper.SONG_ALBUM_ARTIST );
+                    mDBColumnsMap.put( ListViewCardsAdapter.SOURCE, DBAccessHelper.SONG_SOURCE );
+                    mDBColumnsMap
+                            .put( ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH );
+                    mDBColumnsMap.put( ListViewCardsAdapter.ARTWORK_PATH,
+                            DBAccessHelper.SONG_ALBUM_ART_PATH );
+                    break;
+                case Common.ALBUMS_FRAGMENT:
+                    mDBColumnsMap.put( ListViewCardsAdapter.TITLE_TEXT, DBAccessHelper.SONG_ALBUM );
+                    mDBColumnsMap.put( ListViewCardsAdapter.SOURCE, DBAccessHelper.SONG_SOURCE );
+                    mDBColumnsMap
+                            .put( ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH );
+                    mDBColumnsMap.put( ListViewCardsAdapter.ARTWORK_PATH,
+                            DBAccessHelper.SONG_ALBUM_ART_PATH );
+                    break;
+                case Common.PLAYLISTS_FRAGMENT:
+                    mDBColumnsMap.put( ListViewCardsAdapter.TITLE_TEXT,
+                            MediaStore.Audio.Playlists.NAME );
+                    mDBColumnsMap
+                            .put( ListViewCardsAdapter.FIELD_1, MediaStore.Audio.Playlists._COUNT );
+                    break;
+                case Common.GENRES_FRAGMENT:
+                    break;
+                case Common.FOLDERS_FRAGMENT:
+                    break;
             }
-	        mListView.setAdapter((ListAdapter)mListViewAdapter);
-            mListView.setOnItemClickListener(onItemClickListener);
-	        
-	     /* SwingBottomInAnimationAdapter animationAdapter = new SwingBottomInAnimationAdapter(mListViewAdapter);
+
+        }
+
+        @Override
+        public void onPostExecute( Void result ) {
+            super.onPostExecute( result );
+
+            TranslateAnimation animation = new TranslateAnimation( Animation.RELATIVE_TO_SELF, 0.0f,
+                    Animation.RELATIVE_TO_SELF, 0.0f,
+                    Animation.RELATIVE_TO_SELF, 2.0f,
+                    Animation.RELATIVE_TO_SELF, 0.0f );
+
+            animation.setDuration( 600 );
+            animation.setInterpolator( new AccelerateDecelerateInterpolator() );
+
+
+            mListViewAdapter =
+                    new ListViewCardsAdapter( mContext, ListViewFragment.this, mDBColumnsMap );
+            mListView.setAdapter( (ListAdapter) mListViewAdapter );
+            mListView.setOnItemClickListener( onItemClickListener );
+
+	     /* SwingBottomInAnimationAdapter animationAdapter = new SwingBottomInAnimationAdapter
+         (mListViewAdapter);
 	        animationAdapter.setShouldAnimate(true);
 	        animationAdapter.setShouldAnimateFromPosition(0);
 	        animationAdapter.setAbsListView(mListView);
 	        mListView.setAdapter(animationAdapter); */
-	        
-	        //Init the quick scroll widget.
-	        mQuickScroll.init(QuickScroll.TYPE_INDICATOR_WITH_HANDLE, 
-	        				  mListView,
-	        				  mListViewAdapter,
-	        				  QuickScroll.STYLE_HOLO);
-	        
-	        int[] quickScrollColors = UIElementsHelper.getQuickScrollColors(mContext);
-            PauseOnScrollHelper scrollListener = new PauseOnScrollHelper(mApp.getPicasso(), null, true, true);
 
-            mQuickScroll.setOnScrollListener(scrollListener);
-            mQuickScroll.setPicassoInstance(mApp.getPicasso());
-	        mQuickScroll.setHandlebarColor(quickScrollColors[0], quickScrollColors[0], quickScrollColors[1]);
-	        mQuickScroll.setIndicatorColor(quickScrollColors[1], quickScrollColors[0], quickScrollColors[2]);
-	        mQuickScroll.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 48);
-	        
-	        animation.setAnimationListener(new AnimationListener() {
+            //Init the quick scroll widget.
+            mQuickScroll.init( QuickScroll.TYPE_INDICATOR_WITH_HANDLE,
+                    mListView,
+                    mListViewAdapter,
+                    QuickScroll.STYLE_HOLO );
 
-				@Override
-				public void onAnimationEnd(Animation arg0) {
-					mQuickScroll.setVisibility(View.VISIBLE);
-					
-				}
+            int[] quickScrollColors = UIElementsHelper.getQuickScrollColors( mContext );
+            PauseOnScrollHelper scrollListener =
+                    new PauseOnScrollHelper( mApp.getPicasso(), null, true, true );
 
-				@Override
-				public void onAnimationRepeat(Animation arg0) {
-					// TODO Auto-generated method stub
-					
-				}
+            mQuickScroll.setOnScrollListener( scrollListener );
+            mQuickScroll.setPicassoInstance( mApp.getPicasso() );
+            mQuickScroll.setHandlebarColor( quickScrollColors[ 0 ], quickScrollColors[ 0 ],
+                    quickScrollColors[ 1 ] );
+            mQuickScroll.setIndicatorColor( quickScrollColors[ 1 ], quickScrollColors[ 0 ],
+                    quickScrollColors[ 2 ] );
+            mQuickScroll.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 48 );
 
-				@Override
-				public void onAnimationStart(Animation arg0) {
-					mListView.setVisibility(View.VISIBLE);
-					
-				}
-	        	
-	        });
-	        
-	        mListView.startAnimation(animation);
-			
-		}
-		
+            animation.setAnimationListener( new AnimationListener() {
+
+                @Override
+                public void onAnimationEnd( Animation arg0 ) {
+                    mQuickScroll.setVisibility( View.VISIBLE );
+
+                }
+
+                @Override
+                public void onAnimationRepeat( Animation arg0 ) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void onAnimationStart( Animation arg0 ) {
+                    mListView.setVisibility( View.VISIBLE );
+
+                }
+
+            } );
+
+            mListView.startAnimation( animation );
+
+        }
+
     }
 
     @Override
@@ -422,7 +443,7 @@ public class ListViewFragment extends Fragment {
         super.onResume();
 
         //Set the ActionBar title.
-        getActivity().getActionBar().setTitle(mFragmentTitle);
+        getActivity().getActionBar().setTitle( mFragmentTitle );
 
     }
 
@@ -430,28 +451,28 @@ public class ListViewFragment extends Fragment {
      * Getter methods.
      */
 
-	public ListViewCardsAdapter getListViewAdapter() {
-		return (ListViewCardsAdapter) mListViewAdapter;
-	}
+    public ListViewCardsAdapter getListViewAdapter() {
+        return (ListViewCardsAdapter) mListViewAdapter;
+    }
 
-	public ListView getListView() {
-		return mListView;
-	}
+    public ListView getListView() {
+        return mListView;
+    }
 
-	public Cursor getCursor() {
-		return mCursor;
-	}
+    public Cursor getCursor() {
+        return mCursor;
+    }
 
     public int getFragmentId() {
         return mFragmentId;
     }
 
 	/*
-	 * Setter methods.
+     * Setter methods.
 	 */
-	
-	public void setCursor(Cursor cursor) {
-		this.mCursor = cursor;
-	}
+
+    public void setCursor( Cursor cursor ) {
+        this.mCursor = cursor;
+    }
 
 }
