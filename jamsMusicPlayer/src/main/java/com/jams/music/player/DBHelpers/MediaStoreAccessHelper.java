@@ -41,24 +41,13 @@ public class MediaStoreAccessHelper {
      * by the selection parameter.
      */
     public static Cursor getAllSongsWithSelection( Context context, String selection, String[] projection, String sortOrder ) {
-
         ContentResolver contentResolver = context.getContentResolver();
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        if( selection == null ) {
+            selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0";
+        }
 
         return contentResolver.query( uri, projection, selection, null, sortOrder );
-
-    }
-
-    /**
-     * Queries MediaStore and returns a cursor with all songs.
-     */
-    public static Cursor getAllSongs( Context context, String[] projection, String sortOrder ) {
-
-        ContentResolver contentResolver = context.getContentResolver();
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0";
-
-        return contentResolver.query( uri, null, selection, null, sortOrder );
 
     }
 

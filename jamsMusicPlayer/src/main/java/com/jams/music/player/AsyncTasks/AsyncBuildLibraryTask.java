@@ -30,7 +30,7 @@ import android.widget.Toast;
 import com.jams.music.player.DBHelpers.DBAccessHelper;
 import com.jams.music.player.DBHelpers.MediaStoreAccessHelper;
 import com.jams.music.player.DBHelpers.MusicFolderAccessor;
-import com.jams.music.player.FoldersFragment.FileExtensionFilter;
+import com.jams.music.player.Helpers.FileExtensionFilter;
 import com.jams.music.player.R;
 import com.jams.music.player.Services.BuildMusicLibraryService;
 import com.jams.music.player.Utils.AudioFileReader;
@@ -51,31 +51,29 @@ import java.util.Map;
  */
 public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
 
-    private Context mContext;
-    private Common mApp;
-    private BuildMusicLibraryService mService;
-    public ArrayList<OnBuildLibraryProgressUpdate> mBuildLibraryProgressUpdate;
+    private Context                                 mContext;
+    private Common                                  mApp;
+    public  ArrayList<OnBuildLibraryProgressUpdate> mBuildLibraryProgressUpdate;
 
-    private String mCurrentTask = "";
-    private int mOverallProgress = 0;
-    private Date date = new Date();
+    private String mCurrentTask     = "";
+    private int    mOverallProgress = 0;
+    private Date   date             = new Date();
 
-    private String mMediaStoreSelection = null;
-    private HashMap<String, String> mGenresHashMap = new HashMap<String, String>();
+    private String                   mMediaStoreSelection    = null;
+    private HashMap<String, String>  mGenresHashMap          = new HashMap<String, String>();
     private HashMap<String, Integer> mGenresSongCountHashMap = new HashMap<String, Integer>();
-    private HashMap<String, Integer> mAlbumsCountMap = new HashMap<String, Integer>();
-    private HashMap<String, Integer> mSongsCountMap = new HashMap<String, Integer>();
-    private HashMap<String, Uri> mMediaStoreAlbumArtMap = new HashMap<String, Uri>();
-    private HashMap<String, String> mFolderArtHashMap = new HashMap<String, String>();
-    private MediaMetadataRetriever mMMDR = new MediaMetadataRetriever();
+    private HashMap<String, Integer> mAlbumsCountMap         = new HashMap<String, Integer>();
+    private HashMap<String, Integer> mSongsCountMap          = new HashMap<String, Integer>();
+    private HashMap<String, Uri>     mMediaStoreAlbumArtMap  = new HashMap<String, Uri>();
+    private HashMap<String, String>  mFolderArtHashMap       = new HashMap<String, String>();
+    private MediaMetadataRetriever   mMMDR                   = new MediaMetadataRetriever();
 
-    private PowerManager pm;
+    private PowerManager          pm;
     private PowerManager.WakeLock wakeLock;
 
     public AsyncBuildLibraryTask( Context context, BuildMusicLibraryService service ) {
         mContext = context;
         mApp = (Common) mContext;
-        mService = service;
         mBuildLibraryProgressUpdate = new ArrayList<OnBuildLibraryProgressUpdate>();
     }
 
@@ -149,9 +147,6 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
             mediaStoreCursor.close();
         }
 
-        //Save EQ presets to the database.
-        saveEQPresets();
-
         //Notify all listeners that the MediaStore transfer is complete.
         publishProgress( new String[]{ "MEDIASTORE_TRANSFER_COMPLETE" } );
 
@@ -172,29 +167,17 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
         //Build the appropriate selection statement.
         Cursor mediaStoreCursor = null;
         String sortOrder = null;
-        String projection[] = { MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.ARTIST,
-                MediaStore.Audio.Media.ALBUM,
-                MediaStore.Audio.Media.ALBUM_ID,
-                MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.TRACK,
-                MediaStore.Audio.Media.YEAR,
-                MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.DATE_ADDED,
-                MediaStore.Audio.Media.DATE_MODIFIED,
-                MediaStore.Audio.Media._ID, MediaStoreAccessHelper.ALBUM_ARTIST };
+        String projection[] = { MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ARTIST,
+                                MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.ALBUM_ID,
+                                MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.TRACK,
+                                MediaStore.Audio.Media.YEAR, MediaStore.Audio.Media.DATA,
+                                MediaStore.Audio.Media.DATE_ADDED, MediaStore.Audio.Media.DATE_MODIFIED,
+                                MediaStore.Audio.Media._ID, MediaStoreAccessHelper.ALBUM_ARTIST };
 
-        //Grab the cursor of MediaStore entries.
-        if( !musicFolders.hasMusicFolders() ) {
-            //No folders were selected by the user. Grab all songs in MediaStore.
-            mediaStoreCursor = MediaStoreAccessHelper.getAllSongs( mContext, projection, sortOrder );
-        } else {
-            //Build a selection statement for querying MediaStore.
-            mMediaStoreSelection = buildMusicFoldersSelection( musicFolders.getAllMusicFolderPaths() );
-            mediaStoreCursor = MediaStoreAccessHelper.getAllSongsWithSelection( mContext,
-                    mMediaStoreSelection,
-                    projection, sortOrder );
-        }
+        mMediaStoreSelection = musicFolders.hasMusicFolders() ? buildMusicFoldersSelection(
+                musicFolders.getAllMusicFolderPaths() ) : null;
+        mediaStoreCursor = MediaStoreAccessHelper.getAllSongsWithSelection( mContext, mMediaStoreSelection, projection,
+                                                                            sortOrder );
 
         return mediaStoreCursor;
     }
@@ -209,9 +192,7 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
             mApp.getDBAccessHelper().getWritableDatabase().beginTransaction();
 
             //Clear out the table.
-            mApp.getDBAccessHelper()
-                    .getWritableDatabase().delete( DBAccessHelper.MUSIC_LIBRARY_TABLE,
-                            null, null );
+            mApp.getDBAccessHelper().getWritableDatabase().delete( DBAccessHelper.MUSIC_LIBRARY_TABLE, null, null );
 
             //Tracks the progress of this method.
             int subProgress = 0;
@@ -248,7 +229,7 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
             int albumArtistColIndex = mediaStoreCursor.getColumnIndex( MediaStoreAccessHelper.ALBUM_ARTIST );
 
     		/* The album artist field is hidden by default and we've explictly exposed it.
-    		 * The field may cease to exist at any time and if it does, use the artists
+             * The field may cease to exist at any time and if it does, use the artists
     		 * field instead.
     		 */
             if( albumArtistColIndex == -1 ) {
@@ -278,7 +259,6 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
                 String numberOfAlbums = "" + mAlbumsCountMap.get( songArtist );
                 String numberOfTracks = "" + mSongsCountMap.get( songAlbum + songArtist );
                 String numberOfSongsInGenre = "" + getGenreSongsCount( songGenre );
-                String songSource = DBAccessHelper.LOCAL;
                 String songSavedPosition = "-1";
 
                 String songAlbumArtPath = "";
@@ -286,20 +266,23 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
                     songAlbumArtPath = mMediaStoreAlbumArtMap.get( songAlbumId ).toString();
                 }
 
-                if( numberOfAlbums.equals( "1" ) )
+                if( numberOfAlbums.equals( "1" ) ) {
                     numberOfAlbums += " " + mContext.getResources().getString( R.string.album_small );
-                else
+                } else {
                     numberOfAlbums += " " + mContext.getResources().getString( R.string.albums_small );
+                }
 
-                if( numberOfTracks.equals( "1" ) )
+                if( numberOfTracks.equals( "1" ) ) {
                     numberOfTracks += " " + mContext.getResources().getString( R.string.song_small );
-                else
+                } else {
                     numberOfTracks += " " + mContext.getResources().getString( R.string.songs_small );
+                }
 
-                if( numberOfSongsInGenre.equals( "1" ) )
+                if( numberOfSongsInGenre.equals( "1" ) ) {
                     numberOfSongsInGenre += " " + mContext.getResources().getString( R.string.song_small );
-                else
+                } else {
                     numberOfSongsInGenre += " " + mContext.getResources().getString( R.string.songs_small );
+                }
 
                 //Check if any of the other tags were empty/null and set them to "Unknown xxx" values.
                 if( songArtist == null || songArtist.isEmpty() ) {
@@ -358,7 +341,6 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
                 values.put( DBAccessHelper.SONG_TITLE, songTitle );
                 values.put( DBAccessHelper.SONG_ARTIST, songArtist );
                 values.put( DBAccessHelper.SONG_ALBUM, songAlbum );
-                values.put( DBAccessHelper.SONG_ALBUM_ARTIST, songAlbumArtist );
                 values.put( DBAccessHelper.SONG_DURATION, convertMillisToMinsSecs( durationLong ) );
                 values.put( DBAccessHelper.SONG_FILE_PATH, songFilePath );
                 values.put( DBAccessHelper.SONG_TRACK_NUMBER, songTrackNumber );
@@ -366,20 +348,16 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
                 values.put( DBAccessHelper.SONG_YEAR, songYear );
                 values.put( DBAccessHelper.SONG_ALBUM_ART_PATH, songAlbumArtPath );
                 values.put( DBAccessHelper.SONG_ALBUM_ART_PATH, songAlbumArtPath );
-                values.put( DBAccessHelper.BLACKLIST_STATUS, false );
                 values.put( DBAccessHelper.ADDED_TIMESTAMP, date.getTime() );
                 values.put( DBAccessHelper.SONG_RATING, songRating );
-                values.put( DBAccessHelper.LAST_PLAYED_TIMESTAMP, songDateModified );
                 values.put( DBAccessHelper.SONG_ID, songId );
                 values.put( DBAccessHelper.SAVED_POSITION, songSavedPosition );
-                values.put( DBAccessHelper.ALBUMS_COUNT, numberOfAlbums );
-                values.put( DBAccessHelper.SONGS_COUNT, numberOfTracks );
-                values.put( DBAccessHelper.GENRE_SONG_COUNT, numberOfSongsInGenre );
                 values.put( DBAccessHelper.SONG_BPM, songBpm );
 
                 //Add all the entries to the database to build the songs library.
-                mApp.getDBAccessHelper().getWritableDatabase().insert( DBAccessHelper.MUSIC_LIBRARY_TABLE,
-                                null, values );
+                mApp.getDBAccessHelper()
+                    .getWritableDatabase()
+                    .insert( DBAccessHelper.MUSIC_LIBRARY_TABLE, null, values );
 
 
             }
@@ -431,8 +409,7 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
         Cursor genresCursor = mContext.getContentResolver()
                                       .query( MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI,
                                               new String[]{ MediaStore.Audio.Genres._ID, MediaStore.Audio.Genres.NAME },
-                        null,
-                        null, null );
+                                              null, null, null );
 
         //Iterate thru all genres in MediaStore.
         for( genresCursor.moveToFirst(); !genresCursor.isAfterLast(); genresCursor.moveToNext() ) {
@@ -446,12 +423,11 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
             }
 
         	/* Grab a cursor of songs in the each genre id. Limit the songs to 
-        	 * the user defined folders using mMediaStoreSelection.
+             * the user defined folders using mMediaStoreSelection.
         	 */
             Cursor cursor = mContext.getContentResolver()
                                     .query( makeGenreUri( genreId ), new String[]{ MediaStore.Audio.Media.DATA },
-                    mMediaStoreSelection,
-                    null, null );
+                                            mMediaStoreSelection, null, null );
 
             //Add the songs' file paths and their genre names to the hash.
             if( cursor != null ) {
@@ -466,8 +442,9 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
 
         }
 
-        if( genresCursor != null )
+        if( genresCursor != null ) {
             genresCursor.close();
+        }
 
     }
 
@@ -478,12 +455,12 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
         Cursor artistsCursor = mContext.getContentResolver()
                                        .query( MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,
                                                new String[]{ MediaStore.Audio.Artists.ARTIST,
-                                                             MediaStore.Audio.Artists.NUMBER_OF_ALBUMS },
-                        null,
-                        null, null );
+                                                             MediaStore.Audio.Artists.NUMBER_OF_ALBUMS }, null, null,
+                                               null );
 
-        if( artistsCursor == null )
+        if( artistsCursor == null ) {
             return;
+        }
 
         for( int i = 0; i < artistsCursor.getCount(); i++ ) {
             artistsCursor.moveToPosition( i );
@@ -501,12 +478,13 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
         Cursor albumsCursor = mContext.getContentResolver()
                                       .query( MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
                                               new String[]{ MediaStore.Audio.Albums.ALBUM,
-                                MediaStore.Audio.Albums.ARTIST, MediaStore.Audio.Albums.NUMBER_OF_SONGS },
-                        null,
-                        null, null );
+                                                            MediaStore.Audio.Albums.ARTIST,
+                                                            MediaStore.Audio.Albums.NUMBER_OF_SONGS }, null, null,
+                                              null );
 
-        if( albumsCursor == null )
+        if( albumsCursor == null ) {
             return;
+        }
 
         for( int i = 0; i < albumsCursor.getCount(); i++ ) {
             albumsCursor.moveToPosition( i );
@@ -524,12 +502,12 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
         Cursor albumsCursor = mContext.getContentResolver()
                                       .query( MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                                               new String[]{ MediaStore.Audio.Media.ALBUM_ID },
-                        MediaStore.Audio.Media.IS_MUSIC + "=1",
-                        null, null );
+                                              MediaStore.Audio.Media.IS_MUSIC + "=1", null, null );
 
         final Uri ART_CONTENT_URI = Uri.parse( "content://media/external/audio/albumart" );
-        if( albumsCursor == null )
+        if( albumsCursor == null ) {
             return;
+        }
 
         for( int i = 0; i < albumsCursor.getCount(); i++ ) {
             albumsCursor.moveToPosition( i );
@@ -555,19 +533,22 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
      * Returns the number of songs in the specified genre.
      */
     private int getGenreSongsCount( String genre ) {
-        if( mGenresSongCountHashMap != null )
-            if( genre != null )
+        if( mGenresSongCountHashMap != null ) {
+            if( genre != null ) {
                 if( mGenresSongCountHashMap.get( genre ) != null ) {
                     return mGenresSongCountHashMap.get( genre );
-                } else
+                } else {
                     return 0;
-            else if( mGenresSongCountHashMap.get( mContext.getResources().getString( R.string.unknown_genre ) )
-                     != null ) {
+                }
+            } else if( mGenresSongCountHashMap.get( mContext.getResources().getString( R.string.unknown_genre ) )
+                       != null ) {
                 return mGenresSongCountHashMap.get( mContext.getResources().getString( R.string.unknown_genre ) );
-            } else
+            } else {
                 return 0;
-        else
+            }
+        } else {
             return 0;
+        }
     }
 
     /**
@@ -585,66 +566,18 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
     }
 
     /**
-     * Saves premade equalizer presets to the database.
-     */
-    private void saveEQPresets() {
-        Cursor eqPresetsCursor = mApp.getDBAccessHelper().getAllEQPresets();
-
-        //Check if this is the first startup (eqPresetsCursor.getCount() will be 0).
-        if( eqPresetsCursor != null && eqPresetsCursor.getCount() == 0 ) {
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Flat", 16, 16, 16, 16, 16, 16, 16, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Bass Only", 31, 31, 31, 0, 0, 0, 31, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Treble Only", 0, 0, 0, 31, 31, 31, 0, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Rock", 16, 18, 16, 17, 19, 20, 22, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Grunge", 13, 16, 18, 19, 20, 17, 13, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Metal", 12, 16, 16, 16, 20, 24, 16, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Dance", 14, 18, 20, 17, 16, 20, 23, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Country", 16, 16, 18, 20, 17, 19, 20, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Jazz", 16, 16, 18, 18, 18, 16, 20, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Speech", 14, 16, 17, 14, 13, 15, 16, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Classical", 16, 18, 18, 16, 16, 17, 18, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Blues", 16, 18, 19, 20, 17, 18, 16, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Opera", 16, 17, 19, 20, 16, 24, 18, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Swing", 15, 16, 18, 20, 18, 17, 16, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "Acoustic", 17, 18, 16, 19, 17, 17, 14, (short) 0, (short) 0, (short) 0 );
-            mApp.getDBAccessHelper()
-                .addNewEQPreset( "New Age", 16, 19, 15, 18, 16, 16, 18, (short) 0, (short) 0, (short) 0 );
-
-        }
-
-        //Close the cursor.
-        if( eqPresetsCursor != null )
-            eqPresetsCursor.close();
-
-    }
-
-    /**
      * Loops through a cursor of all local songs in
      * the library and searches for their album art.
      */
     private void getAlbumArt() {
 
         //Get a cursor with a list of all local music files on the device.
-        Cursor cursor = mApp.getDBAccessHelper().getAllLocalSongs();
+        Cursor cursor = mApp.getDBAccessHelper().getAllSongs();
         mCurrentTask = mContext.getResources().getString( R.string.building_album_art );
 
-        if( cursor == null || cursor.getCount() < 1 )
+        if( cursor == null || cursor.getCount() < 1 ) {
             return;
+        }
 
         //Tracks the progress of this method.
         int subProgress = 0;
@@ -681,7 +614,8 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
                     values.put( DBAccessHelper.SONG_ALBUM_ART_PATH, artworkPath );
                     String where = DBAccessHelper.SONG_FILE_PATH + "='" + normalizedFilePath + "'";
 
-                    mApp.getDBAccessHelper().getWritableDatabase()
+                    mApp.getDBAccessHelper()
+                        .getWritableDatabase()
                         .update( DBAccessHelper.MUSIC_LIBRARY_TABLE, values, where, null );
                     mApp.getDBAccessHelper().getWritableDatabase().yieldIfContendedSafely();
                 } catch( Exception e ) {
@@ -732,9 +666,8 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
             }
 
             //Get a list of images in the album's folder.
-            FileExtensionFilter IMAGES_FILTER = new FileExtensionFilter( new String[]{ ".jpg",
-                    ".jpeg",
-                    ".png", ".gif" } );
+            FileExtensionFilter IMAGES_FILTER = new FileExtensionFilter(
+                    new String[]{ ".jpg", ".jpeg", ".png", ".gif" } );
             File[] folderList = directoryFile.listFiles( IMAGES_FILTER );
 
             //Check if any image files were found in the folder.

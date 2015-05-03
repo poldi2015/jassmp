@@ -23,7 +23,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -46,7 +45,6 @@ import android.widget.TextView;
 import com.andraskindler.quickscroll.QuickScroll;
 import com.andraskindler.quickscroll.Scrollable;
 import com.jams.music.player.DBHelpers.DBAccessHelper;
-import com.jams.music.player.DBHelpers.MediaStoreAccessHelper;
 import com.jams.music.player.Helpers.PauseOnScrollHelper;
 import com.jams.music.player.Helpers.TypefaceHelper;
 import com.jams.music.player.Helpers.UIElementsHelper;
@@ -65,27 +63,26 @@ import java.util.Map;
 public class ListViewFragment extends Fragment {
 
     private Context mContext;
-    private Common mApp;
-    private View mRootView;
-    private int mFragmentId;
-    private String mFragmentTitle;
+    private Common  mApp;
+    private View    mRootView;
+    private int     mFragmentId;
+    private String  mFragmentTitle;
 
-    private QuickScroll mQuickScroll;
-    private Scrollable mListViewAdapter;
+    private QuickScroll          mQuickScroll;
+    private Scrollable           mListViewAdapter;
     private Map<Integer, String> mDBColumnsMap;
-    private ListView mListView;
-    private TextView mEmptyTextView;
+    private ListView             mListView;
+    private TextView             mEmptyTextView;
 
     private RelativeLayout mSearchLayout;
-    private EditText mSearchEditText;
+    private EditText       mSearchEditText;
 
     public Handler mHandler = new Handler();
     private Cursor mCursor;
     private String mQuerySelection = "";
 
     @Override
-    public View onCreateView( LayoutInflater inflater, ViewGroup container,
-                              Bundle savedInstanceState ) {
+    public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
         mRootView = inflater.inflate( R.layout.fragment_list_view, container, false );
         mContext = getActivity().getApplicationContext();
         mApp = (Common) mContext;
@@ -103,10 +100,9 @@ public class ListViewFragment extends Fragment {
         mSearchLayout = (RelativeLayout) mRootView.findViewById( R.id.search_layout );
         mSearchEditText = (EditText) mRootView.findViewById( R.id.search_field );
 
-        mSearchEditText
-                .setTypeface( TypefaceHelper.getTypeface( mContext, "RobotoCondensed-Regular" ) );
+        mSearchEditText.setTypeface( TypefaceHelper.getTypeface( mContext, "RobotoCondensed-Regular" ) );
         mSearchEditText.setPaintFlags( mSearchEditText.getPaintFlags() | Paint.ANTI_ALIAS_FLAG |
-                Paint.SUBPIXEL_TEXT_FLAG );
+                                       Paint.SUBPIXEL_TEXT_FLAG );
         mSearchEditText.setTextColor( UIElementsHelper.getThemeBasedTextColor( mContext ) );
         mSearchEditText.setFocusable( true );
         mSearchEditText.setCursorVisible( true );
@@ -118,11 +114,9 @@ public class ListViewFragment extends Fragment {
 
         //Apply the ListViews' dividers.
         if( mApp.getCurrentTheme() == Common.DARK_THEME ) {
-            mListView.setDivider(
-                    mContext.getResources().getDrawable( R.drawable.icon_list_divider ) );
+            mListView.setDivider( mContext.getResources().getDrawable( R.drawable.icon_list_divider ) );
         } else {
-            mListView.setDivider(
-                    mContext.getResources().getDrawable( R.drawable.icon_list_divider_light ) );
+            mListView.setDivider( mContext.getResources().getDrawable( R.drawable.icon_list_divider_light ) );
         }
 
         mListView.setDividerHeight( 1 );
@@ -133,8 +127,7 @@ public class ListViewFragment extends Fragment {
 
             //Calculate navigation bar height.
             int navigationBarHeight = 0;
-            int resourceId =
-                    getResources().getIdentifier( "navigation_bar_height", "dimen", "android" );
+            int resourceId = getResources().getIdentifier( "navigation_bar_height", "dimen", "android" );
             if( resourceId > 0 ) {
                 navigationBarHeight = getResources().getDimensionPixelSize( resourceId );
             }
@@ -143,8 +136,7 @@ public class ListViewFragment extends Fragment {
             mListView.setPadding( 0, topPadding, 0, navigationBarHeight );
             mQuickScroll.setPadding( 0, topPadding, 0, navigationBarHeight );
 
-            RelativeLayout.LayoutParams layoutParams =
-                    (RelativeLayout.LayoutParams) mListView.getLayoutParams();
+            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mListView.getLayoutParams();
             layoutParams = (RelativeLayout.LayoutParams) mSearchLayout.getLayoutParams();
             layoutParams.setMargins( 15, topPadding + 15, 15, 0 );
             mSearchLayout.setLayoutParams( layoutParams );
@@ -185,19 +177,17 @@ public class ListViewFragment extends Fragment {
      */
     private void showSearch() {
         mSearchLayout.setVisibility( View.VISIBLE );
-        final TranslateAnimation searchAnim =
-                new TranslateAnimation( Animation.RELATIVE_TO_SELF, 0f,
-                        Animation.RELATIVE_TO_SELF, 0f,
-                        Animation.RELATIVE_TO_SELF, -2f,
-                        Animation.RELATIVE_TO_SELF, 0f );
+        final TranslateAnimation searchAnim = new TranslateAnimation( Animation.RELATIVE_TO_SELF, 0f,
+                                                                      Animation.RELATIVE_TO_SELF, 0f,
+                                                                      Animation.RELATIVE_TO_SELF, -2f,
+                                                                      Animation.RELATIVE_TO_SELF, 0f );
         searchAnim.setDuration( 500l );
         searchAnim.setInterpolator( new AccelerateDecelerateInterpolator() );
 
-        final TranslateAnimation gridListAnim =
-                new TranslateAnimation( Animation.RELATIVE_TO_SELF, 0f,
-                        Animation.RELATIVE_TO_SELF, 0f,
-                        Animation.RELATIVE_TO_SELF, 0f,
-                        Animation.RELATIVE_TO_SELF, 2f );
+        final TranslateAnimation gridListAnim = new TranslateAnimation( Animation.RELATIVE_TO_SELF, 0f,
+                                                                        Animation.RELATIVE_TO_SELF, 0f,
+                                                                        Animation.RELATIVE_TO_SELF, 0f,
+                                                                        Animation.RELATIVE_TO_SELF, 2f );
 
         gridListAnim.setDuration( 500l );
         gridListAnim.setInterpolator( new LinearInterpolator() );
@@ -231,9 +221,9 @@ public class ListViewFragment extends Fragment {
             public void onAnimationEnd( Animation animation ) {
                 if( mSearchEditText.requestFocus() ) {
                     ListViewFragment.this.getActivity()
-                            .getWindow()
-                            .setSoftInputMode(
-                                    WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE );
+                                         .getWindow()
+                                         .setSoftInputMode(
+                                                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE );
                 }
 
             }
@@ -266,15 +256,7 @@ public class ListViewFragment extends Fragment {
             switch( mFragmentId ) {
                 case Common.SONGS_FRAGMENT:
                     mApp.getPlaybackKickstarter()
-                            .initPlayback( mContext,
-                                    mQuerySelection,
-                                    Common.PLAY_ALL_SONGS,
-                                    index,
-                                    true,
-                                    false );
-                    break;
-                case Common.PLAYLISTS_FRAGMENT:
-
+                        .initPlayback( mContext, mQuerySelection, mFragmentId, index, true, false );
                     break;
             }
 
@@ -311,11 +293,7 @@ public class ListViewFragment extends Fragment {
 
         @Override
         protected Void doInBackground( Void... params ) {
-            if( mFragmentId == Common.PLAYLISTS_FRAGMENT )
-                mCursor = MediaStoreAccessHelper.getAllUniquePlaylists( mContext );
-            else
-                mCursor = mApp.getDBAccessHelper()
-                        .getFragmentCursor( mContext, mQuerySelection, mFragmentId );
+            mCursor = mApp.getDBAccessHelper().getFragmentCursor( mContext, mQuerySelection, mFragmentId );
 
             loadDBColumnNames();
             return null;
@@ -328,40 +306,16 @@ public class ListViewFragment extends Fragment {
 
             switch( mFragmentId ) {
                 case Common.ARTISTS_FRAGMENT:
-                    mDBColumnsMap
-                            .put( ListViewCardsAdapter.TITLE_TEXT, DBAccessHelper.SONG_ARTIST );
-                    mDBColumnsMap.put( ListViewCardsAdapter.SOURCE, DBAccessHelper.SONG_SOURCE );
-                    mDBColumnsMap
-                            .put( ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH );
-                    mDBColumnsMap.put( ListViewCardsAdapter.ARTWORK_PATH,
-                            DBAccessHelper.SONG_ALBUM_ART_PATH );
-                    break;
-                case Common.ALBUM_ARTISTS_FRAGMENT:
-                    mDBColumnsMap.put( ListViewCardsAdapter.TITLE_TEXT,
-                            DBAccessHelper.SONG_ALBUM_ARTIST );
-                    mDBColumnsMap.put( ListViewCardsAdapter.SOURCE, DBAccessHelper.SONG_SOURCE );
-                    mDBColumnsMap
-                            .put( ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH );
-                    mDBColumnsMap.put( ListViewCardsAdapter.ARTWORK_PATH,
-                            DBAccessHelper.SONG_ALBUM_ART_PATH );
+                    mDBColumnsMap.put( ListViewCardsAdapter.TITLE_TEXT, DBAccessHelper.SONG_ARTIST );
+                    mDBColumnsMap.put( ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH );
+                    mDBColumnsMap.put( ListViewCardsAdapter.ARTWORK_PATH, DBAccessHelper.SONG_ALBUM_ART_PATH );
                     break;
                 case Common.ALBUMS_FRAGMENT:
                     mDBColumnsMap.put( ListViewCardsAdapter.TITLE_TEXT, DBAccessHelper.SONG_ALBUM );
-                    mDBColumnsMap.put( ListViewCardsAdapter.SOURCE, DBAccessHelper.SONG_SOURCE );
-                    mDBColumnsMap
-                            .put( ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH );
-                    mDBColumnsMap.put( ListViewCardsAdapter.ARTWORK_PATH,
-                            DBAccessHelper.SONG_ALBUM_ART_PATH );
-                    break;
-                case Common.PLAYLISTS_FRAGMENT:
-                    mDBColumnsMap.put( ListViewCardsAdapter.TITLE_TEXT,
-                            MediaStore.Audio.Playlists.NAME );
-                    mDBColumnsMap
-                            .put( ListViewCardsAdapter.FIELD_1, MediaStore.Audio.Playlists._COUNT );
+                    mDBColumnsMap.put( ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH );
+                    mDBColumnsMap.put( ListViewCardsAdapter.ARTWORK_PATH, DBAccessHelper.SONG_ALBUM_ART_PATH );
                     break;
                 case Common.GENRES_FRAGMENT:
-                    break;
-                case Common.FOLDERS_FRAGMENT:
                     break;
             }
 
@@ -372,16 +326,15 @@ public class ListViewFragment extends Fragment {
             super.onPostExecute( result );
 
             TranslateAnimation animation = new TranslateAnimation( Animation.RELATIVE_TO_SELF, 0.0f,
-                    Animation.RELATIVE_TO_SELF, 0.0f,
-                    Animation.RELATIVE_TO_SELF, 2.0f,
-                    Animation.RELATIVE_TO_SELF, 0.0f );
+                                                                   Animation.RELATIVE_TO_SELF, 0.0f,
+                                                                   Animation.RELATIVE_TO_SELF, 2.0f,
+                                                                   Animation.RELATIVE_TO_SELF, 0.0f );
 
             animation.setDuration( 600 );
             animation.setInterpolator( new AccelerateDecelerateInterpolator() );
 
 
-            mListViewAdapter =
-                    new ListViewCardsAdapter( mContext, ListViewFragment.this, mDBColumnsMap );
+            mListViewAdapter = new ListViewCardsAdapter( mContext, ListViewFragment.this, mDBColumnsMap );
             mListView.setAdapter( (ListAdapter) mListViewAdapter );
             mListView.setOnItemClickListener( onItemClickListener );
 
@@ -393,21 +346,16 @@ public class ListViewFragment extends Fragment {
 	        mListView.setAdapter(animationAdapter); */
 
             //Init the quick scroll widget.
-            mQuickScroll.init( QuickScroll.TYPE_INDICATOR_WITH_HANDLE,
-                    mListView,
-                    mListViewAdapter,
-                    QuickScroll.STYLE_HOLO );
+            mQuickScroll.init( QuickScroll.TYPE_INDICATOR_WITH_HANDLE, mListView, mListViewAdapter,
+                               QuickScroll.STYLE_HOLO );
 
             int[] quickScrollColors = UIElementsHelper.getQuickScrollColors( mContext );
-            PauseOnScrollHelper scrollListener =
-                    new PauseOnScrollHelper( mApp.getPicasso(), null, true, true );
+            PauseOnScrollHelper scrollListener = new PauseOnScrollHelper( mApp.getPicasso(), null, true, true );
 
             mQuickScroll.setOnScrollListener( scrollListener );
             mQuickScroll.setPicassoInstance( mApp.getPicasso() );
-            mQuickScroll.setHandlebarColor( quickScrollColors[ 0 ], quickScrollColors[ 0 ],
-                    quickScrollColors[ 1 ] );
-            mQuickScroll.setIndicatorColor( quickScrollColors[ 1 ], quickScrollColors[ 0 ],
-                    quickScrollColors[ 2 ] );
+            mQuickScroll.setHandlebarColor( quickScrollColors[ 0 ], quickScrollColors[ 0 ], quickScrollColors[ 1 ] );
+            mQuickScroll.setIndicatorColor( quickScrollColors[ 1 ], quickScrollColors[ 0 ], quickScrollColors[ 2 ] );
             mQuickScroll.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 48 );
 
             animation.setAnimationListener( new AnimationListener() {

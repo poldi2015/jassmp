@@ -15,77 +15,27 @@
  */
 package com.jams.music.player.AsyncTasks;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.jams.music.player.DBHelpers.DBAccessHelper;
 import com.jams.music.player.DBHelpers.MusicFolderAccessor;
-import com.jams.music.player.R;
 import com.jams.music.player.Utils.Common;
 
 import java.util.HashMap;
 
 public class AsyncSaveMusicFoldersTask extends AsyncTask<String, Void, Boolean> {
 
-    private Context                  mContext;
     private Common                   mApp;
     private HashMap<String, Boolean> mMusicFolders;
 
     public AsyncSaveMusicFoldersTask( Context context, HashMap<String, Boolean> musicFolders ) {
-        mContext = context;
-        mApp = (Common) mContext;
+        mApp = (Common) context;
         mMusicFolders = musicFolders;
-
     }
 
     @Override
     protected Boolean doInBackground( String... params ) {
         MusicFolderAccessor.getInstance( mApp ).replaceMusicFolders( mMusicFolders );
-
-        //Populate the UserLibraries table.
-        try {
-            mApp.getDBAccessHelper().getWritableDatabase().beginTransaction();
-
-            //Insert the default libaries.
-            ContentValues allLibrariesValues = new ContentValues();
-            allLibrariesValues.put( DBAccessHelper.LIBRARY_NAME,
-                                    mContext.getResources().getString( R.string.all_libraries ) );
-            allLibrariesValues.put( DBAccessHelper.SONG_ID, "ALL_LIBRARIES" );
-            allLibrariesValues.put( DBAccessHelper.LIBRARY_TAG, "circle_blue_dark" );
-            mApp.getDBAccessHelper()
-                .getWritableDatabase()
-                .insert( DBAccessHelper.LIBRARIES_TABLE, null, allLibrariesValues );
-
-            ContentValues googlePlayMusicLibrary = new ContentValues();
-            googlePlayMusicLibrary.put( DBAccessHelper.LIBRARY_NAME,
-                                        mContext.getResources().getString( R.string.google_play_music_no_asterisk ) );
-            googlePlayMusicLibrary.put( DBAccessHelper.SONG_ID, DBAccessHelper.GMUSIC );
-            googlePlayMusicLibrary.put( DBAccessHelper.LIBRARY_TAG, "circle_yellow_dark" );
-            mApp.getDBAccessHelper()
-                .getWritableDatabase()
-                .insert( DBAccessHelper.LIBRARIES_TABLE, null, googlePlayMusicLibrary );
-
-            //Default to "All Libraries".
-            mApp.getSharedPreferences()
-                .edit()
-                .putString( Common.CURRENT_LIBRARY, mContext.getResources().getString( R.string.all_libraries ) )
-                .commit();
-
-        } catch( Exception e ) {
-            e.printStackTrace();
-        } finally {
-            mApp.getDBAccessHelper().getWritableDatabase().setTransactionSuccessful();
-            mApp.getDBAccessHelper().getWritableDatabase().endTransaction();
-
-            //Use "All Libraries" as the default library.
-            mApp.getSharedPreferences()
-                .edit()
-                .putString( Common.CURRENT_LIBRARY, mContext.getResources().getString( R.string.all_libraries ) )
-                .commit();
-
-        }
-
         return true;
     }
 

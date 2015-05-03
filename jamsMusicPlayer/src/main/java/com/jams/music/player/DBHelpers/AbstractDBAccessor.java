@@ -139,6 +139,10 @@ public abstract class AbstractDBAccessor extends SQLiteOpenHelper {
         return !( cursor == null || cursor.getCount() == 0 ) && cursor.moveToFirst();
     }
 
+    protected String escapeTextLiteral( String text ) {
+        return text.replace( "'", "''" );
+    }
+
     protected boolean hasEntries( String whereExpr ) {
         final String query = new QueryBuilder().addResultExpr( "count(*)" ).setWhereWhereExpr( whereExpr ).build();
         final Cursor cursor = getWritableDatabase().rawQuery( query, null );

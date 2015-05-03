@@ -32,7 +32,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jams.music.player.Dialogs.ApplicationThemeDialog;
 import com.jams.music.player.Dialogs.NowPlayingColorSchemesDialog;
 import com.jams.music.player.Helpers.UIElementsHelper;
 import com.jams.music.player.R;
@@ -44,48 +43,47 @@ import com.jams.music.player.Utils.Common;
 public class SettingsAppearanceFragment extends PreferenceFragment {
 
     private Context mContext;
-    private Common mApp;
+    private Common  mApp;
 
-    private View mRootView;
+    private View     mRootView;
     private ListView mListView;
 
-    private Preference mAppThemePreference;
-    private Preference mColorPreference;
-    private Preference mDefaultScreenPreference;
+    private Preference         mAppThemePreference;
+    private Preference         mColorPreference;
+    private Preference         mDefaultScreenPreference;
     private CheckBoxPreference mLockscreenControlsPreference;
 
     @Override
-    public void onCreate(Bundle onSavedInstanceState) {
-        super.onCreate(onSavedInstanceState);
-        addPreferencesFromResource(R.xml.settings_appearance);
+    public void onCreate( Bundle onSavedInstanceState ) {
+        super.onCreate( onSavedInstanceState );
+        addPreferencesFromResource( R.xml.settings_appearance );
 
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle onSavedInstanceState) {
-        mRootView = super.onCreateView(inflater, container, onSavedInstanceState);
+    public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle onSavedInstanceState ) {
+        mRootView = super.onCreateView( inflater, container, onSavedInstanceState );
 
         mContext = getActivity().getApplicationContext();
         mApp = (Common) mContext;
-        mListView = (ListView) mRootView.findViewById(android.R.id.list);
+        mListView = (ListView) mRootView.findViewById( android.R.id.list );
 
         //Set the ActionBar background and text color.
         applyKitKatTranslucency();
-        getActivity().getActionBar().setTitle(R.string.settings);
-        int titleId = getResources().getIdentifier("action_bar_title", "id", "android");
-        TextView actionBarText = (TextView) getActivity().findViewById(titleId);
-        actionBarText.setTextColor(0xFFFFFFFF);
+        getActivity().getActionBar().setTitle( R.string.settings );
+        int titleId = getResources().getIdentifier( "action_bar_title", "id", "android" );
+        TextView actionBarText = (TextView) getActivity().findViewById( titleId );
+        actionBarText.setTextColor( 0xFFFFFFFF );
 
-        mAppThemePreference = getPreferenceManager().findPreference("preference_key_app_theme");
-        mColorPreference = getPreferenceManager().findPreference("preference_key_player_color_scheme");
-        mDefaultScreenPreference = getPreferenceManager().findPreference("preference_key_startup_screen");
-        mLockscreenControlsPreference = (CheckBoxPreference) getPreferenceManager().findPreference("preference_key_lockscreen_controls");
+        mColorPreference = getPreferenceManager().findPreference( "preference_key_player_color_scheme" );
+        mDefaultScreenPreference = getPreferenceManager().findPreference( "preference_key_startup_screen" );
+        mLockscreenControlsPreference = (CheckBoxPreference) getPreferenceManager().findPreference(
+                "preference_key_lockscreen_controls" );
 
         //Apply the click listeners.
-        mAppThemePreference.setOnPreferenceClickListener(appThemeClickListener);
-        mColorPreference.setOnPreferenceClickListener(colorClickListener);
-        mDefaultScreenPreference.setOnPreferenceClickListener(defaultScreenClickListener);
-        mLockscreenControlsPreference.setOnPreferenceChangeListener(lockscreenControlsClickListener);
+        mColorPreference.setOnPreferenceClickListener( colorClickListener );
+        mDefaultScreenPreference.setOnPreferenceClickListener( defaultScreenClickListener );
+        mLockscreenControlsPreference.setOnPreferenceChangeListener( lockscreenControlsClickListener );
 
         return mRootView;
     }
@@ -94,43 +92,27 @@ public class SettingsAppearanceFragment extends PreferenceFragment {
      * Applies KitKat specific translucency.
      */
     private void applyKitKatTranslucency() {
-        if (Build.VERSION.SDK_INT==Build.VERSION_CODES.KITKAT) {
+        if( Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT ) {
 
             //Calculate ActionBar and navigation bar height.
             TypedValue tv = new TypedValue();
             int actionBarHeight = 0;
-            if (getActivity().getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-                actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+            if( getActivity().getTheme().resolveAttribute( android.R.attr.actionBarSize, tv, true ) ) {
+                actionBarHeight = TypedValue.complexToDimensionPixelSize( tv.data, getResources().getDisplayMetrics() );
             }
 
-            mListView.setBackgroundColor(0xFFEEEEEE);
-            mRootView.setPadding(0, actionBarHeight + mApp.getStatusBarHeight(mContext),
-                                 0, 0);
-            mListView.setPadding(10, 0, 10, mApp.getNavigationBarHeight(mContext));
-            mListView.setClipToPadding(false);
+            mListView.setBackgroundColor( 0xFFEEEEEE );
+            mRootView.setPadding( 0, actionBarHeight + mApp.getStatusBarHeight( mContext ), 0, 0 );
+            mListView.setPadding( 10, 0, 10, mApp.getNavigationBarHeight( mContext ) );
+            mListView.setClipToPadding( false );
 
             //Set the window color.
-            getActivity().getWindow().setBackgroundDrawable(UIElementsHelper.getGeneralActionBarBackground(mContext));
+            getActivity().getWindow()
+                         .setBackgroundDrawable( UIElementsHelper.getGeneralActionBarBackground( mContext ) );
 
         }
 
     }
-
-    /**
-     * Click listener for the app theme preference.
-     */
-    private Preference.OnPreferenceClickListener appThemeClickListener = new Preference.OnPreferenceClickListener() {
-
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
-            FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-            ApplicationThemeDialog appThemeDialog = new ApplicationThemeDialog();
-            appThemeDialog.show(ft, "appThemeDialog");
-
-            return false;
-        }
-
-    };
 
     /**
      * Click listener for the color preference.
@@ -138,10 +120,10 @@ public class SettingsAppearanceFragment extends PreferenceFragment {
     private Preference.OnPreferenceClickListener colorClickListener = new Preference.OnPreferenceClickListener() {
 
         @Override
-        public boolean onPreferenceClick(Preference preference) {
+        public boolean onPreferenceClick( Preference preference ) {
             FragmentTransaction ft = getChildFragmentManager().beginTransaction();
             NowPlayingColorSchemesDialog appThemeDialog = new NowPlayingColorSchemesDialog();
-            appThemeDialog.show(ft, "colorSchemesDialog");
+            appThemeDialog.show( ft, "colorSchemesDialog" );
 
             return false;
         }
@@ -151,26 +133,32 @@ public class SettingsAppearanceFragment extends PreferenceFragment {
     /**
      * Click listener for the default browser preference.
      */
-    private Preference.OnPreferenceClickListener defaultScreenClickListener = new Preference.OnPreferenceClickListener() {
+    private Preference.OnPreferenceClickListener defaultScreenClickListener
+            = new Preference.OnPreferenceClickListener() {
 
         @Override
-        public boolean onPreferenceClick(Preference preference) {
+        public boolean onPreferenceClick( Preference preference ) {
             //Get the current preference.
-            int currentPreference = mApp.getSharedPreferences().getInt(Common.STARTUP_BROWSER, 0);
+            int currentPreference = mApp.getSharedPreferences().getInt( Common.STARTUP_BROWSER, 0 );
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.default_browser);
-            builder.setSingleChoiceItems(R.array.startup_screen_items, currentPreference, new DialogInterface.OnClickListener() {
+            AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+            builder.setTitle( R.string.default_browser );
+            builder.setSingleChoiceItems( R.array.startup_screen_items, currentPreference,
+                                          new DialogInterface.OnClickListener() {
 
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    mApp.getSharedPreferences().edit().putInt(Common.STARTUP_BROWSER, which).commit();
-                    dialog.dismiss();
-                    Toast.makeText(mContext, R.string.changes_saved, Toast.LENGTH_SHORT).show();
+                                              @Override
+                                              public void onClick( DialogInterface dialog, int which ) {
+                                                  mApp.getSharedPreferences()
+                                                      .edit()
+                                                      .putInt( Common.STARTUP_BROWSER, which )
+                                                      .commit();
+                                                  dialog.dismiss();
+                                                  Toast.makeText( mContext, R.string.changes_saved, Toast.LENGTH_SHORT )
+                                                       .show();
 
-                }
+                                              }
 
-            });
+                                          } );
 
             builder.create().show();
             return false;
@@ -181,13 +169,14 @@ public class SettingsAppearanceFragment extends PreferenceFragment {
     /**
      * Checkbox click listener for the lockscreen controls preference.
      */
-    private Preference.OnPreferenceChangeListener lockscreenControlsClickListener = new Preference.OnPreferenceChangeListener() {
+    private Preference.OnPreferenceChangeListener lockscreenControlsClickListener
+            = new Preference.OnPreferenceChangeListener() {
 
         @Override
-        public boolean onPreferenceChange(Preference preference, Object newValue) {
+        public boolean onPreferenceChange( Preference preference, Object newValue ) {
             boolean value = (Boolean) newValue;
-            mApp.getSharedPreferences().edit().putBoolean(Common.SHOW_LOCKSCREEN_CONTROLS, value).commit();
-            ((CheckBoxPreference) preference).setChecked(value);
+            mApp.getSharedPreferences().edit().putBoolean( Common.SHOW_LOCKSCREEN_CONTROLS, value ).commit();
+            ( (CheckBoxPreference) preference ).setChecked( value );
             return false;
         }
     };
@@ -196,8 +185,10 @@ public class SettingsAppearanceFragment extends PreferenceFragment {
     public void onResume() {
         super.onResume();
 
-        if (Build.VERSION.SDK_INT==Build.VERSION_CODES.KITKAT)
-            getActivity().getActionBar().setBackgroundDrawable(UIElementsHelper.getGeneralActionBarBackground(mContext));
+        if( Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT ) {
+            getActivity().getActionBar()
+                         .setBackgroundDrawable( UIElementsHelper.getGeneralActionBarBackground( mContext ) );
+        }
 
     }
 

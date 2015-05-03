@@ -139,11 +139,7 @@ public class MusicFolderAccessor extends AbstractDBAccessor {
             path = path.substring( secondSlashIndex, path.length() );
         }
 
-        return escapeFolderPath( path );
-    }
-
-    private String escapeFolderPath( String folderPath ) {
-        return folderPath.replace( "'", "''" );
+        return escapeTextLiteral( path );
     }
 
 }

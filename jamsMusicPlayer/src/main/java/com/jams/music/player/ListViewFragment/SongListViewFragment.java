@@ -228,7 +228,7 @@ public class SongListViewFragment extends Fragment
         }
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings( "unused" )
     private void setSortOrderIcon( final MenuItem item, final String orderBy ) {
         //        if( orderBy == null ) return;
         //        final DBAccessHelper.OrderDirection orderDirection = getOrderDirectionFromPreferences(
@@ -251,7 +251,7 @@ public class SongListViewFragment extends Fragment
         @Override
         public void onItemClick( AdapterView<?> arg0, View view, int index, long id ) {
             mApp.getPlaybackKickstarter()
-                .initPlayback( mContext, mQuerySelection, Common.PLAY_ALL_SONGS, index, true, false );
+                .initPlayback( mContext, mQuerySelection, Common.SONGS_FRAGMENT, index, true, false );
         }
 
     };

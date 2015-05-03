@@ -37,7 +37,6 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.RemoteControlClient;
-import android.media.audiofx.PresetReverb;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -49,30 +48,23 @@ import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import com.google.analytics.tracking.android.Fields;
 import com.google.analytics.tracking.android.GoogleAnalytics;
-import com.google.analytics.tracking.android.MapBuilder;
 import com.google.analytics.tracking.android.Tracker;
-import com.jams.music.player.AsyncTasks.AsyncGetSongStreamURLTask;
 import com.jams.music.player.BroadcastReceivers.HeadsetButtonsReceiver;
 import com.jams.music.player.BroadcastReceivers.HeadsetPlugBroadcastReceiver;
 import com.jams.music.player.DBHelpers.DBAccessHelper;
 import com.jams.music.player.Helpers.AudioManagerHelper;
-import com.jams.music.player.Helpers.EqualizerHelper;
 import com.jams.music.player.Helpers.SongHelper;
 import com.jams.music.player.PlaybackKickstarter.PlaybackKickstarter.BuildCursorListener;
 import com.jams.music.player.R;
 import com.jams.music.player.RemoteControlClient.RemoteControlClientCompat;
 import com.jams.music.player.RemoteControlClient.RemoteControlHelper;
-import com.jams.music.player.Scrobbling.ScrobbleDroidHelper;
-import com.jams.music.player.Scrobbling.SimpleLastFMHelper;
 import com.jams.music.player.Utils.Common;
 import com.jams.music.player.WidgetProviders.AlbumArtWidgetProvider;
 import com.jams.music.player.WidgetProviders.BlurredWidgetProvider;
 import com.jams.music.player.WidgetProviders.LargeWidgetProvider;
 import com.jams.music.player.WidgetProviders.SmallWidgetProvider;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -127,13 +119,10 @@ public class AudioPlaybackService extends Service {
     //Pointer variable.
     private int mCurrentSongIndex;
 
-    //Equalizer/Audio FX helpers.
-    private EqualizerHelper mEqualizerHelper;
-
     //Notification elements.
     private NotificationCompat.Builder mNotificationBuilder;
     public static final int mNotificationId = 1080;
-            //NOTE: Using 0 as a notification ID causes Android to ignore the notification call.
+    //NOTE: Using 0 as a notification ID causes Android to ignore the notification call.
 
     //Custom actions for media player controls via the notification bar.
     public static final String LAUNCH_NOW_PLAYING_ACTION = "com.jams.music.player.LAUNCH_NOW_PLAYING_ACTION";
@@ -237,9 +226,6 @@ public class AudioPlaybackService extends Service {
         //Grab the crossfade duration for this session.
         mCrossfadeDuration = mApp.getCrossfadeDuration();
 
-        //Initialize audio effects (equalizer, virtualizer, bass boost) for this session.
-        initAudioFX();
-
         mMediaButtonReceiverComponent = new ComponentName( this.getPackageName(),
                                                            HeadsetButtonsReceiver.class.getName() );
         mAudioManager.registerMediaButtonEventReceiver( mMediaButtonReceiverComponent );
@@ -281,30 +267,6 @@ public class AudioPlaybackService extends Service {
     }
 
     /**
-     * Initializes Google Analytics.
-     */
-    private void initGoogleAnalytics() {
-        try {
-            if( mApp.isGoogleAnalyticsEnabled() ) {
-                String gaTrackingId = getResources().getString( R.string.ga_trackingId );
-                mServiceStartTime = System.currentTimeMillis();
-
-                mGAInstance = GoogleAnalytics.getInstance( getApplicationContext() );
-                mTracker = mGAInstance.getTracker( gaTrackingId );
-
-                mTracker.set( Fields.SESSION_CONTROL, "start" );
-                mTracker.send(
-                        MapBuilder.createEvent( "Jams Service", "Service started!", "User is playing music.", null )
-                                  .build() );
-            }
-
-        } catch( Exception e ) {
-            e.printStackTrace();
-        }
-
-    }
-
-    /**
      * Initializes remote control clients for this service session.
      * Currently used for lockscreen controls.
      */
@@ -334,7 +296,7 @@ public class AudioPlaybackService extends Service {
     private void initMediaPlayers() {
 
 		/*
-		 * Release the MediaPlayer objects if they are still valid.
+         * Release the MediaPlayer objects if they are still valid.
 		 */
         if( mMediaPlayer != null ) {
             mMediaPlayer.release();
@@ -427,355 +389,11 @@ public class AudioPlaybackService extends Service {
 
     }
 
-    /**
-     * Initializes the equalizer and audio effects for this service session.
-     */
-    public void initAudioFX() {
-
-        try {
-            //Instatiate the equalizer helper object.
-            mEqualizerHelper = new EqualizerHelper( mContext, mMediaPlayer.getAudioSessionId(),
-                                                    getMediaPlayer2().getAudioSessionId(), mApp.isEqualizerEnabled() );
-
-        } catch( UnsupportedOperationException e ) {
-            e.printStackTrace();
-            mEqualizerHelper.setIsEqualizerSupported( false );
-        } catch( Exception e ) {
-            e.printStackTrace();
-            mEqualizerHelper.setIsEqualizerSupported( false );
-        }
-
-    }
-
     @Override
     public IBinder onBind( Intent arg0 ) {
         return null;
     }
 
-    /**
-     * Retrieves the EQ values for mMediaPlayer's current song and
-     * applies them to the EQ engine.
-     *
-     * @param songId The id of the song that mMediaPlayer is current handling.
-     */
-    private void applyMediaPlayerEQ( String songId ) {
-
-        if( mEqualizerHelper == null ) {
-            return;
-        }
-
-        short fiftyHertzBand = mEqualizerHelper.getEqualizer().getBand( 50000 );
-        short oneThirtyHertzBand = mEqualizerHelper.getEqualizer().getBand( 130000 );
-        short threeTwentyHertzBand = mEqualizerHelper.getEqualizer().getBand( 320000 );
-        short eightHundredHertzBand = mEqualizerHelper.getEqualizer().getBand( 800000 );
-        short twoKilohertzBand = mEqualizerHelper.getEqualizer().getBand( 2000000 );
-        short fiveKilohertzBand = mEqualizerHelper.getEqualizer().getBand( 5000000 );
-        short twelvePointFiveKilohertzBand = mEqualizerHelper.getEqualizer().getBand( 9000000 );
-
-        //Get the equalizer/audioFX settings for this specific song.
-        int[] eqValues = mApp.getDBAccessHelper().getSongEQValues( songId );
-
-        //50Hz Band.
-        if( eqValues[ 0 ] == 16 ) {
-            mEqualizerHelper.getEqualizer().setBandLevel( fiftyHertzBand, (short) 0 );
-        } else if( eqValues[ 0 ] < 16 ) {
-
-            if( eqValues[ 0 ] == 0 ) {
-                mEqualizerHelper.getEqualizer().setBandLevel( fiftyHertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer()
-                                .setBandLevel( fiftyHertzBand, (short) ( -( 16 - eqValues[ 0 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 0 ] > 16 ) {
-            mEqualizerHelper.getEqualizer().setBandLevel( fiftyHertzBand, (short) ( ( eqValues[ 0 ] - 16 ) * 100 ) );
-        }
-
-        //130Hz Band.
-        if( eqValues[ 1 ] == 16 ) {
-            mEqualizerHelper.getEqualizer().setBandLevel( oneThirtyHertzBand, (short) 0 );
-        } else if( eqValues[ 1 ] < 16 ) {
-
-            if( eqValues[ 1 ] == 0 ) {
-                mEqualizerHelper.getEqualizer().setBandLevel( oneThirtyHertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer()
-                                .setBandLevel( oneThirtyHertzBand, (short) ( -( 16 - eqValues[ 1 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 1 ] > 16 ) {
-            mEqualizerHelper.getEqualizer()
-                            .setBandLevel( oneThirtyHertzBand, (short) ( ( eqValues[ 1 ] - 16 ) * 100 ) );
-        }
-
-        //320Hz Band.
-        if( eqValues[ 2 ] == 16 ) {
-            mEqualizerHelper.getEqualizer().setBandLevel( threeTwentyHertzBand, (short) 0 );
-        } else if( eqValues[ 2 ] < 16 ) {
-
-            if( eqValues[ 2 ] == 0 ) {
-                mEqualizerHelper.getEqualizer().setBandLevel( threeTwentyHertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer()
-                                .setBandLevel( threeTwentyHertzBand, (short) ( -( 16 - eqValues[ 2 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 2 ] > 16 ) {
-            mEqualizerHelper.getEqualizer()
-                            .setBandLevel( threeTwentyHertzBand, (short) ( ( eqValues[ 2 ] - 16 ) * 100 ) );
-        }
-
-        //800Hz Band.
-        if( eqValues[ 3 ] == 16 ) {
-            mEqualizerHelper.getEqualizer().setBandLevel( eightHundredHertzBand, (short) 0 );
-        } else if( eqValues[ 3 ] < 16 ) {
-
-            if( eqValues[ 3 ] == 0 ) {
-                mEqualizerHelper.getEqualizer().setBandLevel( eightHundredHertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer()
-                                .setBandLevel( eightHundredHertzBand, (short) ( -( 16 - eqValues[ 3 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 3 ] > 16 ) {
-            mEqualizerHelper.getEqualizer()
-                            .setBandLevel( eightHundredHertzBand, (short) ( ( eqValues[ 3 ] - 16 ) * 100 ) );
-        }
-
-        //2kHz Band.
-        if( eqValues[ 4 ] == 16 ) {
-            mEqualizerHelper.getEqualizer().setBandLevel( twoKilohertzBand, (short) 0 );
-        } else if( eqValues[ 4 ] < 16 ) {
-
-            if( eqValues[ 4 ] == 0 ) {
-                mEqualizerHelper.getEqualizer().setBandLevel( twoKilohertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer()
-                                .setBandLevel( twoKilohertzBand, (short) ( -( 16 - eqValues[ 4 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 4 ] > 16 ) {
-            mEqualizerHelper.getEqualizer().setBandLevel( twoKilohertzBand, (short) ( ( eqValues[ 4 ] - 16 ) * 100 ) );
-        }
-
-        //5kHz Band.
-        if( eqValues[ 5 ] == 16 ) {
-            mEqualizerHelper.getEqualizer().setBandLevel( fiveKilohertzBand, (short) 0 );
-        } else if( eqValues[ 5 ] < 16 ) {
-
-            if( eqValues[ 5 ] == 0 ) {
-                mEqualizerHelper.getEqualizer().setBandLevel( fiveKilohertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer()
-                                .setBandLevel( fiveKilohertzBand, (short) ( -( 16 - eqValues[ 5 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 5 ] > 16 ) {
-            mEqualizerHelper.getEqualizer().setBandLevel( fiveKilohertzBand, (short) ( ( eqValues[ 5 ] - 16 ) * 100 ) );
-        }
-
-        //12.5kHz Band.
-        if( eqValues[ 6 ] == 16 ) {
-            mEqualizerHelper.getEqualizer().setBandLevel( twelvePointFiveKilohertzBand, (short) 0 );
-        } else if( eqValues[ 6 ] < 16 ) {
-
-            if( eqValues[ 6 ] == 0 ) {
-                mEqualizerHelper.getEqualizer().setBandLevel( twelvePointFiveKilohertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer()
-                                .setBandLevel( twelvePointFiveKilohertzBand,
-                                               (short) ( -( 16 - eqValues[ 6 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 6 ] > 16 ) {
-            mEqualizerHelper.getEqualizer()
-                            .setBandLevel( twelvePointFiveKilohertzBand, (short) ( ( eqValues[ 6 ] - 16 ) * 100 ) );
-        }
-
-        //Set the audioFX values.
-        mEqualizerHelper.getVirtualizer().setStrength( (short) eqValues[ 7 ] );
-        mEqualizerHelper.getBassBoost().setStrength( (short) eqValues[ 8 ] );
-
-        if( eqValues[ 9 ] == 0 ) {
-            mEqualizerHelper.getReverb().setPreset( PresetReverb.PRESET_NONE );
-        } else if( eqValues[ 9 ] == 1 ) {
-            mEqualizerHelper.getReverb().setPreset( PresetReverb.PRESET_LARGEHALL );
-        } else if( eqValues[ 9 ] == 2 ) {
-            mEqualizerHelper.getReverb().setPreset( PresetReverb.PRESET_LARGEROOM );
-        } else if( eqValues[ 9 ] == 3 ) {
-            mEqualizerHelper.getReverb().setPreset( PresetReverb.PRESET_MEDIUMHALL );
-        } else if( eqValues[ 9 ] == 4 ) {
-            mEqualizerHelper.getReverb().setPreset( PresetReverb.PRESET_MEDIUMROOM );
-        } else if( eqValues[ 9 ] == 5 ) {
-            mEqualizerHelper.getReverb().setPreset( PresetReverb.PRESET_SMALLROOM );
-        } else if( eqValues[ 9 ] == 6 ) {
-            mEqualizerHelper.getReverb().setPreset( PresetReverb.PRESET_PLATE );
-        }
-
-    }
-
-    /**
-     * Retrieves the EQ values for mMediaPlayer2's current song and
-     * applies them to the EQ engine.
-     *
-     * @param songId The id of the song that mMediaPlayer is current handling.
-     */
-    private void applyMediaPlayer2EQ( String songId ) {
-
-        if( mEqualizerHelper == null ) {
-            return;
-        }
-
-        short fiftyHertzBand = mEqualizerHelper.getEqualizer2().getBand( 50000 );
-        short oneThirtyHertzBand = mEqualizerHelper.getEqualizer2().getBand( 130000 );
-        short threeTwentyHertzBand = mEqualizerHelper.getEqualizer2().getBand( 320000 );
-        short eightHundredHertzBand = mEqualizerHelper.getEqualizer2().getBand( 800000 );
-        short twoKilohertzBand = mEqualizerHelper.getEqualizer2().getBand( 2000000 );
-        short fiveKilohertzBand = mEqualizerHelper.getEqualizer2().getBand( 5000000 );
-        short twelvePointFiveKilohertzBand = mEqualizerHelper.getEqualizer2().getBand( 9000000 );
-
-        //Get the mEqualizerHelper.getEqualizer()/audioFX settings for this specific song.
-        int[] eqValues = mApp.getDBAccessHelper().getSongEQValues( songId );
-
-        //50Hz Band.
-        if( eqValues[ 0 ] == 16 ) {
-            mEqualizerHelper.getEqualizer2().setBandLevel( fiftyHertzBand, (short) 0 );
-        } else if( eqValues[ 0 ] < 16 ) {
-
-            if( eqValues[ 0 ] == 0 ) {
-                mEqualizerHelper.getEqualizer2().setBandLevel( fiftyHertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer2()
-                                .setBandLevel( fiftyHertzBand, (short) ( -( 16 - eqValues[ 0 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 0 ] > 16 ) {
-            mEqualizerHelper.getEqualizer2().setBandLevel( fiftyHertzBand, (short) ( ( eqValues[ 0 ] - 16 ) * 100 ) );
-        }
-
-        //130Hz Band.
-        if( eqValues[ 1 ] == 16 ) {
-            mEqualizerHelper.getEqualizer2().setBandLevel( oneThirtyHertzBand, (short) 0 );
-        } else if( eqValues[ 1 ] < 16 ) {
-
-            if( eqValues[ 1 ] == 0 ) {
-                mEqualizerHelper.getEqualizer2().setBandLevel( oneThirtyHertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer2()
-                                .setBandLevel( oneThirtyHertzBand, (short) ( -( 16 - eqValues[ 1 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 1 ] > 16 ) {
-            mEqualizerHelper.getEqualizer2()
-                            .setBandLevel( oneThirtyHertzBand, (short) ( ( eqValues[ 1 ] - 16 ) * 100 ) );
-        }
-
-        //320Hz Band.
-        if( eqValues[ 2 ] == 16 ) {
-            mEqualizerHelper.getEqualizer2().setBandLevel( threeTwentyHertzBand, (short) 0 );
-        } else if( eqValues[ 2 ] < 16 ) {
-
-            if( eqValues[ 2 ] == 0 ) {
-                mEqualizerHelper.getEqualizer2().setBandLevel( threeTwentyHertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer2()
-                                .setBandLevel( threeTwentyHertzBand, (short) ( -( 16 - eqValues[ 2 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 2 ] > 16 ) {
-            mEqualizerHelper.getEqualizer2()
-                            .setBandLevel( threeTwentyHertzBand, (short) ( ( eqValues[ 2 ] - 16 ) * 100 ) );
-        }
-
-        //800Hz Band.
-        if( eqValues[ 3 ] == 16 ) {
-            mEqualizerHelper.getEqualizer2().setBandLevel( eightHundredHertzBand, (short) 0 );
-        } else if( eqValues[ 3 ] < 16 ) {
-
-            if( eqValues[ 3 ] == 0 ) {
-                mEqualizerHelper.getEqualizer2().setBandLevel( eightHundredHertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer2()
-                                .setBandLevel( eightHundredHertzBand, (short) ( -( 16 - eqValues[ 3 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 3 ] > 16 ) {
-            mEqualizerHelper.getEqualizer2()
-                            .setBandLevel( eightHundredHertzBand, (short) ( ( eqValues[ 3 ] - 16 ) * 100 ) );
-        }
-
-        //2kHz Band.
-        if( eqValues[ 4 ] == 16 ) {
-            mEqualizerHelper.getEqualizer2().setBandLevel( twoKilohertzBand, (short) 0 );
-        } else if( eqValues[ 4 ] < 16 ) {
-
-            if( eqValues[ 4 ] == 0 ) {
-                mEqualizerHelper.getEqualizer2().setBandLevel( twoKilohertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer2()
-                                .setBandLevel( twoKilohertzBand, (short) ( -( 16 - eqValues[ 4 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 4 ] > 16 ) {
-            mEqualizerHelper.getEqualizer2().setBandLevel( twoKilohertzBand, (short) ( ( eqValues[ 4 ] - 16 ) * 100 ) );
-        }
-
-        //5kHz Band.
-        if( eqValues[ 5 ] == 16 ) {
-            mEqualizerHelper.getEqualizer2().setBandLevel( fiveKilohertzBand, (short) 0 );
-        } else if( eqValues[ 5 ] < 16 ) {
-
-            if( eqValues[ 5 ] == 0 ) {
-                mEqualizerHelper.getEqualizer2().setBandLevel( fiveKilohertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer2()
-                                .setBandLevel( fiveKilohertzBand, (short) ( -( 16 - eqValues[ 5 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 5 ] > 16 ) {
-            mEqualizerHelper.getEqualizer2()
-                            .setBandLevel( fiveKilohertzBand, (short) ( ( eqValues[ 5 ] - 16 ) * 100 ) );
-        }
-
-        //12.5kHz Band.
-        if( eqValues[ 6 ] == 16 ) {
-            mEqualizerHelper.getEqualizer2().setBandLevel( twelvePointFiveKilohertzBand, (short) 0 );
-        } else if( eqValues[ 6 ] < 16 ) {
-
-            if( eqValues[ 6 ] == 0 ) {
-                mEqualizerHelper.getEqualizer2().setBandLevel( twelvePointFiveKilohertzBand, (short) -1500 );
-            } else {
-                mEqualizerHelper.getEqualizer2()
-                                .setBandLevel( twelvePointFiveKilohertzBand,
-                                               (short) ( -( 16 - eqValues[ 6 ] ) * 100 ) );
-            }
-
-        } else if( eqValues[ 6 ] > 16 ) {
-            mEqualizerHelper.getEqualizer2()
-                            .setBandLevel( twelvePointFiveKilohertzBand, (short) ( ( eqValues[ 6 ] - 16 ) * 100 ) );
-        }
-
-        //Set the audioFX values.
-        mEqualizerHelper.getVirtualizer2().setStrength( (short) eqValues[ 7 ] );
-        mEqualizerHelper.getBassBoost2().setStrength( (short) eqValues[ 8 ] );
-
-        if( eqValues[ 9 ] == 0 ) {
-            mEqualizerHelper.getReverb2().setPreset( PresetReverb.PRESET_NONE );
-        } else if( eqValues[ 9 ] == 1 ) {
-            mEqualizerHelper.getReverb2().setPreset( PresetReverb.PRESET_LARGEHALL );
-        } else if( eqValues[ 9 ] == 2 ) {
-            mEqualizerHelper.getReverb2().setPreset( PresetReverb.PRESET_LARGEROOM );
-        } else if( eqValues[ 9 ] == 3 ) {
-            mEqualizerHelper.getReverb2().setPreset( PresetReverb.PRESET_MEDIUMHALL );
-        } else if( eqValues[ 9 ] == 4 ) {
-            mEqualizerHelper.getReverb2().setPreset( PresetReverb.PRESET_MEDIUMROOM );
-        } else if( eqValues[ 9 ] == 5 ) {
-            mEqualizerHelper.getReverb2().setPreset( PresetReverb.PRESET_SMALLROOM );
-        } else if( eqValues[ 9 ] == 6 ) {
-            mEqualizerHelper.getReverb2().setPreset( PresetReverb.PRESET_PLATE );
-        }
-
-    }
 
     /**
      * Builds and returns a fully constructed Notification for devices
@@ -823,7 +441,7 @@ public class AudioPlaybackService extends Service {
                                                                              stopServiceIntent, 0 );
 
         //Check if audio is playing and set the appropriate play/pause button.
-        if( mApp.getService().isPlayingMusic() ) {
+        if( mApp.getAudioPlaybackService().isPlayingMusic() ) {
             notificationView.setImageViewResource( R.id.notification_base_play, R.drawable.btn_playback_pause_light );
             expNotificationView.setImageViewResource( R.id.notification_expanded_base_play,
                                                       R.drawable.btn_playback_pause_light );
@@ -842,7 +460,7 @@ public class AudioPlaybackService extends Service {
         notificationView.setTextViewText( R.id.notification_base_line_two, songHelper.getArtist() );
 
         //Set the states of the next/previous buttons and their pending intents.
-        if( mApp.getService().isOnlySongInQueue() ) {
+        if( mApp.getAudioPlaybackService().isOnlySongInQueue() ) {
             //This is the only song in the queue, so disable the previous/next buttons.
             expNotificationView.setViewVisibility( R.id.notification_expanded_base_next, View.INVISIBLE );
             expNotificationView.setViewVisibility( R.id.notification_expanded_base_previous, View.INVISIBLE );
@@ -853,7 +471,7 @@ public class AudioPlaybackService extends Service {
             notificationView.setViewVisibility( R.id.notification_base_previous, View.INVISIBLE );
             notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
 
-        } else if( mApp.getService().isFirstSongInQueue() ) {
+        } else if( mApp.getAudioPlaybackService().isFirstSongInQueue() ) {
             //This is the the first song in the queue, so disable the previous button.
             expNotificationView.setViewVisibility( R.id.notification_expanded_base_previous, View.INVISIBLE );
             expNotificationView.setViewVisibility( R.id.notification_expanded_base_next, View.VISIBLE );
@@ -866,7 +484,7 @@ public class AudioPlaybackService extends Service {
             notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
             notificationView.setOnClickPendingIntent( R.id.notification_base_next, nextTrackPendingIntent );
 
-        } else if( mApp.getService().isLastSongInQueue() ) {
+        } else if( mApp.getAudioPlaybackService().isLastSongInQueue() ) {
             //This is the last song in the cursor, so disable the next button.
             expNotificationView.setViewVisibility( R.id.notification_expanded_base_previous, View.VISIBLE );
             expNotificationView.setViewVisibility( R.id.notification_expanded_base_next, View.INVISIBLE );
@@ -964,7 +582,7 @@ public class AudioPlaybackService extends Service {
                                                                              stopServiceIntent, 0 );
 
         //Check if audio is playing and set the appropriate play/pause button.
-        if( mApp.getService().isPlayingMusic() ) {
+        if( mApp.getAudioPlaybackService().isPlayingMusic() ) {
             notificationView.setImageViewResource( R.id.notification_base_play, R.drawable.btn_playback_pause_light );
         } else {
             notificationView.setImageViewResource( R.id.notification_base_play, R.drawable.btn_playback_play_light );
@@ -975,20 +593,20 @@ public class AudioPlaybackService extends Service {
         notificationView.setTextViewText( R.id.notification_base_line_two, songHelper.getArtist() );
 
         //Set the states of the next/previous buttons and their pending intents.
-        if( mApp.getService().isOnlySongInQueue() ) {
+        if( mApp.getAudioPlaybackService().isOnlySongInQueue() ) {
             //This is the only song in the queue, so disable the previous/next buttons.
             notificationView.setViewVisibility( R.id.notification_base_next, View.INVISIBLE );
             notificationView.setViewVisibility( R.id.notification_base_previous, View.INVISIBLE );
             notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
 
-        } else if( mApp.getService().isFirstSongInQueue() ) {
+        } else if( mApp.getAudioPlaybackService().isFirstSongInQueue() ) {
             //This is the the first song in the queue, so disable the previous button.
             notificationView.setViewVisibility( R.id.notification_base_previous, View.INVISIBLE );
             notificationView.setViewVisibility( R.id.notification_base_next, View.VISIBLE );
             notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
             notificationView.setOnClickPendingIntent( R.id.notification_base_next, nextTrackPendingIntent );
 
-        } else if( mApp.getService().isLastSongInQueue() ) {
+        } else if( mApp.getAudioPlaybackService().isLastSongInQueue() ) {
             //This is the last song in the cursor, so disable the next button.
             notificationView.setViewVisibility( R.id.notification_base_previous, View.VISIBLE );
             notificationView.setViewVisibility( R.id.notification_base_next, View.INVISIBLE );
@@ -1138,7 +756,7 @@ public class AudioPlaybackService extends Service {
 
                 //We'll have to manually extract the info from the audio file.
 /*				String songFilePath = tempCursor.getString(tempCursor.getColumnIndex(DBAccessHelper.PLAYLIST_SONG_FILE_PATH));
-				
+
 				try {
 					mMMDR.setDataSource(songFilePath);
 				} catch (Exception e) {
@@ -1184,7 +802,7 @@ public class AudioPlaybackService extends Service {
             String songDuration = "";
             for( int j = 0; j < newCursor.getCount(); j++ ) {
 /*				newCursor.moveToPosition(j);
-				filePath = newCursor.getString(newCursor.getColumnIndex(DBAccessHelper.PLAYLIST_SONG_FILE_PATH));
+                filePath = newCursor.getString(newCursor.getColumnIndex(DBAccessHelper.PLAYLIST_SONG_FILE_PATH));
 				
 				try {
 					mMMDR.setDataSource(filePath);
@@ -1224,9 +842,8 @@ public class AudioPlaybackService extends Service {
                 //We've temporarily lost focus, so pause the mMediaPlayer, wherever it's at.
                 try {
                     getCurrentMediaPlayer().pause();
-                    updateNotification( mApp.getService().getCurrentSong() );
+                    updateNotification( mApp.getAudioPlaybackService().getCurrentSong() );
                     updateWidgets();
-                    scrobbleTrack( SimpleLastFMHelper.PAUSE );
                     mAudioManagerHelper.setHasAudioFocus( false );
                 } catch( Exception e ) {
                     e.printStackTrace();
@@ -1260,9 +877,8 @@ public class AudioPlaybackService extends Service {
             } else if( focusChange == AudioManager.AUDIOFOCUS_LOSS ) {
                 //We've lost focus permanently so pause the service. We'll have to request focus again later.
                 getCurrentMediaPlayer().pause();
-                updateNotification( mApp.getService().getCurrentSong() );
+                updateNotification( mApp.getAudioPlaybackService().getCurrentSong() );
                 updateWidgets();
-                scrobbleTrack( SimpleLastFMHelper.PAUSE );
                 mAudioManagerHelper.setHasAudioFocus( false );
 
             }
@@ -1831,37 +1447,7 @@ public class AudioPlaybackService extends Service {
      * (URI_BEING_LOADED) is returned.
      */
     private Uri getSongDataSource( SongHelper songHelper ) {
-
-        if( songHelper.getSource().equals( DBAccessHelper.GMUSIC ) ) {
-
-            //Check if a local copy of the song exists.
-            if( songHelper.getLocalCopyPath() != null && songHelper.getLocalCopyPath().length() > 2 ) {
-
-                //Double check to make sure that the local copy file exists.
-                if( new File( songHelper.getLocalCopyPath() ).exists() ) {
-                    //The local copy exists. Return its path.
-                    return Uri.parse( songHelper.getLocalCopyPath() );
-                } else {
-                    //The local copy doesn't exist. Request the remote URL and return a placeholder Uri.
-                    AsyncGetSongStreamURLTask task = new AsyncGetSongStreamURLTask( mContext, songHelper.getId() );
-                    task.execute();
-
-                    return URI_BEING_LOADED;
-                }
-
-            } else {
-                //Request the remote URL and return a placeholder Uri.
-                AsyncGetSongStreamURLTask task = new AsyncGetSongStreamURLTask( mContext, songHelper.getId() );
-                task.execute();
-
-                return URI_BEING_LOADED;
-            }
-
-        } else {
-            //Return the song's file path.
-            return Uri.parse( songHelper.getFilePath() );
-        }
-
+        return Uri.parse( songHelper.getFilePath() );
     }
 
     /**
@@ -1978,55 +1564,6 @@ public class AudioPlaybackService extends Service {
     }
 
     /**
-     * Deploys the current track's data to the specified
-     * scrobbler.
-     *
-     * @param state The scrobble state.
-     */
-    public void scrobbleTrack( int state ) {
-
-        //If scrobbling is enabled, send out the appropriate action events.
-        if( mApp.getSharedPreferences().getInt( "SCROBBLING", 0 ) == 0 ) {
-            //Scrobbling is disabled.
-            return;
-        }
-
-        //Get the metadata of the track.
-        getCursor().moveToPosition( mPlaybackIndecesList.get( mCurrentSongIndex ) );
-        String songTitle = getCursor().getString( getCursor().getColumnIndex( DBAccessHelper.SONG_TITLE ) );
-        String songArtist = getCursor().getString( getCursor().getColumnIndex( DBAccessHelper.SONG_ARTIST ) );
-        String songAlbum = getCursor().getString( getCursor().getColumnIndex( DBAccessHelper.SONG_ALBUM ) );
-
-        int songDurationInSecs;
-        try {
-            songDurationInSecs = getCursor().getInt( getCursor().getColumnIndex( DBAccessHelper.SONG_DURATION ) )
-                                 / 1000;
-        } catch( Exception e ) {
-            songDurationInSecs = 0;
-        }
-
-
-        if( mApp.getSharedPreferences().getInt( "SCROBBLING", 0 ) == 1 ) {
-            //Simple LastFM Helper.
-            SimpleLastFMHelper.initializeActionIntent();
-            SimpleLastFMHelper.attachMetadata( state, songArtist, songAlbum, songTitle, songDurationInSecs );
-            SimpleLastFMHelper.sendBroadcast( mContext );
-
-        } else if( mApp.getSharedPreferences().getInt( "SCROBBLING", 0 ) == 2 ) {
-            //Scrobble Droid.
-            ScrobbleDroidHelper.initializeActionIntent();
-            if( state == SimpleLastFMHelper.START || state == SimpleLastFMHelper.RESUME ) {
-                ScrobbleDroidHelper.attachMetadata( true, songArtist, songAlbum, songTitle, songDurationInSecs );
-            } else if( state == SimpleLastFMHelper.PAUSE ) {
-                ScrobbleDroidHelper.attachMetadata( false, songArtist, songAlbum, songTitle, songDurationInSecs );
-            }
-
-            ScrobbleDroidHelper.sendBroadcast( mContext );
-        }
-
-    }
-
-    /**
      * Checks if we have AudioFocus. If not, it explicitly requests it.
      *
      * @return True if we have AudioFocus. False, otherwise.
@@ -2109,10 +1646,6 @@ public class AudioPlaybackService extends Service {
      * Do NOT call this method before mMediaPlayer has been prepared.
      */
     private void startMediaPlayer() throws IllegalStateException {
-
-        //Set the media player's equalizer/audio fx.
-        applyMediaPlayerEQ( getMediaPlayerSongHelper().getId() );
-
         //Aaaaand let the show begin!
         setCurrentMediaPlayer( 1 );
         getMediaPlayer().start();
@@ -2160,10 +1693,6 @@ public class AudioPlaybackService extends Service {
      * Do NOT call this method before mMediaPlayer2 has been prepared.
      */
     private void startMediaPlayer2() throws IllegalStateException {
-
-        //Set the media player's equalizer/audio fx.
-        applyMediaPlayer2EQ( getMediaPlayer2SongHelper().getId() );
-
         //Aaaaaand let the show begin!
         setCurrentMediaPlayer( 2 );
         getMediaPlayer2().start();
@@ -2206,10 +1735,8 @@ public class AudioPlaybackService extends Service {
                 String[] flagValues = new String[]{ "" };
 
                 mApp.broadcastUpdateUICommand( updateFlags, flagValues );
-                updateNotification( mApp.getService().getCurrentSong() );
+                updateNotification( mApp.getAudioPlaybackService().getCurrentSong() );
                 updateWidgets();
-                scrobbleTrack( SimpleLastFMHelper.START );
-
             } else {
                 return false;
             }
@@ -2236,9 +1763,8 @@ public class AudioPlaybackService extends Service {
             String[] flagValues = new String[]{ "" };
 
             mApp.broadcastUpdateUICommand( updateFlags, flagValues );
-            updateNotification( mApp.getService().getCurrentSong() );
+            updateNotification( mApp.getAudioPlaybackService().getCurrentSong() );
             updateWidgets();
-            scrobbleTrack( SimpleLastFMHelper.PAUSE );
 
         } catch( Exception e ) {
             e.printStackTrace();
@@ -2262,9 +1788,8 @@ public class AudioPlaybackService extends Service {
             String[] flagValues = new String[]{ "" };
 
             mApp.broadcastUpdateUICommand( updateFlags, flagValues );
-            updateNotification( mApp.getService().getCurrentSong() );
+            updateNotification( mApp.getAudioPlaybackService().getCurrentSong() );
             updateWidgets();
-            scrobbleTrack( SimpleLastFMHelper.PAUSE );
 
         } catch( Exception e ) {
             e.printStackTrace();
@@ -2721,15 +2246,6 @@ public class AudioPlaybackService extends Service {
     }
 
     /**
-     * Returns the EqualizerHelper instance. This
-     * can be used to modify equalizer settings and
-     * toggle them on/off.
-     */
-    public EqualizerHelper getEqualizerHelper() {
-        return mEqualizerHelper;
-    }
-
-    /**
      * Returns the mAudioManagerHelper instance. This
      * can be used to modify AudioFocus states.
      */
@@ -2742,13 +2258,6 @@ public class AudioPlaybackService extends Service {
      */
     public Handler getHandler() {
         return mHandler;
-    }
-
-    /**
-     * Returns the headset plug receiver object.
-     */
-    public HeadsetPlugBroadcastReceiver getHeadsetPlugReceiver() {
-        return mHeadsetPlugReceiver;
     }
 
     /**
@@ -3010,18 +2519,6 @@ public class AudioPlaybackService extends Service {
         //Fire a broadcast message to the widget(s) to update them.
         updateWidgets();
 
-        //Send service stop event to GAnalytics.
-        try {
-            if( mApp.isGoogleAnalyticsEnabled() ) {
-                mTracker.set( Fields.SESSION_CONTROL, "end" );
-                mTracker.send( MapBuilder.createTiming( "Jams Service", System.currentTimeMillis() - mServiceStartTime,
-                                                        "Service duration.", "User stopped music playback." ).build() );
-            }
-
-        } catch( Exception e ) {
-            e.printStackTrace();
-        }
-
         //Save the last track's info within the current queue.
         try {
             mApp.getSharedPreferences()
@@ -3053,14 +2550,6 @@ public class AudioPlaybackService extends Service {
         NotificationManager notificationManager = (NotificationManager) this.getSystemService( NOTIFICATION_SERVICE );
         notificationManager.cancel( mNotificationId );
 
-        try {
-            mEqualizerHelper.releaseEQObjects();
-            mEqualizerHelper = null;
-        } catch( Exception e1 ) {
-            e1.printStackTrace();
-            mEqualizerHelper = null;
-        }
-
         if( mMediaPlayer != null ) {
             mMediaPlayer.release();
         }
@@ -3079,9 +2568,6 @@ public class AudioPlaybackService extends Service {
         } catch( Exception e ) {
             e.printStackTrace();
         }
-
-        //Final scrobbling.
-        scrobbleTrack( SimpleLastFMHelper.PAUSE );
 
         /*
          * If A-B repeat is enabled, disable it to prevent the

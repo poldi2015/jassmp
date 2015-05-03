@@ -19,61 +19,57 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.widget.Toast;
 
-import com.jams.music.player.DBHelpers.MediaStoreAccessHelper;
-import com.jams.music.player.R;
 import com.jams.music.player.NowPlayingActivity.NowPlayingActivity;
 import com.jams.music.player.NowPlayingActivity.NowPlayingActivity.NowPlayingActivityListener;
+import com.jams.music.player.R;
 import com.jams.music.player.Services.AudioPlaybackService;
 import com.jams.music.player.Services.AudioPlaybackService.PrepareServiceListener;
 import com.jams.music.player.Utils.Common;
 
 /**
- * Initiates the playback sequence and 
+ * Initiates the playback sequence and
  * starts AudioPlaybackService.
- * 
+ *
  * @author Saravan Pantham
  */
 public class PlaybackKickstarter implements NowPlayingActivityListener, PrepareServiceListener {
 
-	private Context mContext;
-	private Common mApp;
-	
-	private String mQuerySelection;
-	private int mPlaybackRouteId;
-	private int mCurrentSongIndex;
+    private Context mContext;
+    private Common  mApp;
+
+    private String  mQuerySelection;
+    private int     mPlaybackRouteId;
+    private int     mCurrentSongIndex;
     private boolean mPlayAll;
 
-    public PlaybackKickstarter(Context context) {
+    public PlaybackKickstarter( Context context ) {
         mContext = context;
     }
 
-	private BuildCursorListener mBuildCursorListener;
-	
-	/**
-	 * Public interface that provides access to 
-	 * major events during the cursor building 
-	 * process.
-	 * 
-	 * @author Saravan Pantham
-	 */
-	public interface BuildCursorListener {
-		
-		/**
-		 * Called when the service cursor has been prepared successfully.
-		 */
-		public void onServiceCursorReady(Cursor cursor, int currentSongIndex, boolean playAll);
-		
-		/**
-		 * Called when the service cursor failed to be built. 
-		 * Also returns the failure reason via the exception's
+    private BuildCursorListener mBuildCursorListener;
+
+    /**
+     * Public interface that provides access to
+     * major events during the cursor building
+     * process.
+     *
+     * @author Saravan Pantham
+     */
+    public interface BuildCursorListener {
+
+        /**
+         * Called when the service cursor has been prepared successfully.
+         */
+        public void onServiceCursorReady( Cursor cursor, int currentSongIndex, boolean playAll );
+
+        /**
+         * Called when the service cursor failed to be built.
+         * Also returns the failure reason via the exception's
          * message parameter.
-		 */
-		public void onServiceCursorFailed(String exceptionMessage);
+         */
+        public void onServiceCursorFailed( String exceptionMessage );
 
         /**
          * Called when/if the service is already running and
@@ -81,161 +77,148 @@ public class PlaybackKickstarter implements NowPlayingActivityListener, PrepareS
          * need to be updated if the user tapped on "Save
          * current position", etc.
          */
-        public void onServiceCursorUpdated(Cursor cursor);
-	
-	}
-	
-	/**
-	 * Helper method that calls all the required method(s) 
-	 * that initialize music playback. This method should 
-	 * always be called when the cursor for the service 
-	 * needs to be changed.
-	 */
-	public void initPlayback(Context context, 
-						     String querySelection,
-							 int playbackRouteId,
-							 int currentSongIndex,
-							 boolean showNowPlayingActivity,
-                             boolean playAll) {
+        public void onServiceCursorUpdated( Cursor cursor );
 
-		mApp = (Common) mContext.getApplicationContext();
-		mQuerySelection = querySelection;
-		mPlaybackRouteId = playbackRouteId;
-		mCurrentSongIndex = currentSongIndex;
+    }
+
+    /**
+     * Helper method that calls all the required method(s)
+     * that initialize music playback. This method should
+     * always be called when the cursor for the service
+     * needs to be changed.
+     */
+    public void initPlayback( Context context, String querySelection, int playbackRouteId, int currentSongIndex, boolean showNowPlayingActivity, boolean playAll ) {
+
+        mApp = (Common) mContext.getApplicationContext();
+        mQuerySelection = querySelection;
+        mPlaybackRouteId = playbackRouteId;
+        mCurrentSongIndex = currentSongIndex;
         mPlayAll = playAll;
-		
-		if (showNowPlayingActivity) {
-			//Launch NowPlayingActivity.
-			Intent intent = new Intent(mContext, NowPlayingActivity.class);
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			intent.putExtra(NowPlayingActivity.START_SERVICE, true);
-			mContext.startActivity(intent);
-			
-		} else {
-			//Start the playback service if it isn't running.
-			if (!mApp.isServiceRunning()) {
-				startService();
-			} else {
-				//Call the callback method that will start building the new cursor.
-				mApp.getService()
-					.getPrepareServiceListener()
-					.onServiceRunning(mApp.getService());
-			}
-			
-		}
-		
-	}
-	
-	/**
-	 * Starts AudioPlaybackService. Once the service is running, we get a
-	 * callback to onServiceRunning() (see below). That's where the method to 
-	 * build the cursor is called.
-	 */
-	private void startService() {
-		Intent intent = new Intent(mContext, AudioPlaybackService.class);
-		mContext.startService(intent);
-	}
+
+        if( showNowPlayingActivity ) {
+            //Launch NowPlayingActivity.
+            Intent intent = new Intent( mContext, NowPlayingActivity.class );
+            intent.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+            intent.putExtra( NowPlayingActivity.START_SERVICE, true );
+            mContext.startActivity( intent );
+
+        } else {
+            //Start the playback service if it isn't running.
+            if( !mApp.isServiceRunning() ) {
+                startService();
+            } else {
+                //Call the callback method that will start building the new cursor.
+                mApp.getAudioPlaybackService()
+                    .getPrepareServiceListener()
+                    .onServiceRunning( mApp.getAudioPlaybackService() );
+            }
+
+        }
+
+    }
+
+    /**
+     * Starts AudioPlaybackService. Once the service is running, we get a
+     * callback to onServiceRunning() (see below). That's where the method to
+     * build the cursor is called.
+     */
+    private void startService() {
+        Intent intent = new Intent( mContext, AudioPlaybackService.class );
+        mContext.startService( intent );
+    }
 
     /**
      * Requeries the database to update the current
      * service cursor.
      */
     public void updateServiceCursor() {
-        new AsyncBuildCursorTask(true).execute();
+        new AsyncBuildCursorTask( true ).execute();
 
     }
 
-	/**
-	 * Builds the cursor that will be used for playback. Once the cursor 
-	 * is built, AudioPlaybackService receives a callback via
-	 * onServiceCursorReady() (see below). The service then takes over 
-	 * the rest of the process.
-	 */
-	class AsyncBuildCursorTask extends AsyncTask<Boolean, String, Cursor> {
+    /**
+     * Builds the cursor that will be used for playback. Once the cursor
+     * is built, AudioPlaybackService receives a callback via
+     * onServiceCursorReady() (see below). The service then takes over
+     * the rest of the process.
+     */
+    class AsyncBuildCursorTask extends AsyncTask<Boolean, String, Cursor> {
 
         private boolean mIsUpdating = false;
 
-        public AsyncBuildCursorTask(boolean isUpdating) {
+        public AsyncBuildCursorTask( boolean isUpdating ) {
             mIsUpdating = isUpdating;
         }
 
-		@Override
-		protected Cursor doInBackground(Boolean... params) {
+        @Override
+        protected Cursor doInBackground( Boolean... params ) {
+            return mApp.getDBAccessHelper().getPlaybackCursor( mContext, mQuerySelection, mPlaybackRouteId );
 
-            if (mPlaybackRouteId==Common.PLAY_ALL_IN_FOLDER)
-                //Return a cursor directly from MediaStore.
-                return MediaStoreAccessHelper.getAllSongsWithSelection(mContext,
-                                                                       mQuerySelection,
-                                                                       null,
-                                                                       MediaStore.Audio.Media.DATA + " ASC");
 
-            else
-                return mApp.getDBAccessHelper().getPlaybackCursor(mContext, mQuerySelection, mPlaybackRouteId);
-
-			
-		}
+        }
 
         @Override
-        public void onProgressUpdate(String... params) {
-            getBuildCursorListener().onServiceCursorFailed(params[0]);
+        public void onProgressUpdate( String... params ) {
+            getBuildCursorListener().onServiceCursorFailed( params[ 0 ] );
         }
-		
-		@Override
-		public void onPostExecute(Cursor cursor) {
-			super.onPostExecute(cursor);
-			if (cursor!=null) {
-                if (!mIsUpdating)
-                    getBuildCursorListener().onServiceCursorReady(cursor, mCurrentSongIndex, mPlayAll);
-                else
-                    getBuildCursorListener().onServiceCursorUpdated(cursor);
+
+        @Override
+        public void onPostExecute( Cursor cursor ) {
+            super.onPostExecute( cursor );
+            if( cursor != null ) {
+                if( !mIsUpdating ) {
+                    getBuildCursorListener().onServiceCursorReady( cursor, mCurrentSongIndex, mPlayAll );
+                } else {
+                    getBuildCursorListener().onServiceCursorUpdated( cursor );
+                }
 
             } else {
-                getBuildCursorListener().onServiceCursorFailed("Playback cursor null.");
+                getBuildCursorListener().onServiceCursorFailed( "Playback cursor null." );
             }
 
-		}
-		
-	}
+        }
 
-	@Override
-	public void onServiceRunning(AudioPlaybackService service) {
-		//Build the cursor and pass it on to the service.
-		mApp = (Common) mContext.getApplicationContext();
-		mApp.setIsServiceRunning(true);
-		mApp.setService(service);
-		mApp.getService().setPrepareServiceListener(this);
-		mApp.getService().setCurrentSongIndex(mCurrentSongIndex);
-		new AsyncBuildCursorTask(false).execute();
-		
-	}
+    }
 
-	@Override
-	public void onServiceFailed(Exception exception) {
-		//Can't move forward from this point.
-		exception.printStackTrace();
-		Toast.makeText(mContext, R.string.unable_to_start_playback, Toast.LENGTH_SHORT).show();
-		
-	}
+    @Override
+    public void onServiceRunning( AudioPlaybackService service ) {
+        //Build the cursor and pass it on to the service.
+        mApp = (Common) mContext.getApplicationContext();
+        mApp.setIsServiceRunning( true );
+        mApp.setService( service );
+        mApp.getAudioPlaybackService().setPrepareServiceListener( this );
+        mApp.getAudioPlaybackService().setCurrentSongIndex( mCurrentSongIndex );
+        new AsyncBuildCursorTask( false ).execute();
 
-	@Override
-	public void onNowPlayingActivityReady() {
-		//Start the playback service if it isn't running.
-		if (!mApp.isServiceRunning()) {
-			startService();
-		} else {
-			//Call the callback method that will start building the new cursor.
-			mApp.getService()
-				.getPrepareServiceListener()
-				.onServiceRunning(mApp.getService());
-		}
-		
-	}
+    }
+
+    @Override
+    public void onServiceFailed( Exception exception ) {
+        //Can't move forward from this point.
+        exception.printStackTrace();
+        Toast.makeText( mContext, R.string.unable_to_start_playback, Toast.LENGTH_SHORT ).show();
+
+    }
+
+    @Override
+    public void onNowPlayingActivityReady() {
+        //Start the playback service if it isn't running.
+        if( !mApp.isServiceRunning() ) {
+            startService();
+        } else {
+            //Call the callback method that will start building the new cursor.
+            mApp.getAudioPlaybackService()
+                .getPrepareServiceListener()
+                .onServiceRunning( mApp.getAudioPlaybackService() );
+        }
+
+    }
 
     public BuildCursorListener getBuildCursorListener() {
         return mBuildCursorListener;
     }
 
-    public void setBuildCursorListener(BuildCursorListener listener) {
+    public void setBuildCursorListener( BuildCursorListener listener ) {
         mBuildCursorListener = listener;
     }
 

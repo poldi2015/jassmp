@@ -2,9 +2,6 @@ package com.jams.music.player.ListViewFragment;
 
 import com.jams.music.player.DBHelpers.DBAccessHelper;
 
-/**
- * Created by haberstu on 31.01.2015.
- */
 public enum DatabaseItem {
     TITLE( DBAccessHelper.SONG_TITLE ),
     ARTIST( DBAccessHelper.SONG_ARTIST ),
@@ -13,7 +10,6 @@ public enum DatabaseItem {
     DURATION( DBAccessHelper.SONG_DURATION ),
     BPM( DBAccessHelper.SONG_BPM ),
     RATING( DBAccessHelper.SONG_RATING ),
-    SOURCE( DBAccessHelper.SONG_SOURCE ),
     FILE_PATH( DBAccessHelper.SONG_FILE_PATH ),
     COVER_PATH( DBAccessHelper.SONG_ALBUM_ART_PATH );
 

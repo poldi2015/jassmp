@@ -20,8 +20,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -121,32 +119,6 @@ public class WelcomeActivity extends FragmentActivity {
                 new AsyncSaveMusicFoldersTask( mContext.getApplicationContext(),
                                                mMusicFoldersFragment.getMusicFoldersSelectionFragment()
                                                                     .getMusicFolders() ).execute();
-            }
-			
-			/* If the user scrolls away from the Google Play Music page and 
-			 * they have selected an account, check if the default Google Play 
-			 * Music app is installed. */
-            if( page == 3 ) {
-
-                if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) == true ) {
-                    //Check if the Google Play Music app is installed.
-                    PackageManager pm = mContext.getPackageManager();
-                    boolean installed = false;
-                    try {
-                        pm.getPackageInfo( "com.google.android.music", PackageManager.GET_ACTIVITIES );
-                        installed = true;
-                    } catch( NameNotFoundException e1 ) {
-                        //The app isn't installed.
-                        installed = false;
-                    }
-
-                    if( installed == false ) {
-                        //Prompt the user to install Google Play Music.
-                        promptUserInstallGooglePlayMusic();
-                    }
-
-                }
-
             }
 
             //Launch the scanning AsyncTask.
@@ -352,8 +324,6 @@ public class WelcomeActivity extends FragmentActivity {
                     return mMusicFoldersFragment;
                 case 2:
                     return new AlbumArtFragment();
-                case 3:
-                    return new GooglePlayMusicFragment();
                 case 4:
                     return new ReadyToScanFragment();
                 case 5:
