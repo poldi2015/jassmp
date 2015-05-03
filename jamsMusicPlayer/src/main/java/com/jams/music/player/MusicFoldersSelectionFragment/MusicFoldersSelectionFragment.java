@@ -15,17 +15,8 @@
  */
 package com.jams.music.player.MusicFoldersSelectionFragment;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -40,122 +31,109 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.jams.music.player.R;
-import com.jams.music.player.DBHelpers.DBAccessHelper;
+import com.jams.music.player.DBHelpers.MusicFolderAccessor;
 import com.jams.music.player.Helpers.TypefaceHelper;
 import com.jams.music.player.Helpers.UIElementsHelper;
+import com.jams.music.player.R;
 import com.jams.music.player.Utils.Common;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
 public class MusicFoldersSelectionFragment extends Fragment {
-	
-	private Context mContext;
-	private Common mApp;
-	private boolean mWelcomeSetup = false;
+
+    private Context mContext;
+    private Common  mApp;
+    private boolean mWelcomeSetup = false;
 
     private RelativeLayout mUpLayout;
-    private ImageView mUpIcon;
-    private TextView mUpText;
-    private TextView mCurrentFolderText;
+    private ImageView      mUpIcon;
+    private TextView       mUpText;
+    private TextView       mCurrentFolderText;
 
-	private ListView mFoldersListView;
-	private Cursor mCursor;
-	
-	private String mRootDir;
-	private String mCurrentDir;
-	
-	private List<String> mFileFolderNamesList; 
-	private List<String> mFileFolderPathsList;
-	private List<String> mFileFolderSizesList;
-	private HashMap<String, Boolean> mMusicFolders;
-	
-	private static boolean CALLED_FROM_WELCOME = false;
-	
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		
-		mContext = getActivity().getApplicationContext();
-		mApp = (Common) mContext;
-		View rootView = getActivity().getLayoutInflater().inflate(R.layout.fragment_folders_selection, null);
-		mMusicFolders = new HashMap<String, Boolean>();
+    private ListView mFoldersListView;
 
-        mFoldersListView = (ListView) rootView.findViewById(R.id.folders_list_view);
-        mFoldersListView.setFastScrollEnabled(true);
-        mWelcomeSetup = getArguments().getBoolean("com.jams.music.player.WELCOME");
+    private String mRootDir;
+    private String mCurrentDir;
 
-        mUpLayout = (RelativeLayout) rootView.findViewById(R.id.folders_up_layout);
-        mUpIcon = (ImageView) rootView.findViewById(R.id.folders_up_icon);
-        mUpText = (TextView) rootView.findViewById(R.id.folders_up_text);
-        mCurrentFolderText = (TextView) rootView.findViewById(R.id.folders_current_directory_text);
+    private List<String>             mFileFolderNamesList;
+    private List<String>             mFileFolderPathsList;
+    private List<String>             mFileFolderSizesList;
+    private HashMap<String, Boolean> mMusicFolders;
 
-        mUpText.setTypeface(TypefaceHelper.getTypeface(mContext, "Roboto-Regular"));
-        mCurrentFolderText.setTypeface(TypefaceHelper.getTypeface(mContext, "Roboto-Regular"));
+    private static boolean CALLED_FROM_WELCOME = false;
 
-        mUpLayout.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+
+        mContext = getActivity().getApplicationContext();
+        mApp = (Common) mContext;
+        View rootView = getActivity().getLayoutInflater().inflate( R.layout.fragment_folders_selection, null );
+        mMusicFolders = new HashMap<String, Boolean>();
+
+        mFoldersListView = (ListView) rootView.findViewById( R.id.folders_list_view );
+        mFoldersListView.setFastScrollEnabled( true );
+        mWelcomeSetup = getArguments().getBoolean( "com.jams.music.player.WELCOME" );
+
+        mUpLayout = (RelativeLayout) rootView.findViewById( R.id.folders_up_layout );
+        mUpIcon = (ImageView) rootView.findViewById( R.id.folders_up_icon );
+        mUpText = (TextView) rootView.findViewById( R.id.folders_up_text );
+        mCurrentFolderText = (TextView) rootView.findViewById( R.id.folders_current_directory_text );
+
+        mUpText.setTypeface( TypefaceHelper.getTypeface( mContext, "Roboto-Regular" ) );
+        mCurrentFolderText.setTypeface( TypefaceHelper.getTypeface( mContext, "Roboto-Regular" ) );
+
+        mUpLayout.setOnClickListener( new View.OnClickListener() {
 
             @Override
-            public void onClick(View v) {
+            public void onClick( View v ) {
                 try {
-                    getDir(new File(mCurrentDir).getParentFile().getCanonicalPath());
-                } catch (Exception e) {
+                    getDir( new File( mCurrentDir ).getParentFile().getCanonicalPath() );
+                } catch( Exception e ) {
                     e.printStackTrace();
                 }
 
             }
 
-        });
+        } );
 
-        if (mWelcomeSetup) {
-            mFoldersListView.setDivider(getResources().getDrawable(R.drawable.icon_list_divider_light));
-            mUpIcon.setImageResource(R.drawable.up);
+        if( mWelcomeSetup ) {
+            mFoldersListView.setDivider( getResources().getDrawable( R.drawable.icon_list_divider_light ) );
+            mUpIcon.setImageResource( R.drawable.up );
         } else {
-            mUpIcon.setImageResource(UIElementsHelper.getIcon(mContext, "up"));
+            mUpIcon.setImageResource( UIElementsHelper.getIcon( mContext, "up" ) );
 
-            if (mApp.getCurrentTheme()==Common.DARK_THEME) {
-                mUpIcon.setImageResource(R.drawable.icon_list_divider_light);
+            if( mApp.getCurrentTheme() == Common.DARK_THEME ) {
+                mUpIcon.setImageResource( R.drawable.icon_list_divider_light );
             } else {
-                mUpIcon.setImageResource(R.drawable.icon_list_divider);
+                mUpIcon.setImageResource( R.drawable.icon_list_divider );
             }
 
         }
 
-		mFoldersListView.setDividerHeight(1);
-		mRootDir = Environment.getExternalStorageDirectory().getAbsolutePath().toString();
-		mCurrentDir = mRootDir;
+        mFoldersListView.setDividerHeight( 1 );
+        mRootDir = Environment.getExternalStorageDirectory().getAbsolutePath().toString();
+        mCurrentDir = mRootDir;
 
-        //Get a mCursor with a list of all the current folder paths (will be empty if this is the first run).
-		mCursor = mApp.getDBAccessHelper().getAllMusicFolderPaths();
-        
-		//Get a list of all the paths that are currently stored in the DB.
-		for (int i=0; i < mCursor.getCount(); i++) {
-			mCursor.moveToPosition(i);
-			
-			//Filter out any double slashes.
-			String path = mCursor.getString(mCursor.getColumnIndex(DBAccessHelper.FOLDER_PATH));
-			if (path.contains("//")) {
-				path.replace("//", "/");
-			}
+        mMusicFolders = MusicFolderAccessor.getInstance( mApp ).getAllMusicFolderPaths();
 
-			mMusicFolders.put(path, true);
-		}
-		
-		//Close the cursor.
-        if (mCursor!=null)
-		    mCursor.close();
-		
-		//Get the folder hierarchy of the selected folder.
-        getDir(mRootDir);
-        
-        mFoldersListView.setOnItemClickListener(new OnItemClickListener() {
+        //Get the folder hierarchy of the selected folder.
+        getDir( mRootDir );
 
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int index, long arg3) {
-				String newPath = mFileFolderPathsList.get(index);
-				getDir(newPath);
-				
-			}
-        	
-        });
-        
+        mFoldersListView.setOnItemClickListener( new OnItemClickListener() {
+
+            @Override
+            public void onItemClick( AdapterView<?> arg0, View arg1, int index, long arg3 ) {
+                String newPath = mFileFolderPathsList.get( index );
+                getDir( newPath );
+
+            }
+
+        } );
+
         return rootView;
     }
 
@@ -163,163 +141,154 @@ public class MusicFoldersSelectionFragment extends Fragment {
      * Sets the current directory's text.
      */
     private void setCurrentDirText() {
-        mCurrentFolderText.setText(mCurrentDir);
+        mCurrentFolderText.setText( mCurrentDir );
     }
-	
-	/**
-	 * Retrieves the folder hierarchy for the specified folder 
-	 * (this method is NOT recursive and doesn't go into the parent 
-	 * folder's subfolders. 
-	 */
-    private void getDir(String dirPath) {
 
-		mFileFolderNamesList = new ArrayList<String>();
-		mFileFolderPathsList = new ArrayList<String>();
-		mFileFolderSizesList = new ArrayList<String>();
-		
-		File f = new File(dirPath);
-		File[] files = f.listFiles();
-		Arrays.sort(files);
-		 
-		if (files!=null) {
-			
-			for(int i=0; i < files.length; i++) {
-				
-				File file = files[i];
-			 
-				if(!file.isHidden() && file.canRead()) {
-					
-					if (file.isDirectory()) {
-						
+    /**
+     * Retrieves the folder hierarchy for the specified folder
+     * (this method is NOT recursive and doesn't go into the parent
+     * folder's subfolders.
+     */
+    private void getDir( String dirPath ) {
+
+        mFileFolderNamesList = new ArrayList<String>();
+        mFileFolderPathsList = new ArrayList<String>();
+        mFileFolderSizesList = new ArrayList<String>();
+
+        File f = new File( dirPath );
+        File[] files = f.listFiles();
+        Arrays.sort( files );
+
+        if( files != null ) {
+
+            for( int i = 0; i < files.length; i++ ) {
+
+                File file = files[ i ];
+
+                if( !file.isHidden() && file.canRead() ) {
+
+                    if( file.isDirectory() ) {
+
 						/*
 						 * Starting with Android 4.2, /storage/emulated/legacy/... 
 						 * is a symlink that points to the actual directory where 
 						 * the user's files are stored. We need to detect the 
 						 * actual directory's file path here.
 						 */
-						String filePath;
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) 
-							filePath = getRealFilePath(file.getAbsolutePath());
-						else
-							filePath = file.getAbsolutePath();
-							
-						mFileFolderPathsList.add(filePath);
-						mFileFolderNamesList.add(file.getName());
-						
-						File[] listOfFiles = file.listFiles();
-						
-						if (listOfFiles!=null) {
-							if (listOfFiles.length==1) {
-								mFileFolderSizesList.add("" + listOfFiles.length + " item");
-							} else {
-								mFileFolderSizesList.add("" + listOfFiles.length + " items");
-							}
-							
-						}
-						
-					}
-					
-				} 
-			
-			}
-			
-		}
-		
-		boolean dirChecked = false;
-		if (getMusicFoldersHashMap().get(dirPath)!=null)
-			dirChecked = getMusicFoldersHashMap().get(dirPath);
-		
-		MultiselectListViewAdapter mFoldersListViewAdapter = new MultiselectListViewAdapter(getActivity(), 
-																							this, 
-																							mWelcomeSetup,
-																							dirChecked);
-		
-		mFoldersListView.setAdapter(mFoldersListViewAdapter);
-		mFoldersListViewAdapter.notifyDataSetChanged();
+                        String filePath;
+                        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 ) {
+                            filePath = getRealFilePath( file.getAbsolutePath() );
+                        } else {
+                            filePath = file.getAbsolutePath();
+                        }
+
+                        mFileFolderPathsList.add( filePath );
+                        mFileFolderNamesList.add( file.getName() );
+
+                        File[] listOfFiles = file.listFiles();
+
+                        if( listOfFiles != null ) {
+                            if( listOfFiles.length == 1 ) {
+                                mFileFolderSizesList.add( "" + listOfFiles.length + " item" );
+                            } else {
+                                mFileFolderSizesList.add( "" + listOfFiles.length + " items" );
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        boolean dirChecked = false;
+        if( getMusicFolders().get( dirPath ) != null ) {
+            dirChecked = getMusicFolders().get( dirPath );
+        }
+
+        MultiselectListViewAdapter mFoldersListViewAdapter = new MultiselectListViewAdapter( getActivity(), this,
+                                                                                             mWelcomeSetup,
+                                                                                             dirChecked );
+
+        mFoldersListView.setAdapter( mFoldersListViewAdapter );
+        mFoldersListViewAdapter.notifyDataSetChanged();
 
         mCurrentDir = dirPath;
         setCurrentDirText();
-		
+
     }
-    
+
     /**
-     * Resolves the /storage/emulated/legacy paths to 
-     * their true folder path representations. Required 
+     * Resolves the /storage/emulated/legacy paths to
+     * their true folder path representations. Required
      * for Nexuses and other devices with no SD card.
      */
-    @SuppressLint("SdCardPath") 
-    private String getRealFilePath(String filePath) {
-    	
-    	if (filePath.equals("/storage/emulated/0") || 
-    		filePath.equals("/storage/emulated/0/") ||
-    		filePath.equals("/storage/emulated/legacy") ||
-    		filePath.equals("/storage/emulated/legacy/") ||
-    		filePath.equals("/storage/sdcard0") || 
-    		filePath.equals("/storage/sdcard0/") ||
-    		filePath.equals("/sdcard") || 
-    		filePath.equals("/sdcard/") || 
-    		filePath.equals("/mnt/sdcard") || 
-    		filePath.equals("/mnt/sdcard/")) {
-    		
-    		return Environment.getExternalStorageDirectory().toString();
-    	}
+    @SuppressLint("SdCardPath")
+    private String getRealFilePath( String filePath ) {
 
-    	return filePath;
+        if( filePath.equals( "/storage/emulated/0" ) ||
+            filePath.equals( "/storage/emulated/0/" ) ||
+            filePath.equals( "/storage/emulated/legacy" ) ||
+            filePath.equals( "/storage/emulated/legacy/" ) ||
+            filePath.equals( "/storage/sdcard0" ) ||
+            filePath.equals( "/storage/sdcard0/" ) ||
+            filePath.equals( "/sdcard" ) ||
+            filePath.equals( "/sdcard/" ) ||
+            filePath.equals( "/mnt/sdcard" ) ||
+            filePath.equals( "/mnt/sdcard/" ) ) {
+
+            return Environment.getExternalStorageDirectory().toString();
+        }
+
+        return filePath;
     }
-    
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		
-		if (CALLED_FROM_WELCOME==false) {
-			getActivity().finish();
-		}
-		
-	}
-	
-	@Override
-	public void onPause() {
-		super.onPause();
-		
-		if (CALLED_FROM_WELCOME==false) {
-			getActivity().finish();
-		}
-		
-	}
-	
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
 
-		if (isRemoving()) {
-			mCursor.close();
-			mCursor = null;
-		}
-		
-	}
-	
-	/*
-	 * Getter methods.
-	 */
-	public HashMap<String, Boolean> getMusicFoldersHashMap() {
-		return mMusicFolders;
-	}
-	
-	public ArrayList<String> getMusicFolderPaths() {
-		return new ArrayList<String>(mMusicFolders.keySet());
-	}
-	
-	public List<String> getFileFolderNamesList() {
-		return mFileFolderNamesList;
-	}
-	
-	public List<String> getFileFolderSizesList() {
-		return mFileFolderSizesList;
-	}
-	
-	public List<String> getFileFolderPathsList() {
-		return mFileFolderPathsList;
-	}
-	
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if( CALLED_FROM_WELCOME == false ) {
+            getActivity().finish();
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if( CALLED_FROM_WELCOME == false ) {
+            getActivity().finish();
+        }
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
+    /*
+     * Getter methods.
+     */
+    public HashMap<String, Boolean> getMusicFolders() {
+        return mMusicFolders;
+    }
+
+    public List<String> getFileFolderNamesList() {
+        return mFileFolderNamesList;
+    }
+
+    public List<String> getFileFolderSizesList() {
+        return mFileFolderSizesList;
+    }
+
+    public List<String> getFileFolderPathsList() {
+        return mFileFolderPathsList;
+    }
+
 }
 

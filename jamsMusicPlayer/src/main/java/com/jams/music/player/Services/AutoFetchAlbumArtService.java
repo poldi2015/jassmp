@@ -23,9 +23,8 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
-import com.jams.music.player.R;
 import com.jams.music.player.AsyncTasks.AsyncAutoGetAlbumArtTask;
-import com.jams.music.player.SettingsActivity.SettingsActivity____;
+import com.jams.music.player.R;
 
 public class AutoFetchAlbumArtService extends Service {
 	
@@ -65,7 +64,7 @@ public class AutoFetchAlbumArtService extends Service {
         startForeground(NOTIFICATION_ID, notification);
 		
         //Call the AsyncTask that checks for missing art and downloads them.
-        AsyncAutoGetAlbumArtTask task = new AsyncAutoGetAlbumArtTask(mContext, SettingsActivity____.mSettingsActivity);
+        AsyncAutoGetAlbumArtTask task = new AsyncAutoGetAlbumArtTask( mContext, null );
         task.execute();
         
         return START_STICKY;

@@ -5,8 +5,8 @@
 
     <ImageView
         android:id="@+id/songListViewCoverIcon"
-        android:layout_height="@dimen/song_list_view_icon_height"
-        android:layout_width="@dimen/song_list_view_album_icon_width"
+        android:layout_height="@dimen/list_view_icon_height"
+        android:layout_width="@dimen/list_view_album_icon_width"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:src="@drawable/empty_color_patch_circular"
@@ -121,7 +121,7 @@
 
     <ImageView
         android:id="@+id/songListViewRatingIcon"
-        android:layout_height="@dimen/song_list_view_icon_height"
+        android:layout_height="@dimen/list_view_icon_height"
         android:layout_width="@dimen/song_list_view_rating_icon_width"
         android:layout_toLeftOf="@+id/songListViewActions"
         android:layout_centerVertical="true"

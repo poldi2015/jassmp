@@ -3,11 +3,11 @@
     <!-- KitKat Navigation Bar Margins -->
     <dimen name="kitkat_nav_bar_margin">10dp</dimen>
     <dimen name="kitkat_nav_bar_margin_large">40dp</dimen>
-    
+
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    
+
     <dimen name="image_width_vmlimit">200dp</dimen>
     <dimen name="image_height_vmlimit">200dp</dimen>
     <dimen name="quickplay_offset">50dp</dimen>
@@ -21,7 +21,7 @@
     <dimen name="list_padding">10dp</dimen>
     <dimen name="shadow_width">15dp</dimen>
     <integer name="num_cols">1</integer>
-    
+
     <!-- Text sizes -->
     <dimen name="text_size_extra_micro">10.0sp</dimen>
     <dimen name="text_size_micro">12.0sp</dimen>
@@ -30,7 +30,7 @@
     <dimen name="text_size_large">18.0sp</dimen>
     <dimen name="text_size_x_large">24.0sp</dimen>
     <dimen name="text_size_dayum">36.0sp</dimen>
-    
+
     <!-- Notification template -->
     <dimen name="notification_big_icon_height">64.0dip</dimen>
     <dimen name="notification_big_icon_width">64.0dip</dimen>
@@ -47,7 +47,7 @@
     <dimen name="notification_expanded_button_padding">10.0dip</dimen>
     <dimen name="notification_expanded_content_padding_top">8.0dip</dimen>
     <dimen name="notification_expanded_collapse_padding">8.0dip</dimen>
-    
+
     <!-- App Widgets -->
     <dimen name="app_widget_large_min_width">250.0dip</dimen>
     <dimen name="app_widget_large_min_height">128.0dip</dimen>
@@ -70,8 +70,8 @@
 
     <dimen name="list_view_left_icon_size">78dp</dimen>
 
-    <dimen name="song_list_view_icon_height">78dp</dimen>
-    <dimen name="song_list_view_album_icon_width">78dp</dimen>
+    <dimen name="list_view_icon_height">78dp</dimen>
+    <dimen name="list_view_album_icon_width">78dp</dimen>
     <dimen name="song_list_view_rating_icon_width">32dp</dimen>
-    
+
 </resources>

@@ -18,13 +18,8 @@ import java.io.IOException;
 public class AudioFileReader {
 
     private File mAudioFile;
-    private Tag mTag = null;
-    private static final int[] RATE_MAPPING = { 0,
-            31,
-            95,
-            159,
-            223,
-            255 };
+    private              Tag   mTag         = null;
+    private static final int[] RATE_MAPPING = { 0, 31, 95, 159, 223, 255 };
 
     public AudioFileReader( final File audioFile ) {
         mAudioFile = audioFile;
@@ -37,7 +32,9 @@ public class AudioFileReader {
         final int rating = getIntTag( FieldKey.RATING );
         if( rating > 0 ) {
             for( int i = 0; i < RATE_MAPPING.length; i++ ) {
-                if( rating <= RATE_MAPPING[ i ] ) return i;
+                if( rating <= RATE_MAPPING[ i ] ) {
+                    return i;
+                }
             }
         }
         return 0;
@@ -61,8 +58,12 @@ public class AudioFileReader {
      * @return The tag or null if file cannot be read or has not ID3v2 tag
      */
     private Tag getTag() {
-        if( mTag != null ) return mTag;
-        if( mAudioFile == null ) return null;
+        if( mTag != null ) {
+            return mTag;
+        }
+        if( mAudioFile == null ) {
+            return null;
+        }
         final MP3File mp3File;
         try {
             mp3File = (MP3File) AudioFileIO.read( mAudioFile );
@@ -91,7 +92,9 @@ public class AudioFileReader {
      */
     private int getIntTag( final FieldKey key ) {
         final Tag tag = getTag();
-        if( tag == null ) return -1;
+        if( tag == null ) {
+            return -1;
+        }
         final String first = tag.getFirst( key );
         try {
             return first != null && !"".equals( first ) ? Integer.parseInt( first ) : 0;

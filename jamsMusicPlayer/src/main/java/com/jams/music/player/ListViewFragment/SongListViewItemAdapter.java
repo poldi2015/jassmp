@@ -146,7 +146,6 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
         //Retrieve data from the cursor.
         mHolder.setTitle( c.getString( c.getColumnIndex( Items.TITLE.getDbColumn() ) ) );
         mHolder.setArtist( c.getString( c.getColumnIndex( Items.ARTIST.getDbColumn() ) ) );
-        mHolder.setSource( c.getString( c.getColumnIndex( Items.SOURCE.getDbColumn() ) ) );
         mHolder.setFilePath( c.getString( c.getColumnIndex( Items.FILE_PATH.getDbColumn() ) ) );
         mHolder.setCoverPath(
                 c.getString( c.getColumnIndex( Items.COVER_PATH.getDbColumn() ) ) );
@@ -158,8 +157,7 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
         mApp.getPicasso().load( mHolder.coverPath )
                 .transform( new PicassoCircularTransformer() )
                 .placeholder( UIElementsHelper.getEmptyCircularColorPatch( mContext ) )
-                .resizeDimen( R.dimen.song_list_view_album_icon_width,
-                        R.dimen.song_list_view_icon_height )
+                .resizeDimen( R.dimen.list_view_album_icon_width, R.dimen.list_view_icon_height )
                 .into( mHolder.coverImage );
 
         return convertView;
@@ -275,7 +273,6 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
         DURATION( DBAccessHelper.SONG_DURATION ),
         BPM( DBAccessHelper.SONG_BPM ),
         RATING( DBAccessHelper.SONG_RATING ),
-        SOURCE( DBAccessHelper.SONG_SOURCE ),
         FILE_PATH( DBAccessHelper.SONG_FILE_PATH ),
         COVER_PATH( DBAccessHelper.SONG_ALBUM_ART_PATH );
 
@@ -359,10 +356,6 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
             setRatingBitmap( rating );
         }
 
-        public void setSource( String source ) {
-            this.source = source;
-        }
-
         public void setFilePath( String filePath ) {
             this.filePath = filePath;
         }
@@ -413,8 +406,7 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
                 picasso = mRatingBitmaps[ id ] =
                         ( (Common) mContext.getApplicationContext() ).getPicasso()
                                 .load( RATING_MAP[ id ] ).resizeDimen(
-                                R.dimen.song_list_view_rating_icon_width,
-                                R.dimen.song_list_view_icon_height );
+                                R.dimen.song_list_view_rating_icon_width, R.dimen.list_view_icon_height );
                 picasso.fetch();
             }
             picasso.into( ratingIcon );

@@ -41,11 +41,13 @@ import android.widget.TextView;
 
 import com.andraskindler.quickscroll.QuickScroll;
 import com.jams.music.player.DBHelpers.DBAccessHelper;
+import com.jams.music.player.DBHelpers.OrderDirection;
 import com.jams.music.player.Dialogs.FilterDialog;
 import com.jams.music.player.Dialogs.OrderDialog;
 import com.jams.music.player.Helpers.PauseOnScrollHelper;
 import com.jams.music.player.Helpers.TypefaceHelper;
 import com.jams.music.player.Helpers.UIElementsHelper;
+import com.jams.music.player.MainActivity.MainActivity;
 import com.jams.music.player.R;
 import com.jams.music.player.Utils.Common;
 import com.jams.music.player.Utils.SynchronizedAsyncTask;
@@ -55,8 +57,8 @@ import com.jams.music.player.Utils.SynchronizedAsyncTask;
  *
  * @author Saravan Pantham
  */
-public class SongListViewFragment extends Fragment implements FilterDialog.FilterDialogListener,
-        OrderDialog.OrderDialogListener {
+public class SongListViewFragment extends Fragment
+        implements FilterDialog.FilterDialogListener, OrderDialog.OrderDialogListener {
 
     private static final SparseArray<String> ITEM_TO_ORDER_BY;
 
@@ -69,21 +71,20 @@ public class SongListViewFragment extends Fragment implements FilterDialog.Filte
         ITEM_TO_ORDER_BY.put( R.id.song_list_sort_duration, DBAccessHelper.SONG_DURATION );
     }
 
-    private Context mContext = null;
-    private Common mApp = null;
-    private View mRootView = null;
+    private Context mContext  = null;
+    private Common  mApp      = null;
+    private View    mRootView = null;
 
     private SynchronizedAsyncTask mAsyncExecutorTask = null;
 
     private QuickScroll mQuickScroll = null;
-    private ListView mListView = null;
+    private ListView    mListView    = null;
 
     private String mQuerySelection = "";
 
 
     @Override
-    public View onCreateView( LayoutInflater inflater, ViewGroup container,
-                              Bundle savedInstanceState ) {
+    public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 
         setHasOptionsMenu( true );
         mRootView = inflater.inflate( R.layout.fragment_list_view, container, false );
@@ -102,11 +103,9 @@ public class SongListViewFragment extends Fragment implements FilterDialog.Filte
 
         //Apply the ListViews' dividers.
         if( mApp.getCurrentTheme() == Common.DARK_THEME ) {
-            mListView.setDivider(
-                    mContext.getResources().getDrawable( R.drawable.icon_list_divider ) );
+            mListView.setDivider( mContext.getResources().getDrawable( R.drawable.icon_list_divider ) );
         } else {
-            mListView.setDivider(
-                    mContext.getResources().getDrawable( R.drawable.icon_list_divider_light ) );
+            mListView.setDivider( mContext.getResources().getDrawable( R.drawable.icon_list_divider_light ) );
         }
         mListView.setDividerHeight( 1 );
 
@@ -116,8 +115,7 @@ public class SongListViewFragment extends Fragment implements FilterDialog.Filte
 
             //Calculate navigation bar height.
             int navigationBarHeight = 0;
-            int resourceId =
-                    getResources().getIdentifier( "navigation_bar_height", "dimen", "android" );
+            int resourceId = getResources().getIdentifier( "navigation_bar_height", "dimen", "android" );
             if( resourceId > 0 ) {
                 navigationBarHeight = getResources().getDimensionPixelSize( resourceId );
             }
@@ -150,8 +148,7 @@ public class SongListViewFragment extends Fragment implements FilterDialog.Filte
 
         //Set the ActionBar title.
         if( getActivity().getActionBar() != null ) {
-            getActivity().getActionBar()
-                    .setTitle( mContext.getResources().getString( R.string.songs ) );
+            getActivity().getActionBar().setTitle( mContext.getResources().getString( R.string.songs ) );
         }
 
     }
@@ -177,21 +174,27 @@ public class SongListViewFragment extends Fragment implements FilterDialog.Filte
      * @param orderBy column to order with
      */
     public void reloadDatabase( final int delay, final String orderBy ) {
-        if( mAsyncExecutorTask.isDisposed() ) mAsyncExecutorTask = new SynchronizedAsyncTask();
+        if( mAsyncExecutorTask.isDisposed() ) {
+            mAsyncExecutorTask = new SynchronizedAsyncTask();
+        }
         mAsyncExecutorTask.execute( delay, new AsyncRunQuery( orderBy, null ) );
     }
 
 
-    @Override public void onCreateOptionsMenu( Menu menu, MenuInflater inflater ) {
+    @Override
+    public void onCreateOptionsMenu( Menu menu, MenuInflater inflater ) {
         inflater.inflate( R.menu.sort_menu, menu );
         for( int i = 0; i < menu.size(); i++ ) {
             final MenuItem item = menu.getItem( i );
-            if( item == null ) continue;
+            if( item == null ) {
+                continue;
+            }
             setSortOrderIcon( item, ITEM_TO_ORDER_BY.get( item.getItemId() ) );
         }
     }
 
-    @Override public boolean onOptionsItemSelected( MenuItem item ) {
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
             case R.id.action_filter:
                 new FilterDialog( this ).show( getFragmentManager(), "FilterDialog" );
@@ -212,31 +215,32 @@ public class SongListViewFragment extends Fragment implements FilterDialog.Filte
         return super.onOptionsItemSelected( item );
     }
 
-    @Override public void onFilterDialogClick( int which ) {
-        switch( which ) {
-        }
+    @Override
+    public void onFilterDialogClick( int which ) {
+        ( (MainActivity) getActivity() ).switchContent( FilterDialog.FRAGMENT_IDS[ which ] );
     }
 
-    @Override public void onOrderDialogClick( int which ) {
+    @Override
+    public void onOrderDialogClick( int which ) {
         final String orderBy = ITEM_TO_ORDER_BY.valueAt( which );
         if( orderBy != null ) {
             reloadDatabase( 0, orderBy );
         }
     }
 
-    @SuppressWarnings( "unused" )
+    @SuppressWarnings("unused")
     private void setSortOrderIcon( final MenuItem item, final String orderBy ) {
-//        if( orderBy == null ) return;
-//        final DBAccessHelper.OrderDirection orderDirection = getOrderDirectionFromPreferences(
-// orderBy );
-//        switch( orderDirection ) {
-//            case ASC:
-//                item.setIcon( R.drawable.down );
-//                break;
-//            case DESC:
-//                item.setIcon( R.drawable.down );
-//                break;
-//        }
+        //        if( orderBy == null ) return;
+        //        final DBAccessHelper.OrderDirection orderDirection = getOrderDirectionFromPreferences(
+        // orderBy );
+        //        switch( orderDirection ) {
+        //            case ASC:
+        //                item.setIcon( R.drawable.down );
+        //                break;
+        //            case DESC:
+        //                item.setIcon( R.drawable.down );
+        //                break;
+        //        }
     }
 
     /**
@@ -247,12 +251,7 @@ public class SongListViewFragment extends Fragment implements FilterDialog.Filte
         @Override
         public void onItemClick( AdapterView<?> arg0, View view, int index, long id ) {
             mApp.getPlaybackKickstarter()
-                    .initPlayback( mContext,
-                            mQuerySelection,
-                            Common.PLAY_ALL_SONGS,
-                            index,
-                            true,
-                            false );
+                .initPlayback( mContext, mQuerySelection, Common.PLAY_ALL_SONGS, index, true, false );
         }
 
     };
@@ -261,8 +260,7 @@ public class SongListViewFragment extends Fragment implements FilterDialog.Filte
      * @return current sort order from the preferences
      */
     private String getOrderByFromPreferences() {
-        return mApp.getSharedPreferences()
-                .getString( Common.SORT_COLUMN, DBAccessHelper.SONG_TITLE );
+        return mApp.getSharedPreferences().getString( Common.SORT_COLUMN, DBAccessHelper.SONG_TITLE );
     }
 
     /**
@@ -280,23 +278,21 @@ public class SongListViewFragment extends Fragment implements FilterDialog.Filte
      * @param orderBy the order column or null to take the current from the preferences
      * @return the direction
      */
-    private DBAccessHelper.OrderDirection getOrderDirectionFromPreferences( String orderBy ) {
+    private OrderDirection getOrderDirectionFromPreferences( String orderBy ) {
         if( orderBy == null ) {
-            orderBy = mApp.getSharedPreferences()
-                    .getString( Common.SORT_COLUMN, DBAccessHelper.SONG_TITLE );
+            orderBy = mApp.getSharedPreferences().getString( Common.SORT_COLUMN, DBAccessHelper.SONG_TITLE );
         }
 
-        return DBAccessHelper.OrderDirection.valueOf( mApp.getSharedPreferences()
-                .getString( Common.SORT_DIRECTION_COLUMN + "_" + orderBy,
-                        DBAccessHelper.OrderDirection.ASC.name() ) );
+        return OrderDirection.valueOf( mApp.getSharedPreferences()
+                                           .getString( Common.SORT_DIRECTION_COLUMN + "_" + orderBy,
+                                                       OrderDirection.ASC.name() ) );
     }
 
-    private void setOrderDirectionInPreferences( final String orderBy,
-                                                 final DBAccessHelper.OrderDirection
-                                                         orderDirection ) {
-        mApp.getSharedPreferences().edit()
-                .putString( Common.SORT_DIRECTION_COLUMN + "_" + orderBy, orderDirection.name() )
-                .apply();
+    private void setOrderDirectionInPreferences( final String orderBy, final OrderDirection orderDirection ) {
+        mApp.getSharedPreferences()
+            .edit()
+            .putString( Common.SORT_DIRECTION_COLUMN + "_" + orderBy, orderDirection.name() )
+            .apply();
     }
 
     /**
@@ -306,13 +302,12 @@ public class SongListViewFragment extends Fragment implements FilterDialog.Filte
     public class AsyncRunQuery extends SynchronizedAsyncTask.Executor {
 
         private SongListViewItemAdapter mListViewAdapter = null;
-        private Cursor mCursor = null;
+        private Cursor                  mCursor          = null;
 
-        private String mOrderBy = DBAccessHelper.SONG_TITLE;
-        private DBAccessHelper.OrderDirection mOrderDirection = DBAccessHelper.OrderDirection.ASC;
+        private String         mOrderBy        = DBAccessHelper.SONG_TITLE;
+        private OrderDirection mOrderDirection = OrderDirection.ASC;
 
-        public AsyncRunQuery( String orderBy,
-                              DBAccessHelper.OrderDirection orderDirection ) {
+        public AsyncRunQuery( String orderBy, OrderDirection orderDirection ) {
             super();
 
             if( orderBy == null ) {
@@ -330,22 +325,23 @@ public class SongListViewFragment extends Fragment implements FilterDialog.Filte
             mOrderDirection = orderDirection;
 
             // Reverse order Direction
-            setOrderDirectionInPreferences( orderBy,
-                    orderDirection == DBAccessHelper.OrderDirection.ASC ?
-                            DBAccessHelper.OrderDirection.DESC :
-                            DBAccessHelper.OrderDirection.ASC );
+            setOrderDirectionInPreferences( orderBy, orderDirection == OrderDirection.ASC ? OrderDirection.DESC
+                                                                                          : OrderDirection.ASC );
         }
 
         @Override
         public void doInBackground() {
             mCursor = mApp.getDBAccessHelper()
-                    .getFragmentCursor( mContext, mQuerySelection, Common.SONGS_FRAGMENT,
-                            mOrderBy, mOrderDirection );
+                          .getFragmentCursor( mContext, mQuerySelection, Common.SONGS_FRAGMENT, mOrderBy,
+                                              mOrderDirection );
         }
 
-        @Override public void cancel() {
+        @Override
+        public void cancel() {
             if( mCursor != null && !mCursor.isClosed() ) {
-                if( mListViewAdapter != null ) mListViewAdapter.changeCursor( null );
+                if( mListViewAdapter != null ) {
+                    mListViewAdapter.changeCursor( null );
+                }
                 mCursor.close();
             }
         }
@@ -361,9 +357,9 @@ public class SongListViewFragment extends Fragment implements FilterDialog.Filte
 
         private Animation createAnimation() {
             TranslateAnimation animation = new TranslateAnimation( Animation.RELATIVE_TO_SELF, 0.0f,
-                    Animation.RELATIVE_TO_SELF, 0.0f,
-                    Animation.RELATIVE_TO_SELF, 2.0f,
-                    Animation.RELATIVE_TO_SELF, 0.0f );
+                                                                   Animation.RELATIVE_TO_SELF, 0.0f,
+                                                                   Animation.RELATIVE_TO_SELF, 2.0f,
+                                                                   Animation.RELATIVE_TO_SELF, 0.0f );
 
             animation.setDuration( 300 );
             animation.setInterpolator( new AccelerateDecelerateInterpolator() );
@@ -392,27 +388,21 @@ public class SongListViewFragment extends Fragment implements FilterDialog.Filte
         }
 
         private void createList() {
-            mListViewAdapter =
-                    new SongListViewItemAdapter( mContext, mCursor, SongListViewFragment.this );
+            mListViewAdapter = new SongListViewItemAdapter( mContext, mCursor, SongListViewFragment.this );
             mListView.setAdapter( mListViewAdapter );
             mListView.setOnItemClickListener( onItemClickListener );
 
             //Init the quick scroll widget.
-            mQuickScroll.init( QuickScroll.TYPE_INDICATOR_WITH_HANDLE,
-                    mListView,
-                    mListViewAdapter,
-                    QuickScroll.STYLE_HOLO );
+            mQuickScroll.init( QuickScroll.TYPE_INDICATOR_WITH_HANDLE, mListView, mListViewAdapter,
+                               QuickScroll.STYLE_HOLO );
 
             int[] quickScrollColors = UIElementsHelper.getQuickScrollColors( mContext );
-            PauseOnScrollHelper scrollListener =
-                    new PauseOnScrollHelper( mApp.getPicasso(), null, true, true );
+            PauseOnScrollHelper scrollListener = new PauseOnScrollHelper( mApp.getPicasso(), null, true, true );
 
             mQuickScroll.setOnScrollListener( scrollListener );
             mQuickScroll.setPicassoInstance( mApp.getPicasso() );
-            mQuickScroll.setHandlebarColor( quickScrollColors[ 0 ], quickScrollColors[ 0 ],
-                    quickScrollColors[ 1 ] );
-            mQuickScroll.setIndicatorColor( quickScrollColors[ 1 ], quickScrollColors[ 0 ],
-                    quickScrollColors[ 2 ] );
+            mQuickScroll.setHandlebarColor( quickScrollColors[ 0 ], quickScrollColors[ 0 ], quickScrollColors[ 1 ] );
+            mQuickScroll.setIndicatorColor( quickScrollColors[ 1 ], quickScrollColors[ 0 ], quickScrollColors[ 2 ] );
             mQuickScroll.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 48 );
 
 

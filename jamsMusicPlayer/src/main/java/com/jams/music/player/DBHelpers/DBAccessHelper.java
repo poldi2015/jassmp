@@ -53,86 +53,67 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "Jams.db";
 
     //Common fields.
-    public static final String _ID = "_id";
-    public static final String SONG_ID = "song_id";
-    public static final String EQ_50_HZ = "eq_50_hz";
-    public static final String EQ_130_HZ = "eq_130_hz";
-    public static final String EQ_320_HZ = "eq_320_hz";
-    public static final String EQ_800_HZ = "eq_800_hz";
-    public static final String EQ_2000_HZ = "eq_2000_hz";
-    public static final String EQ_5000_HZ = "eq_5000_hz";
+    public static final String _ID         = "_id";
+    public static final String SONG_ID     = "song_id";
+    public static final String EQ_50_HZ    = "eq_50_hz";
+    public static final String EQ_130_HZ   = "eq_130_hz";
+    public static final String EQ_320_HZ   = "eq_320_hz";
+    public static final String EQ_800_HZ   = "eq_800_hz";
+    public static final String EQ_2000_HZ  = "eq_2000_hz";
+    public static final String EQ_5000_HZ  = "eq_5000_hz";
     public static final String EQ_12500_HZ = "eq_12500_hz";
     public static final String VIRTUALIZER = "eq_virtualizer";
-    public static final String BASS_BOOST = "eq_bass_boost";
-    public static final String REVERB = "eq_reverb";
-
-    //Music folders table.
-    public static final String MUSIC_FOLDERS_TABLE = "MusicFoldersTable";
-    public static final String FOLDER_PATH = "folder_path";
-    public static final String INCLUDE = "include";
+    public static final String BASS_BOOST  = "eq_bass_boost";
+    public static final String REVERB      = "eq_reverb";
 
     //Equalizer settings table for individual songs.
     public static final String EQUALIZER_TABLE = "EqualizerTable";
 
     //Equalizer presets table.
     public static final String EQUALIZER_PRESETS_TABLE = "EqualizerPresetsTable";
-    public static final String PRESET_NAME = "preset_name";
+    public static final String PRESET_NAME             = "preset_name";
 
     //Custom libraries table.
     public static final String LIBRARIES_TABLE = "LibrariesTable";
-    public static final String LIBRARY_NAME = "library_name";
-    public static final String LIBRARY_TAG = "library_tag";
+    public static final String LIBRARY_NAME    = "library_name";
+    public static final String LIBRARY_TAG     = "library_tag";
 
     //Music library table.
     public static final String MUSIC_LIBRARY_TABLE = "MusicLibraryTable";
-    public static final String SONG_TITLE = "title";
-    public static final String SONG_ARTIST = "artist";
-    public static final String SONG_ALBUM = "album";
-    public static final String SONG_ALBUM_ARTIST = "album_artist";
-    public static final String SONG_DURATION = "duration";
-    public static final String SONG_FILE_PATH = "file_path";
-    public static final String SONG_TRACK_NUMBER = "track_number";
-    public static final String SONG_GENRE = "genre";
-    public static final String SONG_PLAY_COUNT = "play_count";
-    public static final String SONG_YEAR = "year";
-    public static final String SONG_LAST_MODIFIED = "last_modified";
-    public static final String SONG_SCANNED = "scanned";
-    public static final String SONG_RATING = "rating";
-    public static final String BLACKLIST_STATUS = "blacklist_status";
-    public static final String ADDED_TIMESTAMP = "added_timestamp";
-    public static final String SONG_BPM = "bpm";
-    public static final String LAST_PLAYED_TIMESTAMP = "last_played_timestamp";
-    public static final String SONG_SOURCE = "source";
+    public static final String SONG_TITLE          = "title";
+    public static final String SONG_ARTIST         = "artist";
+    public static final String SONG_ALBUM          = "album";
+    public static final String SONG_ALBUM_ARTIST   = "album_artist";
+    public static final String SONG_DURATION       = "duration";
+    public static final String SAVED_POSITION      = "saved_position";
+    public static final String SONG_FILE_PATH      = "file_path";
+    public static final String SONG_TRACK_NUMBER   = "track_number";
+    public static final String SONG_GENRE          = "genre";
+    public static final String SONG_PLAY_COUNT     = "play_count";
+    public static final String SONG_YEAR           = "year";
+    public static final String SONG_RATING         = "rating";
+    public static final String BLACKLIST_STATUS    = "blacklist_status";
+    public static final String ADDED_TIMESTAMP     = "added_timestamp";
+    public static final String SONG_BPM            = "bpm";
     public static final String SONG_ALBUM_ART_PATH = "album_art_path";
-    public static final String SONG_DELETED = "deleted";
     public static final String ARTIST_ART_LOCATION = "artist_art_location";
-    public static final String ALBUM_ID = "album_id";
-    public static final String ARTIST_ID = "artist_id";
-    public static final String GENRE_ID = "genre_id";
-    public static final String GENRE_SONG_COUNT = "genre_song_count";
-    public static final String LOCAL_COPY_PATH = "local_copy_path";
-    public static final String LIBRARIES = "libraries";
-    public static final String SAVED_POSITION = "saved_position";
-    public static final String ALBUMS_COUNT = "albums_count";
-    public static final String SONGS_COUNT = "songs_count";
+
+    public static final String ALBUMS_COUNT      = "albums_count";
+    public static final String SONGS_COUNT       = "songs_count";
     public static final String GENRES_SONG_COUNT = "genres_song_count";
 
     //Playlist fields.
-    public static final String PLAYLIST_ID = "playlist_id";
-    public static final String PLAYLIST_NAME = "playlist_name";
-    public static final String PLAYLIST_SOURCE = "playlist_source";
-    public static final String PLAYLIST_FILE_PATH = "playlist_file_path";
-    public static final String PLAYLIST_FOLDER_PATH = "playlist_folder_path";
+    public static final String PLAYLIST_ID            = "playlist_id";
+    public static final String PLAYLIST_NAME          = "playlist_name";
+    public static final String PLAYLIST_SOURCE        = "playlist_source";
+    public static final String PLAYLIST_FILE_PATH     = "playlist_file_path";
+    public static final String PLAYLIST_FOLDER_PATH   = "playlist_folder_path";
     public static final String PLAYLIST_SONG_ENTRY_ID = "song_entry_id";
-    public static final String PLAYLIST_ORDER = "order";
+    public static final String PLAYLIST_ORDER         = "order";
 
     //Song source values.
     public static final String GMUSIC = "gmusic";
-    public static final String LOCAL = "local";
-
-    public static enum OrderDirection {
-        ASC, DESC
-    }
+    public static final String LOCAL  = "local";
 
     public DBAccessHelper( Context context ) {
         super( context, DATABASE_NAME, null, DATABASE_VERSION );
@@ -147,8 +128,9 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * @return
      */
     public static synchronized DBAccessHelper getInstance( Context context ) {
-        if( sInstance == null )
+        if( sInstance == null ) {
             sInstance = new DBAccessHelper( context.getApplicationContext() );
+        }
 
         return sInstance;
     }
@@ -158,8 +140,9 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * null check for additional stability.
      */
     private synchronized SQLiteDatabase getDatabase() {
-        if( mDatabase == null )
+        if( mDatabase == null ) {
             mDatabase = getWritableDatabase();
+        }
 
         return mDatabase;
     }
@@ -167,127 +150,50 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate( SQLiteDatabase db ) {
 
-        //Music folders table.
-        String[] musicFoldersTableCols = { FOLDER_PATH,
-                INCLUDE };
-        String[] musicFoldersTableColTypes = { "TEXT",
-                "TEXT" };
-        String createMusicFoldersTable = buildCreateStatement( MUSIC_FOLDERS_TABLE,
-                musicFoldersTableCols,
-                musicFoldersTableColTypes );
-
         //Equalizer table.
-        String[] equalizerTableCols = { SONG_ID,
-                EQ_50_HZ,
-                EQ_130_HZ,
-                EQ_320_HZ,
-                EQ_800_HZ,
-                EQ_2000_HZ,
-                EQ_5000_HZ,
-                EQ_12500_HZ,
-                VIRTUALIZER,
-                BASS_BOOST,
-                REVERB };
+        String[] equalizerTableCols = { SONG_ID, EQ_50_HZ, EQ_130_HZ, EQ_320_HZ, EQ_800_HZ, EQ_2000_HZ, EQ_5000_HZ,
+                                        EQ_12500_HZ, VIRTUALIZER, BASS_BOOST, REVERB };
 
-        String[] equalizerTableColTypes = { "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT" };
+        String[] equalizerTableColTypes = { "TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT",
+                                            "TEXT", "TEXT" };
 
-        String createEqualizerTable = buildCreateStatement( EQUALIZER_TABLE,
-                equalizerTableCols,
-                equalizerTableColTypes );
+        String createEqualizerTable = buildCreateStatement( EQUALIZER_TABLE, equalizerTableCols,
+                                                            equalizerTableColTypes );
 
         //Equalizer presets table.
-        String[] equalizerPresetsTableCols = { PRESET_NAME,
-                EQ_50_HZ,
-                EQ_130_HZ,
-                EQ_320_HZ,
-                EQ_800_HZ,
-                EQ_2000_HZ,
-                EQ_5000_HZ,
-                EQ_12500_HZ,
-                VIRTUALIZER,
-                BASS_BOOST,
-                REVERB };
+        String[] equalizerPresetsTableCols = { PRESET_NAME, EQ_50_HZ, EQ_130_HZ, EQ_320_HZ, EQ_800_HZ, EQ_2000_HZ,
+                                               EQ_5000_HZ, EQ_12500_HZ, VIRTUALIZER, BASS_BOOST, REVERB };
 
-        String[] equalizerPresetsTableColTypes = { "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT",
-                "TEXT" };
+        String[] equalizerPresetsTableColTypes = { "TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT", "TEXT",
+                                                   "TEXT", "TEXT", "TEXT" };
 
-        String createEqualizerPresetsTable = buildCreateStatement( EQUALIZER_PRESETS_TABLE,
-                equalizerPresetsTableCols,
-                equalizerPresetsTableColTypes );
+        String createEqualizerPresetsTable = buildCreateStatement( EQUALIZER_PRESETS_TABLE, equalizerPresetsTableCols,
+                                                                   equalizerPresetsTableColTypes );
 
         //Custom libraries table.
-        String[] librariesTableCols = { LIBRARY_NAME,
-                LIBRARY_TAG,
-                SONG_ID };
-        String[] librariesTableColTypes = { "TEXT",
-                "TEXT",
-                "TEXT" };
-        String createLibrariesTable = buildCreateStatement( LIBRARIES_TABLE,
-                librariesTableCols,
-                librariesTableColTypes );
+        String[] librariesTableCols = { LIBRARY_NAME, LIBRARY_TAG, SONG_ID };
+        String[] librariesTableColTypes = { "TEXT", "TEXT", "TEXT" };
+        String createLibrariesTable = buildCreateStatement( LIBRARIES_TABLE, librariesTableCols,
+                                                            librariesTableColTypes );
 
         //Music library table.
-        String[] musicLibraryTableCols = { SONG_ID,
-                SONG_TITLE,
-                SONG_ARTIST,
-                SONG_ALBUM,
-                SONG_ALBUM_ARTIST,
-                SONG_DURATION,
-                SONG_FILE_PATH,
-                SONG_TRACK_NUMBER,
-                SONG_GENRE,
-                SONG_PLAY_COUNT,
-                SONG_YEAR,
-                ALBUMS_COUNT,
-                SONGS_COUNT,
-                GENRES_SONG_COUNT,
-                SONG_LAST_MODIFIED,
-                SONG_SCANNED,
-                BLACKLIST_STATUS,
-                ADDED_TIMESTAMP,
-                SONG_RATING,
-                LAST_PLAYED_TIMESTAMP,
-                SONG_SOURCE,
-                SONG_ALBUM_ART_PATH,
-                SONG_DELETED,
-                ARTIST_ART_LOCATION,
-                ALBUM_ID,
-                ARTIST_ID,
-                GENRE_ID,
-                GENRE_SONG_COUNT,
-                LOCAL_COPY_PATH,
-                LIBRARIES,
-                SAVED_POSITION };
+        String[] musicLibraryTableCols = { SONG_ID, SONG_TITLE, SONG_ARTIST, SONG_ALBUM, SONG_ALBUM_ARTIST,
+                                           SONG_DURATION, SONG_FILE_PATH, SONG_TRACK_NUMBER, SONG_GENRE,
+                                           SONG_PLAY_COUNT, SONG_YEAR, ALBUMS_COUNT, SONGS_COUNT, GENRES_SONG_COUNT,
+                                           SONG_LAST_MODIFIED, SONG_SCANNED, BLACKLIST_STATUS, ADDED_TIMESTAMP,
+                                           SONG_RATING, LAST_PLAYED_TIMESTAMP, SONG_SOURCE, SONG_ALBUM_ART_PATH,
+                                           SONG_DELETED, ARTIST_ART_LOCATION, ALBUM_ID, ARTIST_ID, GENRE_ID,
+                                           GENRE_SONG_COUNT, LOCAL_COPY_PATH, LIBRARIES, SAVED_POSITION };
 
         String[] musicLibraryTableColTypes = new String[ musicLibraryTableCols.length ];
-        for( int i = 0; i < musicLibraryTableCols.length; i++ )
+        for( int i = 0; i < musicLibraryTableCols.length; i++ ) {
             musicLibraryTableColTypes[ i ] = "TEXT";
+        }
 
-        String createMusicLibraryTable = buildCreateStatement( MUSIC_LIBRARY_TABLE,
-                musicLibraryTableCols,
-                musicLibraryTableColTypes );
+        String createMusicLibraryTable = buildCreateStatement( MUSIC_LIBRARY_TABLE, musicLibraryTableCols,
+                                                               musicLibraryTableColTypes );
 
         //Execute the CREATE statements.
-        db.execSQL( createMusicFoldersTable );
         db.execSQL( createEqualizerTable );
         db.execSQL( createEqualizerPresetsTable );
         db.execSQL( createLibrariesTable );
@@ -303,7 +209,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
             final String[] musicLibraryTableTypes = { "INTEGER" };
             for( int i = 0; i < musicLibraryTableNames.length; i++ ) {
                 db.execSQL( buildUpgradeStatement( MUSIC_LIBRARY_TABLE, musicLibraryTableNames[ i ],
-                        musicLibraryTableTypes[ i ] ) );
+                                                   musicLibraryTableTypes[ i ] ) );
             }
         }
     }
@@ -322,25 +228,17 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Constructs a fully formed CREATE statement using the input
      * parameters.
      */
-    private String buildCreateStatement( String tableName, String[] columnNames,
-                                         String[] columnTypes ) {
+    private String buildCreateStatement( String tableName, String[] columnNames, String[] columnTypes ) {
         String createStatement = "";
         if( columnNames.length == columnTypes.length ) {
-            createStatement += "CREATE TABLE IF NOT EXISTS " + tableName + "("
-                    + _ID + " INTEGER PRIMARY KEY, ";
+            createStatement += "CREATE TABLE IF NOT EXISTS " + tableName + "(" + _ID + " INTEGER PRIMARY KEY, ";
 
             for( int i = 0; i < columnNames.length; i++ ) {
 
                 if( i == columnNames.length - 1 ) {
-                    createStatement += columnNames[ i ]
-                            + " "
-                            + columnTypes[ i ]
-                            + ")";
+                    createStatement += columnNames[ i ] + " " + columnTypes[ i ] + ")";
                 } else {
-                    createStatement += columnNames[ i ]
-                            + " "
-                            + columnTypes[ i ]
-                            + ", ";
+                    createStatement += columnNames[ i ] + " " + columnTypes[ i ] + ", ";
                 }
 
             }
@@ -350,55 +248,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
         return createStatement;
     }
 
-    private String buildUpgradeStatement( final String tableName, final String columnName,
-                                          final String columnType ) {
+    private String buildUpgradeStatement( final String tableName, final String columnName, final String columnType ) {
         return "ALTER TABLE " + tableName + " ADD COLUMN " + columnName + " " + columnType;
     }
 
-    /***********************************************************
-     * MUSIC FOLDERS TABLE METHODS.
-     ***********************************************************/
-
-    /**
-     * Adds a music folder to the table.
-     */
-    public void addMusicFolderPath( String folderPath ) {
-        //Escape any rogue apostrophes.
-        if( folderPath.contains( "'" ) ) {
-            folderPath = folderPath.replace( "'", "''" );
-        }
-
-        ContentValues values = new ContentValues();
-        values.put( FOLDER_PATH, folderPath );
-
-        getDatabase().insert( MUSIC_FOLDERS_TABLE, null, values );
-
-    }
-
-    /**
-     * Deletes the specified music folder from the table.
-     */
-    public void deleteMusicFolderPath( String folderPath ) {
-        String condition = FOLDER_PATH + " = '" + folderPath + "'";
-        getDatabase().delete( MUSIC_FOLDERS_TABLE, condition, null );
-    }
-
-    /**
-     * Deletes all music folders from the table.
-     */
-    public void deleteAllMusicFolderPaths() {
-        getDatabase().delete( MUSIC_FOLDERS_TABLE, null, null );
-    }
-
-    /**
-     * Returns a cursor with all music folder paths in the table.
-     */
-    public Cursor getAllMusicFolderPaths() {
-        String selectQuery = "SELECT  * FROM " + MUSIC_FOLDERS_TABLE
-                + " ORDER BY " + INCLUDE + "*1 DESC";
-
-        return getDatabase().rawQuery( selectQuery, null );
-    }
 
     /***********************************************************
      * EQUALIZER TABLE METHODS.
@@ -414,20 +267,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     public int[] getSongEQValues( String songId ) {
 
         String condition = SONG_ID + "=" + "'" + songId + "'";
-        String[] columnsToReturn = { _ID,
-                EQ_50_HZ,
-                EQ_130_HZ,
-                EQ_320_HZ,
-                EQ_800_HZ,
-                EQ_2000_HZ,
-                EQ_5000_HZ,
-                EQ_12500_HZ,
-                VIRTUALIZER,
-                BASS_BOOST,
-                REVERB };
+        String[] columnsToReturn = { _ID, EQ_50_HZ, EQ_130_HZ, EQ_320_HZ, EQ_800_HZ, EQ_2000_HZ, EQ_5000_HZ,
+                                     EQ_12500_HZ, VIRTUALIZER, BASS_BOOST, REVERB };
 
-        Cursor cursor = getDatabase()
-                .query( EQUALIZER_TABLE, columnsToReturn, condition, null, null, null, null );
+        Cursor cursor = getDatabase().query( EQUALIZER_TABLE, columnsToReturn, condition, null, null, null, null );
         int[] eqValues = new int[ 11 ];
 
         if( cursor != null && cursor.getCount() != 0 ) {
@@ -467,17 +310,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     /**
      * Saves a song's equalizer/audio effect settings to the database.
      */
-    public void addSongEQValues( String songId,
-                                 int fiftyHertz,
-                                 int oneThirtyHertz,
-                                 int threeTwentyHertz,
-                                 int eightHundredHertz,
-                                 int twoKilohertz,
-                                 int fiveKilohertz,
-                                 int twelvePointFiveKilohertz,
-                                 int virtualizer,
-                                 int bassBoost,
-                                 int reverb ) {
+    public void addSongEQValues( String songId, int fiftyHertz, int oneThirtyHertz, int threeTwentyHertz, int eightHundredHertz, int twoKilohertz, int fiveKilohertz, int twelvePointFiveKilohertz, int virtualizer, int bassBoost, int reverb ) {
 
         ContentValues values = new ContentValues();
         values.put( SONG_ID, songId );
@@ -502,13 +335,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     public boolean hasEqualizerSettings( String songId ) {
 
         String where = SONG_ID + "=" + "'" + songId + "'";
-        Cursor cursor = getDatabase().query( EQUALIZER_TABLE,
-                new String[]{ SONG_ID },
-                where,
-                null,
-                null,
-                null,
-                null );
+        Cursor cursor = getDatabase().query( EQUALIZER_TABLE, new String[]{ SONG_ID }, where, null, null, null, null );
 
         if( cursor != null ) {
             if( cursor.getCount() > 0 ) {
@@ -528,17 +355,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     /**
      * Updates the equalizer/audio effects for the specified song.
      */
-    public void updateSongEQValues( String songId,
-                                    int fiftyHertz,
-                                    int oneThirtyHertz,
-                                    int threeTwentyHertz,
-                                    int eightHundredHertz,
-                                    int twoKilohertz,
-                                    int fiveKilohertz,
-                                    int twelvePointFiveKilohertz,
-                                    int virtualizer,
-                                    int bassBoost,
-                                    int reverb ) {
+    public void updateSongEQValues( String songId, int fiftyHertz, int oneThirtyHertz, int threeTwentyHertz, int eightHundredHertz, int twoKilohertz, int fiveKilohertz, int twelvePointFiveKilohertz, int virtualizer, int bassBoost, int reverb ) {
 
         ContentValues values = new ContentValues();
         values.put( EQ_50_HZ, fiftyHertz );
@@ -564,17 +381,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     /**
      * Adds a new EQ preset to the table.
      */
-    public void addNewEQPreset( String presetName,
-                                int fiftyHertz,
-                                int oneThirtyHertz,
-                                int threeTwentyHertz,
-                                int eightHundredHertz,
-                                int twoKilohertz,
-                                int fiveKilohertz,
-                                int twelvePointFiveKilohertz,
-                                short virtualizer,
-                                short bassBoost,
-                                short reverb ) {
+    public void addNewEQPreset( String presetName, int fiftyHertz, int oneThirtyHertz, int threeTwentyHertz, int eightHundredHertz, int twoKilohertz, int fiveKilohertz, int twelvePointFiveKilohertz, short virtualizer, short bassBoost, short reverb ) {
 
         ContentValues values = new ContentValues();
         values.put( PRESET_NAME, presetName );
@@ -599,21 +406,11 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     public int[] getPresetEQValues( String presetName ) {
 
         String condition = PRESET_NAME + "=" + "'" + presetName.replace( "'", "''" ) + "'";
-        String[] columnsToReturn = { _ID,
-                EQ_50_HZ,
-                EQ_130_HZ,
-                EQ_320_HZ,
-                EQ_800_HZ,
-                EQ_2000_HZ,
-                EQ_5000_HZ,
-                EQ_12500_HZ,
-                VIRTUALIZER,
-                BASS_BOOST,
-                REVERB };
+        String[] columnsToReturn = { _ID, EQ_50_HZ, EQ_130_HZ, EQ_320_HZ, EQ_800_HZ, EQ_2000_HZ, EQ_5000_HZ,
+                                     EQ_12500_HZ, VIRTUALIZER, BASS_BOOST, REVERB };
 
-        Cursor cursor = getDatabase()
-                .query( EQUALIZER_PRESETS_TABLE, columnsToReturn, condition, null, null, null,
-                        null );
+        Cursor cursor = getDatabase().query( EQUALIZER_PRESETS_TABLE, columnsToReturn, condition, null, null, null,
+                                             null );
         int[] eqValues = new int[ 10 ];
 
         if( cursor != null && cursor.getCount() != 0 ) {
@@ -650,17 +447,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     /**
      * This method updates the specified EQ preset.
      */
-    public void updateEQPreset( String presetName,
-                                int fiftyHertz,
-                                int oneThirtyHertz,
-                                int threeTwentyHertz,
-                                int eightHundredHertz,
-                                int twoKilohertz,
-                                int fiveKilohertz,
-                                int twelvePointFiveKilohertz,
-                                short virtualizer,
-                                short bassBoost,
-                                short reverb ) {
+    public void updateEQPreset( String presetName, int fiftyHertz, int oneThirtyHertz, int threeTwentyHertz, int eightHundredHertz, int twoKilohertz, int fiveKilohertz, int twelvePointFiveKilohertz, short virtualizer, short bassBoost, short reverb ) {
 
         //Escape any rogue apostrophes.
         if( presetName != null ) {
@@ -715,10 +502,9 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllUniqueLibraries() {
         String rawQuery = "SELECT DISTINCT(" + LIBRARY_NAME + "), " +
-                _ID + ", " + LIBRARY_TAG +
-                " FROM " + LIBRARIES_TABLE + " GROUP BY " +
-                LIBRARY_NAME + " ORDER BY " + _ID
-                + " ASC";
+                          _ID + ", " + LIBRARY_TAG +
+                          " FROM " + LIBRARIES_TABLE + " GROUP BY " +
+                          LIBRARY_NAME + " ORDER BY " + _ID + " ASC";
 
         Cursor cursor = getDatabase().rawQuery( rawQuery, null );
         return cursor;
@@ -734,8 +520,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
         tag = tag.replace( "'", "''" );
 
         //Perform the delete operation.
-        String where = LIBRARY_NAME + "=" + "'" + libraryName + "'" + " AND "
-                + LIBRARY_TAG + "=" + "'" + tag + "'";
+        String where = LIBRARY_NAME + "=" + "'" + libraryName + "'" + " AND " + LIBRARY_TAG + "=" + "'" + tag + "'";
 
         getDatabase().delete( LIBRARIES_TABLE, where, null );
     }
@@ -746,18 +531,16 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllUniqueUserLibraries( Context context ) {
         String allLibraries = context.getResources().getString( R.string.all_libraries );
-        String googlePlayMusic =
-                context.getResources().getString( R.string.google_play_music_no_asterisk );
+        String googlePlayMusic = context.getResources().getString( R.string.google_play_music_no_asterisk );
         allLibraries = allLibraries.replace( "'", "''" );
         googlePlayMusic = googlePlayMusic.replace( "'", "''" );
 
         String rawQuery = "SELECT DISTINCT(" + LIBRARY_NAME + "), " +
-                _ID + ", " + LIBRARY_TAG +
-                " FROM " + LIBRARIES_TABLE + " WHERE " +
-                LIBRARY_NAME + "<>" + "'" + allLibraries + "'" + " AND " +
-                LIBRARY_NAME + "<>" + "'" + googlePlayMusic + "'" +
-                " GROUP BY " + LIBRARY_NAME + " ORDER BY " + _ID
-                + " ASC";
+                          _ID + ", " + LIBRARY_TAG +
+                          " FROM " + LIBRARIES_TABLE + " WHERE " +
+                          LIBRARY_NAME + "<>" + "'" + allLibraries + "'" + " AND " +
+                          LIBRARY_NAME + "<>" + "'" + googlePlayMusic + "'" +
+                          " GROUP BY " + LIBRARY_NAME + " ORDER BY " + _ID + " ASC";
 
         Cursor cursor = getDatabase().rawQuery( rawQuery, null );
         return cursor;
@@ -772,11 +555,9 @@ public class DBAccessHelper extends SQLiteOpenHelper {
         libraryName = libraryName.replace( "'", "''" );
         tag = tag.replace( "'", "''" );
 
-        String where = LIBRARY_NAME + "=" + "'" + libraryName + "'" + " AND "
-                + LIBRARY_TAG + "=" + "'" + tag + "'";
+        String where = LIBRARY_NAME + "=" + "'" + libraryName + "'" + " AND " + LIBRARY_TAG + "=" + "'" + tag + "'";
 
-        Cursor cursor =
-                getDatabase().query( LIBRARIES_TABLE, null, where, null, null, null, SONG_ID );
+        Cursor cursor = getDatabase().query( LIBRARIES_TABLE, null, where, null, null, null, SONG_ID );
         if( cursor.getCount() > 0 ) {
             for( int i = 0; i < cursor.getCount(); i++ ) {
                 cursor.moveToPosition( i );
@@ -800,24 +581,20 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
 
     public Cursor getFragmentCursor( Context context, String querySelection, int fragmentId ) {
-        return getFragmentCursor( context, querySelection, fragmentId, SONG_TITLE,
-                OrderDirection.ASC );
+        return getFragmentCursor( context, querySelection, fragmentId, SONG_TITLE, OrderDirection.ASC );
     }
 
     /**
      * Returns the cursor based on the specified fragment.
      */
-    public Cursor getFragmentCursor( Context context, String querySelection, int fragmentId,
-                                     String orderBy, OrderDirection orderDirection ) {
+    public Cursor getFragmentCursor( Context context, String querySelection, int fragmentId, String orderBy, OrderDirection orderDirection ) {
         String currentLibrary = mApp.getCurrentLibraryNormalized();
 
         if( currentLibrary.equals( context.getResources().getString( R.string.all_libraries ) ) ) {
-            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) ==
-                    true ) {
+            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) == true ) {
                 querySelection += "";
             } else {
-                querySelection +=
-                        " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
+                querySelection += " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
             }
 
             return getFragmentCursorHelper( querySelection, fragmentId, orderBy, orderDirection );
@@ -825,42 +602,31 @@ public class DBAccessHelper extends SQLiteOpenHelper {
         } else if( currentLibrary.equals(
                 context.getResources().getString( R.string.google_play_music_no_asterisk ) ) ) {
             //Check to make sure that Google Play Music is enabled.
-            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) ==
-                    true ) {
-                querySelection +=
-                        " AND " + DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'";
-                return getFragmentCursorHelper( querySelection, fragmentId, orderBy,
-                        orderDirection );
+            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) == true ) {
+                querySelection += " AND " + DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'";
+                return getFragmentCursorHelper( querySelection, fragmentId, orderBy, orderDirection );
             } else {
                 return null;
             }
 
-        } else if( currentLibrary
-                .equals( context.getResources().getString( R.string.on_this_device ) ) ) {
+        } else if( currentLibrary.equals( context.getResources().getString( R.string.on_this_device ) ) ) {
             //Check if Google Play Music is enabled.
-            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) ==
-                    true ) {
-                querySelection +=
-                        " AND (" + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'" +
-                                " OR "
-                                + DBAccessHelper.LOCAL_COPY_PATH + "<> '')";
+            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) == true ) {
+                querySelection += " AND (" + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'" +
+                                  " OR " + DBAccessHelper.LOCAL_COPY_PATH + "<> '')";
             } else {
-                querySelection +=
-                        " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
+                querySelection += " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
             }
 
             return getFragmentCursorHelper( querySelection, fragmentId, orderBy, orderDirection );
 
         } else {
-            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) ==
-                    true ) {
-                querySelection +=
-                        " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" + currentLibrary + "'";
+            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) == true ) {
+                querySelection += " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" + currentLibrary + "'";
             } else {
-                querySelection +=
-                        " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" + currentLibrary + "'"
-                                + " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
-                                "'GOOGLE_PLAY_MUSIC'";
+                querySelection += " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" + currentLibrary + "'" + " AND "
+                                  + DBAccessHelper.SONG_SOURCE + "<>" +
+                                  "'GOOGLE_PLAY_MUSIC'";
             }
 
             return getFragmentCursorInLibraryHelper( querySelection, fragmentId );
@@ -872,8 +638,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Helper method for getFragmentCursor(). Returns the correct
      * cursor retrieval method for the specified fragment.
      */
-    private Cursor getFragmentCursorHelper( String querySelection, int fragmentId, String orderBy,
-                                            OrderDirection orderDirection ) {
+    private Cursor getFragmentCursorHelper( String querySelection, int fragmentId, String orderBy, OrderDirection orderDirection ) {
         switch( fragmentId ) {
             case Common.ARTISTS_FRAGMENT:
                 return getAllUniqueArtists( querySelection );
@@ -959,12 +724,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
         String currentLibrary = mApp.getCurrentLibraryNormalized();
 
         if( currentLibrary.equals( context.getResources().getString( R.string.all_libraries ) ) ) {
-            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) ==
-                    true ) {
+            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) == true ) {
                 querySelection += "";
             } else {
-                querySelection +=
-                        " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
+                querySelection += " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
             }
 
             return getPlaybackCursorHelper( querySelection, fragmentId );
@@ -972,41 +735,31 @@ public class DBAccessHelper extends SQLiteOpenHelper {
         } else if( currentLibrary.equals(
                 context.getResources().getString( R.string.google_play_music_no_asterisk ) ) ) {
             //Check to make sure that Google Play Music is enabled.
-            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) ==
-                    true ) {
-                querySelection +=
-                        " AND " + DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'";
+            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) == true ) {
+                querySelection += " AND " + DBAccessHelper.SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'";
                 return getPlaybackCursorHelper( querySelection, fragmentId );
             } else {
                 return null;
             }
 
-        } else if( currentLibrary
-                .equals( context.getResources().getString( R.string.on_this_device ) ) ) {
+        } else if( currentLibrary.equals( context.getResources().getString( R.string.on_this_device ) ) ) {
             //Check if Google Play Music is enabled.
-            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) ==
-                    true ) {
-                querySelection +=
-                        " AND (" + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'" +
-                                " OR "
-                                + DBAccessHelper.LOCAL_COPY_PATH + "<> '')";
+            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) == true ) {
+                querySelection += " AND (" + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'" +
+                                  " OR " + DBAccessHelper.LOCAL_COPY_PATH + "<> '')";
             } else {
-                querySelection +=
-                        " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
+                querySelection += " AND " + DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
             }
 
             return getPlaybackCursorHelper( querySelection, fragmentId );
 
         } else {
-            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) ==
-                    true ) {
-                querySelection +=
-                        " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" + currentLibrary + "'";
+            if( mApp.getSharedPreferences().getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) == true ) {
+                querySelection += " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" + currentLibrary + "'";
             } else {
-                querySelection +=
-                        " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" + currentLibrary + "'"
-                                + " AND " + DBAccessHelper.SONG_SOURCE + "<>" +
-                                "'GOOGLE_PLAY_MUSIC'";
+                querySelection += " AND " + DBAccessHelper.LIBRARY_NAME + "=" + "'" + currentLibrary + "'" + " AND "
+                                  + DBAccessHelper.SONG_SOURCE + "<>" +
+                                  "'GOOGLE_PLAY_MUSIC'";
             }
 
             return getPlaybackCursorInLibraryHelper( querySelection, fragmentId );
@@ -1050,8 +803,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
             case Common.PLAY_ALL_BY_ALBUM:
             case Common.PLAY_ALL_IN_GENRE:
             case Common.PLAY_ALL_IN_FOLDER:
-                querySelection +=
-                        " ORDER BY " + MUSIC_LIBRARY_TABLE + "." + SONG_TRACK_NUMBER + "*1 ASC";
+                querySelection += " ORDER BY " + MUSIC_LIBRARY_TABLE + "." + SONG_TRACK_NUMBER + "*1 ASC";
                 break;
             case Common.PLAY_ALL_SONGS:
                 querySelection += " ORDER BY " + MUSIC_LIBRARY_TABLE + "." + SONG_TITLE + " ASC";
@@ -1071,15 +823,11 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Returns a selection cursor of all unique artists.
      */
     public Cursor getAllUniqueArtists( String selection ) {
-        String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ARTIST + "), "
-                + _ID + ", " + SONG_FILE_PATH + ", " + ARTIST_ART_LOCATION
-                + ", " + BLACKLIST_STATUS + ", " + ALBUMS_COUNT + ", "
-                + SONG_SOURCE + ", " + SONG_ALBUM_ART_PATH + ", "
-                + SONG_DURATION + " FROM " + MUSIC_LIBRARY_TABLE
-                + " WHERE " + BLACKLIST_STATUS + "=" + "'"
-                + "0" + "'" + selection + " GROUP BY "
-                + SONG_ARTIST + " ORDER BY " + SONG_ARTIST
-                + " ASC";
+        String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ARTIST + "), " + _ID + ", " + SONG_FILE_PATH + ", "
+                                     + ARTIST_ART_LOCATION + ", " + BLACKLIST_STATUS + ", " + ALBUMS_COUNT + ", "
+                                     + SONG_SOURCE + ", " + SONG_ALBUM_ART_PATH + ", " + SONG_DURATION + " FROM "
+                                     + MUSIC_LIBRARY_TABLE + " WHERE " + BLACKLIST_STATUS + "=" + "'" + "0" + "'"
+                                     + selection + " GROUP BY " + SONG_ARTIST + " ORDER BY " + SONG_ARTIST + " ASC";
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
 
@@ -1091,20 +839,15 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * selection parameter.
      */
     public Cursor getAllUniqueArtistsInLibrary( String selection ) {
-        String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ARTIST + "), "
-                + MUSIC_LIBRARY_TABLE + "." + _ID + ", "
-                + SONG_FILE_PATH + ", " + ARTIST_ART_LOCATION + ", "
-                + SONG_SOURCE + ", " + ALBUMS_COUNT + ", " + SONG_DURATION + ", "
-                + SONG_ALBUM_ART_PATH + " FROM " + MUSIC_LIBRARY_TABLE
-                + " INNER JOIN " + DBAccessHelper.LIBRARY_NAME
-                + " ON (" + MUSIC_LIBRARY_TABLE + "." + _ID + "="
-                + DBAccessHelper.LIBRARY_NAME + "."
-                + DBAccessHelper.SONG_ID + ") WHERE "
-                + MUSIC_LIBRARY_TABLE + "." + BLACKLIST_STATUS + "="
-                + "'" + "0" + "'" + selection + " GROUP BY "
-                + MUSIC_LIBRARY_TABLE + "." + SONG_ARTIST + " ORDER BY "
-                + MUSIC_LIBRARY_TABLE + "." + SONG_ARTIST
-                + " ASC";
+        String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ARTIST + "), " + MUSIC_LIBRARY_TABLE + "." + _ID + ", "
+                                     + SONG_FILE_PATH + ", " + ARTIST_ART_LOCATION + ", " + SONG_SOURCE + ", "
+                                     + ALBUMS_COUNT + ", " + SONG_DURATION + ", " + SONG_ALBUM_ART_PATH + " FROM "
+                                     + MUSIC_LIBRARY_TABLE + " INNER JOIN " + DBAccessHelper.LIBRARY_NAME + " ON ("
+                                     + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + DBAccessHelper.LIBRARY_NAME + "."
+                                     + DBAccessHelper.SONG_ID + ") WHERE " + MUSIC_LIBRARY_TABLE + "."
+                                     + BLACKLIST_STATUS + "=" + "'" + "0" + "'" + selection + " GROUP BY "
+                                     + MUSIC_LIBRARY_TABLE + "." + SONG_ARTIST + " ORDER BY " + MUSIC_LIBRARY_TABLE
+                                     + "." + SONG_ARTIST + " ASC";
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
 
@@ -1123,14 +866,12 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Returns a selection cursor of all unique album artists.
      */
     public Cursor getAllUniqueAlbumArtists( String selection ) {
-        String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM_ARTIST + "), "
-                + _ID + ", " + SONG_FILE_PATH + ", " + ARTIST_ART_LOCATION
-                + ", " + BLACKLIST_STATUS + ", " + ALBUMS_COUNT + ", " + SONG_SOURCE + ", "
-                + SONG_ALBUM_ART_PATH + ", " + SONG_DURATION + " FROM "
-                + MUSIC_LIBRARY_TABLE + " WHERE " + BLACKLIST_STATUS
-                + "=" + "'" + "0" + "'" + selection + " GROUP BY "
-                + SONG_ALBUM_ARTIST + " ORDER BY " + SONG_ALBUM_ARTIST
-                + " ASC";
+        String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM_ARTIST + "), " + _ID + ", " + SONG_FILE_PATH + ", "
+                                     + ARTIST_ART_LOCATION + ", " + BLACKLIST_STATUS + ", " + ALBUMS_COUNT + ", "
+                                     + SONG_SOURCE + ", " + SONG_ALBUM_ART_PATH + ", " + SONG_DURATION + " FROM "
+                                     + MUSIC_LIBRARY_TABLE + " WHERE " + BLACKLIST_STATUS + "=" + "'" + "0" + "'"
+                                     + selection + " GROUP BY " + SONG_ALBUM_ARTIST + " ORDER BY " + SONG_ALBUM_ARTIST
+                                     + " ASC";
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
 
@@ -1142,19 +883,15 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * selection parameter.
      */
     public Cursor getAllUniqueAlbumArtistsInLibrary( String selection ) {
-        String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM_ARTIST + "), "
-                + MUSIC_LIBRARY_TABLE + "." + _ID + ", "
-                + SONG_FILE_PATH + ", " + ARTIST_ART_LOCATION + ", "
-                + SONG_SOURCE + ", " + SONG_DURATION + ", " + ALBUMS_COUNT + ", "
-                + SONG_ALBUM_ART_PATH + " FROM " + MUSIC_LIBRARY_TABLE
-                + " INNER JOIN " + DBAccessHelper.LIBRARY_NAME + " ON ("
-                + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + DBAccessHelper.LIBRARY_NAME + "."
-                + DBAccessHelper.SONG_ID + ") WHERE "
-                + MUSIC_LIBRARY_TABLE + "." + BLACKLIST_STATUS + "=" + "'"
-                + "0" + "'" + selection + " GROUP BY " + MUSIC_LIBRARY_TABLE
-                + "." + SONG_ALBUM_ARTIST + " ORDER BY " + MUSIC_LIBRARY_TABLE
-                + "." + SONG_ALBUM_ARTIST
-                + " ASC";
+        String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM_ARTIST + "), " + MUSIC_LIBRARY_TABLE + "." + _ID
+                                     + ", " + SONG_FILE_PATH + ", " + ARTIST_ART_LOCATION + ", " + SONG_SOURCE + ", "
+                                     + SONG_DURATION + ", " + ALBUMS_COUNT + ", " + SONG_ALBUM_ART_PATH + " FROM "
+                                     + MUSIC_LIBRARY_TABLE + " INNER JOIN " + DBAccessHelper.LIBRARY_NAME + " ON ("
+                                     + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + DBAccessHelper.LIBRARY_NAME + "."
+                                     + DBAccessHelper.SONG_ID + ") WHERE " + MUSIC_LIBRARY_TABLE + "."
+                                     + BLACKLIST_STATUS + "=" + "'" + "0" + "'" + selection + " GROUP BY "
+                                     + MUSIC_LIBRARY_TABLE + "." + SONG_ALBUM_ARTIST + " ORDER BY "
+                                     + MUSIC_LIBRARY_TABLE + "." + SONG_ALBUM_ARTIST + " ASC";
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
 
@@ -1165,15 +902,14 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllUniqueAlbumsByAlbumArtist( String selection ) {
         String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM + "), " +
-                _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " + SONG_ALBUM_ARTIST +
-                ", " + SONG_YEAR + ", " + SONG_SOURCE + ", " + SONG_DURATION + ", " + SONG_ID +
-                ", " +
-                LOCAL_COPY_PATH + ", " + SONG_ALBUM_ART_PATH + ", " + SONG_TITLE +
-                ", " + SONG_ALBUM + ", " + SONG_GENRE + ", " + SONGS_COUNT + " FROM " +
-                MUSIC_LIBRARY_TABLE + " WHERE " + BLACKLIST_STATUS + "=" + "'" +
-                "0" + "'" + selection + " GROUP BY " +
-                SONG_ALBUM + " ORDER BY " + SONG_YEAR
-                + "*1 ASC";
+                                     _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " + SONG_ALBUM_ARTIST +
+                                     ", " + SONG_YEAR + ", " + SONG_SOURCE + ", " + SONG_DURATION + ", " + SONG_ID +
+                                     ", " +
+                                     LOCAL_COPY_PATH + ", " + SONG_ALBUM_ART_PATH + ", " + SONG_TITLE +
+                                     ", " + SONG_ALBUM + ", " + SONG_GENRE + ", " + SONGS_COUNT + " FROM " +
+                                     MUSIC_LIBRARY_TABLE + " WHERE " + BLACKLIST_STATUS + "=" + "'" +
+                                     "0" + "'" + selection + " GROUP BY " +
+                                     SONG_ALBUM + " ORDER BY " + SONG_YEAR + "*1 ASC";
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
 
@@ -1183,19 +919,18 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Returns a cursor with all unique albums by an album artist, in the specified library.
      */
     public Cursor getAllUniqueAlbumsByAlbumArtistInLibrary( String selection ) {
-        String selectDistinctQuery =
-                "SELECT DISTINCT(" + SONG_ALBUM + "), " + MUSIC_LIBRARY_TABLE + "." +
-                        _ID + ", " + SONG_ARTIST + ", " + SONG_ALBUM_ARTIST + ", " +
-                        SONG_FILE_PATH + ", " + LOCAL_COPY_PATH +
-                        ", " + SONG_YEAR + ", " + SONG_SOURCE + ", " + SONG_DURATION + ", " +
-                        SONGS_COUNT + ", " +
-                        SONG_ALBUM_ART_PATH + ", " + SONG_TITLE + ", " + SONG_ALBUM + ", " +
-                        SONG_GENRE + " FROM " +
-                        MUSIC_LIBRARY_TABLE + " INNER JOIN " + LIBRARIES_TABLE + " ON ("
-                        + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + LIBRARIES_TABLE + "."
-                        + SONG_ID + ") WHERE " + BLACKLIST_STATUS + "=" + "'" +
-                        "0" + "'" + selection + " GROUP BY " + SONG_ALBUM + " ORDER BY " + SONG_YEAR
-                        + "*1 ASC";
+        String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM + "), " + MUSIC_LIBRARY_TABLE + "." +
+                                     _ID + ", " + SONG_ARTIST + ", " + SONG_ALBUM_ARTIST + ", " +
+                                     SONG_FILE_PATH + ", " + LOCAL_COPY_PATH +
+                                     ", " + SONG_YEAR + ", " + SONG_SOURCE + ", " + SONG_DURATION + ", " +
+                                     SONGS_COUNT + ", " +
+                                     SONG_ALBUM_ART_PATH + ", " + SONG_TITLE + ", " + SONG_ALBUM + ", " +
+                                     SONG_GENRE + " FROM " +
+                                     MUSIC_LIBRARY_TABLE + " INNER JOIN " + LIBRARIES_TABLE + " ON ("
+                                     + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + LIBRARIES_TABLE + "." + SONG_ID
+                                     + ") WHERE " + BLACKLIST_STATUS + "=" + "'" +
+                                     "0" + "'" + selection + " GROUP BY " + SONG_ALBUM + " ORDER BY " + SONG_YEAR
+                                     + "*1 ASC";
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
 
@@ -1206,14 +941,13 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllUniqueAlbums( String selection ) {
         String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM + "), " +
-                _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " + BLACKLIST_STATUS + ", " +
-                SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONG_ALBUM_ARTIST + ", " +
-                SONG_DURATION +
-                " FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
-                BLACKLIST_STATUS + "=" + "'" +
-                "0" + "'" + selection + " GROUP BY " +
-                SONG_ALBUM + " ORDER BY " + SONG_ALBUM
-                + " ASC";
+                                     _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " + BLACKLIST_STATUS + ", " +
+                                     SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONG_ALBUM_ARTIST + ", " +
+                                     SONG_DURATION +
+                                     " FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
+                                     BLACKLIST_STATUS + "=" + "'" +
+                                     "0" + "'" + selection + " GROUP BY " +
+                                     SONG_ALBUM + " ORDER BY " + SONG_ALBUM + " ASC";
 
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
@@ -1227,17 +961,16 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllUniqueAlbumsInLibrary( String selection ) {
         String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM + "), " +
-                MUSIC_LIBRARY_TABLE + "." + _ID + ", " + SONG_FILE_PATH + ", " + SONG_ALBUM_ARTIST +
-                ", "
-                + SONG_SOURCE + ", " + SONG_DURATION + ", " + SONG_ALBUM_ART_PATH + ", " +
-                SONG_ARTIST + " FROM " + MUSIC_LIBRARY_TABLE
-                + " INNER JOIN " + DBAccessHelper.LIBRARY_NAME + " ON ("
-                + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + DBAccessHelper.LIBRARY_NAME + "."
-                + DBAccessHelper.SONG_ID + ") WHERE " + MUSIC_LIBRARY_TABLE + "." +
-                BLACKLIST_STATUS + "=" + "'" + "0" + "'" + selection + " GROUP BY " +
-                MUSIC_LIBRARY_TABLE + "." + SONG_ALBUM + " ORDER BY " + MUSIC_LIBRARY_TABLE + "." +
-                SONG_ALBUM
-                + " ASC";
+                                     MUSIC_LIBRARY_TABLE + "." + _ID + ", " + SONG_FILE_PATH + ", " + SONG_ALBUM_ARTIST
+                                     +
+                                     ", " + SONG_SOURCE + ", " + SONG_DURATION + ", " + SONG_ALBUM_ART_PATH + ", " +
+                                     SONG_ARTIST + " FROM " + MUSIC_LIBRARY_TABLE + " INNER JOIN "
+                                     + DBAccessHelper.LIBRARY_NAME + " ON (" + MUSIC_LIBRARY_TABLE + "." + _ID + "="
+                                     + DBAccessHelper.LIBRARY_NAME + "." + DBAccessHelper.SONG_ID + ") WHERE "
+                                     + MUSIC_LIBRARY_TABLE + "." +
+                                     BLACKLIST_STATUS + "=" + "'" + "0" + "'" + selection + " GROUP BY " +
+                                     MUSIC_LIBRARY_TABLE + "." + SONG_ALBUM + " ORDER BY " + MUSIC_LIBRARY_TABLE + "." +
+                                     SONG_ALBUM + " ASC";
 
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
@@ -1248,8 +981,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * should be passed in via the selection parameter.
      */
     public Cursor getSongsInAlbum( String selection, String[] projection ) {
-        return getDatabase()
-                .query( MUSIC_LIBRARY_TABLE, projection, selection, null, null, null, SONG_YEAR );
+        return getDatabase().query( MUSIC_LIBRARY_TABLE, projection, selection, null, null, null, SONG_YEAR );
     }
 
     /**
@@ -1259,7 +991,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllSongsSearchable( String selection ) {
         String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
-                BLACKLIST_STATUS + "=" + "'0'" + selection;
+                             BLACKLIST_STATUS + "=" + "'0'" + selection;
 
         return getDatabase().rawQuery( selectQuery, null );
     }
@@ -1270,11 +1002,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * selection parameter.
      */
     public Cursor getAllSongsInLibrarySearchable( String selection ) {
-        String selectQuery = "SELECT * FROM " + MUSIC_LIBRARY_TABLE
-                + " INNER JOIN " + LIBRARY_NAME + " ON ("
-                + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + LIBRARY_NAME + "."
-                + SONG_ID + ") WHERE " + MUSIC_LIBRARY_TABLE + "." +
-                BLACKLIST_STATUS + "=" + "'" + "0" + "'" + selection;
+        String selectQuery = "SELECT * FROM " + MUSIC_LIBRARY_TABLE + " INNER JOIN " + LIBRARY_NAME + " ON ("
+                             + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + LIBRARY_NAME + "." + SONG_ID + ") WHERE "
+                             + MUSIC_LIBRARY_TABLE + "." +
+                             BLACKLIST_STATUS + "=" + "'" + "0" + "'" + selection;
 
         return getDatabase().rawQuery( selectQuery, null );
     }
@@ -1284,11 +1015,8 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * specified artist.
      */
     public Cursor getAllSongsInAlbum( String albumName, String artistName ) {
-        String selection = SONG_ALBUM + "=" + "'"
-                + albumName.replace( "'", "''" )
-                + "'" + " AND " + SONG_ARTIST
-                + "=" + "'" + artistName.replace( "'", "''" )
-                + "'";
+        String selection = SONG_ALBUM + "=" + "'" + albumName.replace( "'", "''" ) + "'" + " AND " + SONG_ARTIST + "="
+                           + "'" + artistName.replace( "'", "''" ) + "'";
 
         return getDatabase().query( MUSIC_LIBRARY_TABLE, null, selection, null, null, null, null );
 
@@ -1299,13 +1027,12 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllUniqueGenres( String selection ) {
         String selectDistinctQuery = "SELECT DISTINCT(" + SONG_GENRE + "), " +
-                _ID + ", " + SONG_FILE_PATH + ", " + SONG_ALBUM_ART_PATH
-                + ", " + SONG_DURATION + ", " + SONG_SOURCE + ", " + GENRE_SONG_COUNT + " FROM " +
-                MUSIC_LIBRARY_TABLE + " WHERE " +
-                BLACKLIST_STATUS + "=" + "'" +
-                "0" + "'" + selection + " GROUP BY " +
-                SONG_GENRE + " ORDER BY " + SONG_GENRE
-                + " ASC";
+                                     _ID + ", " + SONG_FILE_PATH + ", " + SONG_ALBUM_ART_PATH + ", " + SONG_DURATION
+                                     + ", " + SONG_SOURCE + ", " + GENRE_SONG_COUNT + " FROM " +
+                                     MUSIC_LIBRARY_TABLE + " WHERE " +
+                                     BLACKLIST_STATUS + "=" + "'" +
+                                     "0" + "'" + selection + " GROUP BY " +
+                                     SONG_GENRE + " ORDER BY " + SONG_GENRE + " ASC";
 
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
@@ -1318,19 +1045,15 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * selection parameter.
      */
     public Cursor getAllUniqueGenresInLibrary( String selection ) {
-        String selectDistinctQuery =
-                "SELECT DISTINCT(" + SONG_GENRE + "), " + MUSIC_LIBRARY_TABLE + "." +
-                        _ID + ", " + SONG_FILE_PATH + ", " + SONG_ALBUM_ART_PATH + ", " +
-                        SONG_DURATION
-                        + ", " + SONG_SOURCE + ", " + GENRE_SONG_COUNT + " FROM " +
-                        MUSIC_LIBRARY_TABLE
-                        + " INNER JOIN " + LIBRARIES_TABLE + " ON ("
-                        + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + LIBRARIES_TABLE + "."
-                        + SONG_ID + ") WHERE " +
-                        BLACKLIST_STATUS + "=" + "'" +
-                        "0" + "'" + selection + " GROUP BY " +
-                        SONG_GENRE + " ORDER BY " + SONG_GENRE
-                        + " ASC";
+        String selectDistinctQuery = "SELECT DISTINCT(" + SONG_GENRE + "), " + MUSIC_LIBRARY_TABLE + "." +
+                                     _ID + ", " + SONG_FILE_PATH + ", " + SONG_ALBUM_ART_PATH + ", " +
+                                     SONG_DURATION + ", " + SONG_SOURCE + ", " + GENRE_SONG_COUNT + " FROM " +
+                                     MUSIC_LIBRARY_TABLE + " INNER JOIN " + LIBRARIES_TABLE + " ON ("
+                                     + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + LIBRARIES_TABLE + "." + SONG_ID
+                                     + ") WHERE " +
+                                     BLACKLIST_STATUS + "=" + "'" +
+                                     "0" + "'" + selection + " GROUP BY " +
+                                     SONG_GENRE + " ORDER BY " + SONG_GENRE + " ASC";
 
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
@@ -1341,10 +1064,8 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Returns a cursor with all the songs in the specified genre.
      */
     public Cursor getAllSongsInGenre( String selection ) {
-        String selectQuery = "SELECT * FROM " + MUSIC_LIBRARY_TABLE
-                + " WHERE " + BLACKLIST_STATUS + "=" + "'"
-                + "0" + "'" + selection + " ORDER BY " + SONG_ALBUM + " ASC, "
-                + SONG_TRACK_NUMBER + "*1 ASC";
+        String selectQuery = "SELECT * FROM " + MUSIC_LIBRARY_TABLE + " WHERE " + BLACKLIST_STATUS + "=" + "'" + "0"
+                             + "'" + selection + " ORDER BY " + SONG_ALBUM + " ASC, " + SONG_TRACK_NUMBER + "*1 ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
 
@@ -1355,8 +1076,8 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllSongsInAlbumByArtist( String selection ) {
         String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
-                BLACKLIST_STATUS + "=" + "'0'" + selection +
-                " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
+                             BLACKLIST_STATUS + "=" + "'0'" + selection +
+                             " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
     }
@@ -1366,12 +1087,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * within the specified library.
      */
     public Cursor getAllSongsInAlbumByArtistInLibrary( String selection ) {
-        String selectQuery =
-                "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " INNER JOIN " + LIBRARIES_TABLE + " ON ("
-                        + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + LIBRARIES_TABLE + "."
-                        + SONG_ID + ") WHERE " +
-                        BLACKLIST_STATUS + "=" + "'0'" + selection +
-                        " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
+        String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " INNER JOIN " + LIBRARIES_TABLE + " ON ("
+                             + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + LIBRARIES_TABLE + "." + SONG_ID + ") WHERE " +
+                             BLACKLIST_STATUS + "=" + "'0'" + selection +
+                             " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
 
@@ -1382,8 +1101,8 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllSongsInAlbumInGenre( String selection ) {
         String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
-                BLACKLIST_STATUS + "=" + "'0'" + selection +
-                " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
+                             BLACKLIST_STATUS + "=" + "'0'" + selection +
+                             " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
     }
@@ -1393,13 +1112,11 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * within the specified library.
      */
     public Cursor getAllSongsByInAlbumInArtistInLibrary( String selection ) {
-        String selectQuery =
-                "SELECT  * FROM " + LIBRARIES_TABLE + " INNER JOIN " + DBAccessHelper.LIBRARY_NAME +
-                        " ON ("
-                        + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + DBAccessHelper.LIBRARY_NAME + "."
-                        + DBAccessHelper.SONG_ID + ") WHERE " +
-                        BLACKLIST_STATUS + "=" + "'0'" + selection +
-                        " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
+        String selectQuery = "SELECT  * FROM " + LIBRARIES_TABLE + " INNER JOIN " + DBAccessHelper.LIBRARY_NAME +
+                             " ON (" + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + DBAccessHelper.LIBRARY_NAME + "."
+                             + DBAccessHelper.SONG_ID + ") WHERE " +
+                             BLACKLIST_STATUS + "=" + "'0'" + selection +
+                             " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
     }
@@ -1410,11 +1127,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     public Cursor getAllSongsByInAlbumInGenreInLibrary( String selection ) {
 
         String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " INNER JOIN " +
-                DBAccessHelper.LIBRARY_NAME + " ON ("
-                + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + DBAccessHelper.LIBRARY_NAME + "."
-                + DBAccessHelper.SONG_ID + ") WHERE " +
-                BLACKLIST_STATUS + "=" + "'0'" + selection +
-                " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
+                             DBAccessHelper.LIBRARY_NAME + " ON (" + MUSIC_LIBRARY_TABLE + "." + _ID + "="
+                             + DBAccessHelper.LIBRARY_NAME + "." + DBAccessHelper.SONG_ID + ") WHERE " +
+                             BLACKLIST_STATUS + "=" + "'0'" + selection +
+                             " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
     }
@@ -1425,8 +1141,8 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     public Cursor getAllSongsInAlbumByAlbumArtist( String selection ) {
 
         String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
-                BLACKLIST_STATUS + "=" + "'0'" + selection +
-                " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
+                             BLACKLIST_STATUS + "=" + "'0'" + selection +
+                             " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
 
@@ -1439,11 +1155,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     public Cursor getAllSongsInAlbumByAlbumArtistInLibrary( String selection ) {
 
         String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " INNER JOIN " +
-                DBAccessHelper.LIBRARY_NAME + " ON ("
-                + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + DBAccessHelper.LIBRARY_NAME + "."
-                + DBAccessHelper.SONG_ID + ") WHERE " +
-                BLACKLIST_STATUS + "=" + "'0'" + selection +
-                " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
+                             DBAccessHelper.LIBRARY_NAME + " ON (" + MUSIC_LIBRARY_TABLE + "." + _ID + "="
+                             + DBAccessHelper.LIBRARY_NAME + "." + DBAccessHelper.SONG_ID + ") WHERE " +
+                             BLACKLIST_STATUS + "=" + "'0'" + selection +
+                             " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
 
@@ -1455,11 +1170,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     public Cursor getAllSongsByAlbumArtistInLibrary( String selection ) {
 
         String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " INNER JOIN " +
-                DBAccessHelper.LIBRARY_NAME + " ON ("
-                + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + DBAccessHelper.LIBRARY_NAME + "."
-                + DBAccessHelper.SONG_ID + ") WHERE " +
-                BLACKLIST_STATUS + "=" + "'0'" + selection +
-                " ORDER BY " + SONG_ALBUM + " ASC, " + SONG_TRACK_NUMBER + "*1 ASC";
+                             DBAccessHelper.LIBRARY_NAME + " ON (" + MUSIC_LIBRARY_TABLE + "." + _ID + "="
+                             + DBAccessHelper.LIBRARY_NAME + "." + DBAccessHelper.SONG_ID + ") WHERE " +
+                             BLACKLIST_STATUS + "=" + "'0'" + selection +
+                             " ORDER BY " + SONG_ALBUM + " ASC, " + SONG_TRACK_NUMBER + "*1 ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
     }
@@ -1488,8 +1202,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public int getGenreSongCount( String genreName ) {
         String selection = SONG_GENRE + "=" + "'" + genreName.replace( "'", "''" ) + "'";
-        Cursor cursor =
-                getDatabase().query( MUSIC_LIBRARY_TABLE, null, selection, null, null, null, null );
+        Cursor cursor = getDatabase().query( MUSIC_LIBRARY_TABLE, null, selection, null, null, null, null );
 
         int songCount = cursor.getCount();
         cursor.close();
@@ -1505,10 +1218,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
         values.put( DBAccessHelper.GENRE_SONG_COUNT, songCount );
         String where = DBAccessHelper.SONG_GENRE + "=" + "'" + genre + "'";
 
-        getDatabase().update( MUSIC_LIBRARY_TABLE,
-                values,
-                where,
-                null );
+        getDatabase().update( MUSIC_LIBRARY_TABLE, values, where, null );
 
     }
 
@@ -1522,44 +1232,11 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Updates a song's "scanned" flag during the scanning process.
-     */
-    public void updateScannedFlag( String filePath ) {
-        String selection = SONG_FILE_PATH + "=" + "'" + filePath.replace( "'", "''" ) + "'";
-
-        ContentValues values = new ContentValues();
-        values.put( SONG_SCANNED, "TRUE" );
-
-        getDatabase().update( MUSIC_LIBRARY_TABLE, values, selection, null );
-
-    }
-
-    /**
-     * Deletes all songs whose "scanned" flag is false.
-     */
-    public void deleteAllUnscannedSongs() {
-        String selection = SONG_SCANNED + "=" + "'FALSE'";
-        getDatabase().delete( MUSIC_LIBRARY_TABLE, selection, null );
-
-    }
-
-    /**
      * Deletes a song that has the specified file path.
      */
     public void deleteSongByFilePath( String filePath ) {
         String selection = SONG_FILE_PATH + "=" + "'" + filePath.replace( "'", "''" ) + "'";
         getDatabase().delete( MUSIC_LIBRARY_TABLE, selection, null );
-
-    }
-
-    /**
-     * Resets the SONG_SCANNED flag for all songs.
-     */
-    public void resetSongScannedFlags() {
-        ContentValues values = new ContentValues();
-        values.put( SONG_SCANNED, "FALSE" );
-
-        getDatabase().update( MUSIC_LIBRARY_TABLE, values, null, null );
 
     }
 
@@ -1586,76 +1263,14 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Returns a cursor with the top 25 played tracks in the library.
-     */
-    public Cursor getTop25PlayedTracks( String selection ) {
-        return getDatabase().query( MUSIC_LIBRARY_TABLE,
-                null,
-                selection,
-                null,
-                null,
-                null,
-                SONG_PLAY_COUNT + "*1 DESC",
-                "25" );
-
-    }
-
-    /**
-     * Returns a cursor with all songs, ordered by their add date.
-     */
-    public Cursor getRecentlyAddedSongs( String selection ) {
-        return getDatabase().query( MUSIC_LIBRARY_TABLE,
-                null,
-                selection,
-                null,
-                null,
-                null,
-                ADDED_TIMESTAMP + "*1 DESC",
-                "25" );
-
-    }
-
-    /**
-     * Returns a cursor with all songs, ordered by their rating.
-     */
-    public Cursor getTopRatedSongs( String selection ) {
-        return getDatabase().query( MUSIC_LIBRARY_TABLE,
-                null,
-                selection,
-                null,
-                null,
-                null,
-                SONG_RATING + "*1 DESC",
-                "25" );
-
-    }
-
-    /**
-     * Returns a cursor with all songs, ordered by their last played timestamp.
-     */
-    public Cursor getRecentlyPlayedSongs( String selection ) {
-        return getDatabase().query( MUSIC_LIBRARY_TABLE,
-                null,
-                selection,
-                null,
-                null,
-                null,
-                LAST_PLAYED_TIMESTAMP + "*1 DESC",
-                "25" );
-
-    }
-
-    /**
      * Returns the local copy path for the specified song.
      */
     public String getLocalCopyPath( String songID ) {
-        String[] columns = { _ID,
-                LOCAL_COPY_PATH };
+        String[] columns = { _ID, LOCAL_COPY_PATH };
         String where = SONG_ID + "=" + "'" + songID.replace( "'", "''" ) + "'" + " AND " +
-                SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'";
+                       SONG_SOURCE + "=" + "'GOOGLE_PLAY_MUSIC'";
 
-        Cursor cursor =
-                getDatabase().query( MUSIC_LIBRARY_TABLE, columns, where, null, null, null, null );
+        Cursor cursor = getDatabase().query( MUSIC_LIBRARY_TABLE, columns, where, null, null, null, null );
         String localCopyPath = null;
         if( cursor != null ) {
             if( cursor.getCount() > 0 ) {
@@ -1714,8 +1329,8 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Sets the blacklist status of the specified album.
      */
     public void setBlacklistForAlbum( String albumName, String artistName, boolean blacklist ) {
-        String where = SONG_ALBUM + "=" + "'" + albumName.replace( "'", "''" ) + "'"
-                + " AND " + SONG_ARTIST + "=" + "'" + artistName.replace( "'", "''" );
+        String where = SONG_ALBUM + "=" + "'" + albumName.replace( "'", "''" ) + "'" + " AND " + SONG_ARTIST + "=" + "'"
+                       + artistName.replace( "'", "''" );
         ContentValues values = new ContentValues();
         values.put( BLACKLIST_STATUS, blacklist );
         getDatabase().update( MUSIC_LIBRARY_TABLE, values, where, null );
@@ -1738,14 +1353,8 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public String getAlbumArtBySongId( String songId ) {
         String where = SONG_ID + "=" + "'" + songId + "'";
-        Cursor cursor = getDatabase().query( MUSIC_LIBRARY_TABLE,
-                new String[]{ _ID,
-                        SONG_ALBUM_ART_PATH },
-                where,
-                null,
-                null,
-                null,
-                null );
+        Cursor cursor = getDatabase().query( MUSIC_LIBRARY_TABLE, new String[]{ _ID, SONG_ALBUM_ART_PATH }, where, null,
+                                             null, null, null );
 
         if( cursor != null ) {
             cursor.moveToFirst();
@@ -1763,7 +1372,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllSongs() {
         String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
-                BLACKLIST_STATUS + "=" + "'0'" + " ORDER BY " + SONG_TITLE + " ASC";
+                             BLACKLIST_STATUS + "=" + "'0'" + " ORDER BY " + SONG_TITLE + " ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
 
@@ -1774,14 +1383,8 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public int getSongRating( String songId ) {
         String where = SONG_ID + "=" + "'" + songId + "'";
-        Cursor cursor = getDatabase().query( MUSIC_LIBRARY_TABLE,
-                new String[]{ _ID,
-                        SONG_RATING },
-                where,
-                null,
-                null,
-                null,
-                null );
+        Cursor cursor = getDatabase().query( MUSIC_LIBRARY_TABLE, new String[]{ _ID, SONG_RATING }, where, null, null,
+                                             null, null );
 
         int songRating = 0;
         if( cursor != null ) {
@@ -1809,15 +1412,14 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllUniqueAlbumsInGenre( String selection ) {
         String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM + "), " +
-                _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " +
-                BLACKLIST_STATUS + ", " + SONG_GENRE + ", " + SONG_YEAR + ", " +
-                SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONGS_COUNT + ", " +
-                SONG_ALBUM_ARTIST + ", " + SONG_DURATION + ", " + LOCAL_COPY_PATH
-                + " FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
-                BLACKLIST_STATUS + "=" + "'" +
-                "0" + "'" + selection + " GROUP BY " +
-                SONG_ALBUM + " ORDER BY " + SONG_ALBUM
-                + " ASC";
+                                     _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " +
+                                     BLACKLIST_STATUS + ", " + SONG_GENRE + ", " + SONG_YEAR + ", " +
+                                     SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONGS_COUNT + ", " +
+                                     SONG_ALBUM_ARTIST + ", " + SONG_DURATION + ", " + LOCAL_COPY_PATH + " FROM "
+                                     + MUSIC_LIBRARY_TABLE + " WHERE " +
+                                     BLACKLIST_STATUS + "=" + "'" +
+                                     "0" + "'" + selection + " GROUP BY " +
+                                     SONG_ALBUM + " ORDER BY " + SONG_ALBUM + " ASC";
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
 
@@ -1828,19 +1430,16 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllUniqueAlbumsInGenreInLibrary( String selection ) {
         String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM + "), " +
-                MUSIC_LIBRARY_TABLE + "." + _ID + ", " + SONG_FILE_PATH + ", " + SONG_ALBUM_ARTIST +
-                ", "
-                + SONG_SOURCE + ", " + SONG_DURATION + ", " + SONG_ALBUM_ART_PATH + ", " +
-                SONG_ARTIST
-                + ", " + SONG_GENRE + ", " + SONG_YEAR + ", " + SONGS_COUNT + ", " +
-                LOCAL_COPY_PATH + " FROM " + MUSIC_LIBRARY_TABLE
-                + " INNER JOIN " + LIBRARIES_TABLE + " ON ("
-                + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + LIBRARIES_TABLE + "."
-                + SONG_ID + ") WHERE " + MUSIC_LIBRARY_TABLE + "." +
-                BLACKLIST_STATUS + "=" + "'" + "0" + "'" + selection + " GROUP BY " +
-                MUSIC_LIBRARY_TABLE + "." + SONG_ALBUM + " ORDER BY " + MUSIC_LIBRARY_TABLE + "." +
-                SONG_ALBUM
-                + " ASC";
+                                     MUSIC_LIBRARY_TABLE + "." + _ID + ", " + SONG_FILE_PATH + ", " + SONG_ALBUM_ARTIST
+                                     +
+                                     ", " + SONG_SOURCE + ", " + SONG_DURATION + ", " + SONG_ALBUM_ART_PATH + ", " +
+                                     SONG_ARTIST + ", " + SONG_GENRE + ", " + SONG_YEAR + ", " + SONGS_COUNT + ", " +
+                                     LOCAL_COPY_PATH + " FROM " + MUSIC_LIBRARY_TABLE + " INNER JOIN " + LIBRARIES_TABLE
+                                     + " ON (" + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + LIBRARIES_TABLE + "." + SONG_ID
+                                     + ") WHERE " + MUSIC_LIBRARY_TABLE + "." +
+                                     BLACKLIST_STATUS + "=" + "'" + "0" + "'" + selection + " GROUP BY " +
+                                     MUSIC_LIBRARY_TABLE + "." + SONG_ALBUM + " ORDER BY " + MUSIC_LIBRARY_TABLE + "." +
+                                     SONG_ALBUM + " ASC";
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
 
@@ -1851,13 +1450,12 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getBlacklistedArtists() {
         String query = "SELECT DISTINCT(" + SONG_ARTIST + "), " +
-                _ID + ", " + SONG_FILE_PATH + ", " +
-                SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONG_ALBUM_ARTIST +
-                " FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
-                BLACKLIST_STATUS + "=" + "'" +
-                "1" + "'" + " GROUP BY " +
-                SONG_ALBUM + " ORDER BY " + SONG_ALBUM
-                + " ASC";
+                       _ID + ", " + SONG_FILE_PATH + ", " +
+                       SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONG_ALBUM_ARTIST +
+                       " FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
+                       BLACKLIST_STATUS + "=" + "'" +
+                       "1" + "'" + " GROUP BY " +
+                       SONG_ALBUM + " ORDER BY " + SONG_ALBUM + " ASC";
 
         return getDatabase().rawQuery( query, null );
 
@@ -1868,13 +1466,12 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getBlacklistedAlbums() {
         String query = "SELECT DISTINCT(" + SONG_ALBUM + "), " +
-                _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " +
-                SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONG_ALBUM_ARTIST +
-                " FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
-                BLACKLIST_STATUS + "=" + "'" +
-                "1" + "'" + " GROUP BY " +
-                SONG_ALBUM + " ORDER BY " + SONG_ALBUM
-                + " ASC";
+                       _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " +
+                       SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONG_ALBUM_ARTIST +
+                       " FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
+                       BLACKLIST_STATUS + "=" + "'" +
+                       "1" + "'" + " GROUP BY " +
+                       SONG_ALBUM + " ORDER BY " + SONG_ALBUM + " ASC";
 
         return getDatabase().rawQuery( query, null );
 
@@ -1885,8 +1482,8 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllBlacklistedSongs() {
         String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE +
-                " WHERE " + BLACKLIST_STATUS + "=" + "'1'" +
-                " ORDER BY " + SONG_TITLE + " ASC";
+                             " WHERE " + BLACKLIST_STATUS + "=" + "'1'" +
+                             " ORDER BY " + SONG_TITLE + " ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
 
@@ -1897,13 +1494,12 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllAlbumsOrderByName() {
         String selectQuery = "SELECT DISTINCT(" + SONG_ALBUM + "), " +
-                _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " +
-                SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONG_ALBUM_ARTIST +
-                " FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
-                BLACKLIST_STATUS + "=" + "'" +
-                "0" + "'" + " GROUP BY " +
-                SONG_ALBUM + " ORDER BY " + SONG_ALBUM
-                + " ASC";
+                             _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " +
+                             SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONG_ALBUM_ARTIST +
+                             " FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
+                             BLACKLIST_STATUS + "=" + "'" +
+                             "0" + "'" + " GROUP BY " +
+                             SONG_ALBUM + " ORDER BY " + SONG_ALBUM + " ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
 
@@ -1915,13 +1511,12 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     public Cursor getAllArtistsOrderByName() {
 
         String selectQuery = "SELECT DISTINCT(" + SONG_ARTIST + "), " +
-                _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " +
-                SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONG_ALBUM_ARTIST +
-                " FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
-                BLACKLIST_STATUS + "=" + "'" +
-                "0" + "'" + " GROUP BY " +
-                SONG_ARTIST + " ORDER BY " + SONG_ARTIST
-                + " ASC";
+                             _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " +
+                             SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONG_ALBUM_ARTIST +
+                             " FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
+                             BLACKLIST_STATUS + "=" + "'" +
+                             "0" + "'" + " GROUP BY " +
+                             SONG_ARTIST + " ORDER BY " + SONG_ARTIST + " ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
 
@@ -1941,8 +1536,8 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllSongsByAlbumArtist( String selection ) {
         String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " WHERE " +
-                BLACKLIST_STATUS + "=" + "'0'" + selection +
-                " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
+                             BLACKLIST_STATUS + "=" + "'0'" + selection +
+                             " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
 
         return getDatabase().rawQuery( selectQuery, null );
 
@@ -1975,21 +1570,19 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     public HashMap<String, Boolean> getAllSongIdsBlacklistStatus() {
         HashMap<String, Boolean> songIdBlacklistStatusPair = new HashMap<String, Boolean>();
 
-        String[] columns = { _ID,
-                BLACKLIST_STATUS };
-        Cursor cursor =
-                getDatabase().query( MUSIC_LIBRARY_TABLE, columns, null, null, null, null, null );
+        String[] columns = { _ID, BLACKLIST_STATUS };
+        Cursor cursor = getDatabase().query( MUSIC_LIBRARY_TABLE, columns, null, null, null, null, null );
 
-        if( cursor == null )
+        if( cursor == null ) {
             return null;
+        }
 
         if( cursor.getCount() > 0 ) {
             for( int i = 0; i < cursor.getCount(); i++ ) {
                 cursor.moveToPosition( i );
                 String songId = cursor.getString( cursor.getColumnIndex( _ID ) );
-                boolean blacklistStatus =
-                        cursor.getString( cursor.getColumnIndex( BLACKLIST_STATUS ) )
-                                .equals( "true" );
+                boolean blacklistStatus = cursor.getString( cursor.getColumnIndex( BLACKLIST_STATUS ) )
+                                                .equals( "true" );
                 songIdBlacklistStatusPair.put( songId, blacklistStatus );
             }
 
@@ -2005,11 +1598,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllUniqueAlbumsNoBlacklist( String selection ) {
         String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM + "), " +
-                _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " + BLACKLIST_STATUS + ", " +
-                SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONG_ALBUM_ARTIST +
-                " FROM " + MUSIC_LIBRARY_TABLE + " GROUP BY " +
-                SONG_ALBUM + " ORDER BY " + SONG_ALBUM
-                + " ASC";
+                                     _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " + BLACKLIST_STATUS + ", " +
+                                     SONG_ALBUM_ART_PATH + ", " + SONG_SOURCE + ", " + SONG_ALBUM_ARTIST +
+                                     " FROM " + MUSIC_LIBRARY_TABLE + " GROUP BY " +
+                                     SONG_ALBUM + " ORDER BY " + SONG_ALBUM + " ASC";
 
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
@@ -2021,10 +1613,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllUniqueArtistsNoBlacklist( String selection ) {
         String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ARTIST + "), " +
-                _ID + ", " + SONG_FILE_PATH + ", " + ARTIST_ART_LOCATION + ", " + BLACKLIST_STATUS +
-                ", "
-                + SONG_SOURCE + ", " + SONG_ALBUM_ART_PATH + " FROM " + MUSIC_LIBRARY_TABLE
-                + " GROUP BY " + SONG_ARTIST + " ORDER BY " + SONG_ARTIST + " ASC";
+                                     _ID + ", " + SONG_FILE_PATH + ", " + ARTIST_ART_LOCATION + ", " + BLACKLIST_STATUS
+                                     +
+                                     ", " + SONG_SOURCE + ", " + SONG_ALBUM_ART_PATH + " FROM " + MUSIC_LIBRARY_TABLE
+                                     + " GROUP BY " + SONG_ARTIST + " ORDER BY " + SONG_ARTIST + " ASC";
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
 
@@ -2034,8 +1626,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Returns a list of all songs irrespective of the blacklist status.
      */
     public Cursor getAllSongsNoBlacklist() {
-        String selectQuery =
-                "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " ORDER BY " + SONG_TITLE + " ASC";
+        String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " ORDER BY " + SONG_TITLE + " ASC";
         return getDatabase().rawQuery( selectQuery, null );
 
     }
@@ -2045,14 +1636,13 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      */
     public Cursor getAllUniqueAlbumsByArtist( String selection ) {
         String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM + "), " +
-                _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " + SONGS_COUNT +
-                ", " + SONG_YEAR + ", " + SONG_SOURCE + ", " + SONG_DURATION + ", " +
-                LOCAL_COPY_PATH + ", " + SONG_ALBUM_ART_PATH + ", " + SONG_TITLE +
-                ", " + SONG_ALBUM + ", " + SONG_GENRE + " FROM " +
-                MUSIC_LIBRARY_TABLE + " WHERE " + BLACKLIST_STATUS + "=" + "'" +
-                "0" + "'" + selection + " GROUP BY " +
-                SONG_ALBUM + " ORDER BY " + SONG_YEAR
-                + "*1 ASC";
+                                     _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " + SONGS_COUNT +
+                                     ", " + SONG_YEAR + ", " + SONG_SOURCE + ", " + SONG_DURATION + ", " +
+                                     LOCAL_COPY_PATH + ", " + SONG_ALBUM_ART_PATH + ", " + SONG_TITLE +
+                                     ", " + SONG_ALBUM + ", " + SONG_GENRE + " FROM " +
+                                     MUSIC_LIBRARY_TABLE + " WHERE " + BLACKLIST_STATUS + "=" + "'" +
+                                     "0" + "'" + selection + " GROUP BY " +
+                                     SONG_ALBUM + " ORDER BY " + SONG_YEAR + "*1 ASC";
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
 
@@ -2062,18 +1652,17 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Returns a cursor with unique albums by an artist within the specified library.
      */
     public Cursor getAllUniqueAlbumsByArtistInLibrary( String selection ) {
-        String selectDistinctQuery =
-                "SELECT DISTINCT(" + SONG_ALBUM + "), " + MUSIC_LIBRARY_TABLE + "." +
-                        _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " + LOCAL_COPY_PATH +
-                        ", " + SONG_YEAR + ", " + SONG_SOURCE + ", " + SONG_DURATION + ", " +
-                        SONGS_COUNT + ", " +
-                        SONG_ALBUM_ART_PATH + ", " + SONG_TITLE + ", " + SONG_ALBUM + ", " +
-                        SONG_GENRE + " FROM " +
-                        MUSIC_LIBRARY_TABLE + " INNER JOIN " + LIBRARIES_TABLE + " ON ("
-                        + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + LIBRARIES_TABLE + "."
-                        + SONG_ID + ") WHERE " + BLACKLIST_STATUS + "=" + "'" +
-                        "0" + "'" + selection + " GROUP BY " + SONG_ALBUM + " ORDER BY " + SONG_YEAR
-                        + "*1 ASC";
+        String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM + "), " + MUSIC_LIBRARY_TABLE + "." +
+                                     _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " + LOCAL_COPY_PATH +
+                                     ", " + SONG_YEAR + ", " + SONG_SOURCE + ", " + SONG_DURATION + ", " +
+                                     SONGS_COUNT + ", " +
+                                     SONG_ALBUM_ART_PATH + ", " + SONG_TITLE + ", " + SONG_ALBUM + ", " +
+                                     SONG_GENRE + " FROM " +
+                                     MUSIC_LIBRARY_TABLE + " INNER JOIN " + LIBRARIES_TABLE + " ON ("
+                                     + MUSIC_LIBRARY_TABLE + "." + _ID + "=" + LIBRARIES_TABLE + "." + SONG_ID
+                                     + ") WHERE " + BLACKLIST_STATUS + "=" + "'" +
+                                     "0" + "'" + selection + " GROUP BY " + SONG_ALBUM + " ORDER BY " + SONG_YEAR
+                                     + "*1 ASC";
 
         return getDatabase().rawQuery( selectDistinctQuery, null );
     }

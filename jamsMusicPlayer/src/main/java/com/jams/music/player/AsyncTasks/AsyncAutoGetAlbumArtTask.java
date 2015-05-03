@@ -15,30 +15,6 @@
  */
 package com.jams.music.player.AsyncTasks;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.exceptions.CannotReadException;
-import org.jaudiotagger.audio.exceptions.CannotWriteException;
-import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
-import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-import org.jaudiotagger.tag.TagException;
-import org.jaudiotagger.tag.images.Artwork;
-import org.jaudiotagger.tag.images.ArtworkFactory;
-
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -55,10 +31,34 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.widget.Toast;
 
-import com.jams.music.player.R;
 import com.jams.music.player.DBHelpers.DBAccessHelper;
+import com.jams.music.player.R;
 import com.jams.music.player.Services.AutoFetchAlbumArtService;
 import com.jams.music.player.Utils.Common;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.CannotWriteException;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.tag.images.Artwork;
+import org.jaudiotagger.tag.images.ArtworkFactory;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /*********************************************************************
  * This class is different from AsyncGetAlbumArtTask. It includes an 
@@ -127,17 +127,13 @@ public class AsyncAutoGetAlbumArtTask extends AsyncTask<String, String, Void> {
 
     	//First, we'll go through all the songs in the music library DB and get their attributes.
     	dbHelper = new DBAccessHelper(mContext);
-    	String selection = DBAccessHelper.SONG_SOURCE + "<>" + "'GOOGLE_PLAY_MUSIC'";
-    	String[] projection = { DBAccessHelper._ID, 
-    							DBAccessHelper.SONG_FILE_PATH,
+        String[] projection = { DBAccessHelper._ID, DBAccessHelper.SONG_FILE_PATH,
     							DBAccessHelper.SONG_ALBUM,
     							DBAccessHelper.SONG_ARTIST, 
     							DBAccessHelper.SONG_TITLE };
     	
     	Cursor cursor = dbHelper.getWritableDatabase().query(DBAccessHelper.MUSIC_LIBRARY_TABLE, 
-				    										 projection, 
-				    										 selection, 
-				    										 null, 
+				    										 projection, null, null,
 				    										 null, 
 				    										 null, 
 				    										 null);

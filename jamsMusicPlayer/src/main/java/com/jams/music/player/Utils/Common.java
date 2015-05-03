@@ -15,25 +15,18 @@
  */
 package com.jams.music.player.Utils;
 
-import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.database.MergeCursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
-import android.view.View;
-import android.view.Window;
-import android.webkit.WebView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.images.ImageManager;
-import com.jams.music.player.AsyncTasks.AsyncGoogleMusicAuthenticationTask;
 import com.jams.music.player.DBHelpers.DBAccessHelper;
 import com.jams.music.player.GMusicHelpers.GMusicClientCalls;
 import com.jams.music.player.Helpers.UIElementsHelper;
@@ -41,7 +34,6 @@ import com.jams.music.player.NowPlayingActivity.NowPlayingActivity;
 import com.jams.music.player.PlaybackKickstarter.PlaybackKickstarter;
 import com.jams.music.player.R;
 import com.jams.music.player.Services.AudioPlaybackService;
-import com.jams.music.player.Services.PinGMusicSongsService;
 import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -55,7 +47,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
 /**
  * Singleton class that provides access to common objects
@@ -63,7 +54,7 @@ import java.net.URL;
  *
  * @author Saravan Pantham
  */
-public class Common extends Application {
+public class Common extends MultiDexApplication {
 
     //Context.
     private Context mContext;
@@ -258,33 +249,6 @@ public class Common extends Application {
 
         //Init DisplayImageOptions.
         initDisplayImageOptions();
-
-        //Log the user into Google Play Music only if the account is currently set up and active.
-        if( mSharedPreferences.getBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ) == true ) {
-
-            //Create a temp WebView to retrieve the user agent string.
-            String userAgentString = "";
-            if( mSharedPreferences.getBoolean( "GOT_USER_AGENT", false ) == false ) {
-                WebView webView = new WebView( getApplicationContext() );
-                webView.setVisibility( View.GONE );
-                webView.loadUrl( "http://www.google.com" );
-                userAgentString = webView.getSettings().getUserAgentString();
-                mSharedPreferences.edit().putBoolean( "GOT_USER_AGENT", true ).commit();
-                mSharedPreferences.edit().putString( "USER_AGENT", userAgentString ).commit();
-                webView = null;
-            }
-
-            setGMusicClientCalls( GMusicClientCalls.getInstance( getApplicationContext() ) );
-            GMusicClientCalls.setWebClientUserAgent( userAgentString );
-            String accountName = mSharedPreferences.getString( "GOOGLE_PLAY_MUSIC_ACCOUNT", "" );
-
-            //Authenticate with Google.
-            AsyncGoogleMusicAuthenticationTask task =
-                    new AsyncGoogleMusicAuthenticationTask( mContext, false, accountName );
-            task.execute();
-
-        }
-
     }
 
     /**
@@ -380,48 +344,6 @@ public class Common extends Application {
     }
 
     /**
-     * Used to downsample a bitmap that's been downloaded from the internet.
-     */
-    public Bitmap getDownsampledBitmap( Context ctx, URL url, int targetWidth, int targetHeight ) {
-        Bitmap bitmap = null;
-        try {
-            BitmapFactory.Options outDimens = getBitmapDimensions( url );
-
-            int sampleSize =
-                    calculateSampleSize( outDimens.outWidth, outDimens.outHeight, targetWidth,
-                            targetHeight );
-
-            bitmap = downsampleBitmap( url, sampleSize );
-
-        } catch( Exception e ) {
-            //handle the exception(s)
-        }
-
-        return bitmap;
-    }
-
-    /**
-     * Retrieves the image dimensions of the input file.
-     *
-     * @param url Url of the input file.
-     * @return A BitmapFactory.Options object with the output image dimensions.
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    public BitmapFactory.Options getBitmapDimensions( URL url )
-            throws FileNotFoundException, IOException {
-        BitmapFactory.Options outDimens = new BitmapFactory.Options();
-        outDimens.inJustDecodeBounds = true; // the decoder will return null (no bitmap)
-
-        InputStream is = url.openStream();
-        // if Options requested only the size will be returned
-        BitmapFactory.decodeStream( is, null, outDimens );
-        is.close();
-
-        return outDimens;
-    }
-
-    /**
      * Resamples a resource image to avoid OOM errors.
      *
      * @param resID     Resource ID of the image to be downsampled.
@@ -514,52 +436,6 @@ public class Common extends Application {
         return inSampleSize;
     }
 
-    /**
-     * Calculates the sample size for the resampling process.
-     *
-     * @return The sample size.
-     */
-    public int calculateSampleSize( int width, int height, int targetWidth, int targetHeight ) {
-        float bitmapWidth = width;
-        float bitmapHeight = height;
-
-        int bitmapResolution = (int) ( bitmapWidth * bitmapHeight );
-        int targetResolution = targetWidth * targetHeight;
-
-        int sampleSize = 1;
-
-        if( targetResolution == 0 ) {
-            return sampleSize;
-        }
-
-        for( int i = 1; ( bitmapResolution / i ) > targetResolution; i *= 2 ) {
-            sampleSize = i;
-        }
-
-        return sampleSize;
-    }
-
-    /**
-     * @param url
-     * @param sampleSize
-     * @return
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    public Bitmap downsampleBitmap( URL url, int sampleSize )
-            throws FileNotFoundException, IOException {
-        Bitmap resizedBitmap;
-        BitmapFactory.Options outBitmap = new BitmapFactory.Options();
-        outBitmap.inJustDecodeBounds = false; // the decoder will return a bitmap
-        outBitmap.inSampleSize = sampleSize;
-
-        InputStream is = url.openStream();
-        resizedBitmap = BitmapFactory.decodeStream( is, null, outBitmap );
-        is.close();
-
-        return resizedBitmap;
-    }
-
     /*
      * Returns the status bar height for the current layout configuration.
      */
@@ -588,92 +464,6 @@ public class Common extends Application {
     }
 
     /**
-     * Returns the view container for the ActionBar.
-     *
-     * @return
-     */
-    public View getActionBarView( Activity activity ) {
-        Window window = activity.getWindow();
-        View view = window.getDecorView();
-        int resId = getResources().getIdentifier( "action_bar_container", "id", "android" );
-
-        return view.findViewById( resId );
-    }
-
-    /**
-     * Download Manager implementation for pinning songs.
-     */
-    public void queueSongsToPin( boolean getAllPinnedSongs, boolean pinPlaylist,
-                                 String selection ) {
-        //If the current cursor is empty or null, retrieve the cursor using the selection parameter.
-        if( mPinnedSongsCursor == null || mPinnedSongsCursor.getCount() <= 0 ) {
-
-            if( getAllPinnedSongs == true ) {
-                mPinnedSongsCursor = null;
-                mIsFetchingPinnedSongs = true;
-                Toast.makeText( mContext, R.string.getting_pinned_songs, Toast.LENGTH_LONG ).show();
-            } else if( pinPlaylist == true ) {
-                //Pinning from a playlist, so we'll need to use a db call that utilizes a JOIN.
-                mPinnedSongsCursor = mDBAccessHelper.getAllSongsInPlaylistSearchable( selection );
-            } else {
-                //Check if we're pinning a smart playlist.
-                if( selection.equals( "TOP_25_PLAYED_SONGS" ) ) {
-                    mPinnedSongsCursor = mDBAccessHelper.getTop25PlayedTracks( selection );
-                } else if( selection.equals( "RECENTLY_ADDED" ) ) {
-                    mPinnedSongsCursor = mDBAccessHelper.getRecentlyAddedSongs( selection );
-                } else if( selection.equals( "TOP_RATED" ) ) {
-                    mPinnedSongsCursor = mDBAccessHelper.getTopRatedSongs( selection );
-                } else if( selection.equals( "RECENTLY_PLAYED" ) ) {
-                    mPinnedSongsCursor = mDBAccessHelper.getRecentlyPlayedSongs( selection );
-                } else {
-                    //Not playing from a smart playlist. Just use a regular db query that
-                    // searches songs.
-                    mPinnedSongsCursor = mDBAccessHelper.getAllSongsSearchable( selection );
-                }
-
-            }
-
-            Intent intent = new Intent( this, PinGMusicSongsService.class );
-            startService( intent );
-
-        } else {
-            //mPinnedSongsCursor already has songs queued, so append a new intermCursor;
-            Cursor intermCursor = null;
-            if( getAllPinnedSongs == true ) {
-                Toast.makeText( mContext, R.string.wait_until_pinning_complete, Toast.LENGTH_SHORT )
-                        .show();
-                return;
-            } else if( pinPlaylist == true ) {
-                //Pinning from a playlist, so we'll need to use a db call that utilizes a JOIN.
-                intermCursor = mDBAccessHelper.getAllSongsInPlaylistSearchable( selection );
-            } else {
-                //Check if we're pinning a smart playlist.
-                if( selection.equals( "TOP_25_PLAYED_SONGS" ) ) {
-                    intermCursor = mDBAccessHelper.getTop25PlayedTracks( selection );
-                } else if( selection.equals( "RECENTLY_ADDED" ) ) {
-                    intermCursor = mDBAccessHelper.getRecentlyAddedSongs( selection );
-                } else if( selection.equals( "TOP_RATED" ) ) {
-                    intermCursor = mDBAccessHelper.getTopRatedSongs( selection );
-                } else if( selection.equals( "RECENTLY_PLAYED" ) ) {
-                    intermCursor = mDBAccessHelper.getRecentlyPlayedSongs( selection );
-                } else {
-                    //Not playing from a smart playlist. Just use a regular db query that
-                    // searches songs.
-                    intermCursor = mDBAccessHelper.getAllSongsSearchable( selection );
-                }
-
-            }
-
-            Cursor[] cursorArray = { mPinnedSongsCursor,
-                    intermCursor };
-            MergeCursor mergeCursor = new MergeCursor( cursorArray );
-            mPinnedSongsCursor = (Cursor) mergeCursor;
-
-        }
-
-    }
-
-    /**
      * Converts dp unit to equivalent pixels, depending on device density.
      *
      * @param dp      A value in dp (density independent pixels) unit. Which we need to convert
@@ -686,20 +476,6 @@ public class Common extends Application {
         DisplayMetrics metrics = resources.getDisplayMetrics();
         float px = dp * ( metrics.densityDpi / 160f );
         return px;
-    }
-
-    /**
-     * Converts device specific pixels to density independent pixels.
-     *
-     * @param px      A value in px (pixels) unit. Which we need to convert into db
-     * @param context Context to get resources and device specific display metrics
-     * @return A float value to represent dp equivalent to px value
-     */
-    public float convertPixelsToDp( float px, Context context ) {
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        float dp = px / ( metrics.densityDpi / 160f );
-        return dp;
     }
 
     /**
@@ -849,20 +625,12 @@ public class Common extends Application {
         return mPicasso;
     }
 
-    public ImageManager getImageManager() {
-        return mImageManager;
-    }
-
     public boolean isBuildingLibrary() {
         return mIsBuildingLibrary;
     }
 
     public boolean isScanFinished() {
         return mIsScanFinished;
-    }
-
-    public boolean isGMusicLoggedIn() {
-        return mIsGMusicLoggedIn;
     }
 
     public Cursor getPinnedSongsCursor() {
@@ -942,10 +710,6 @@ public class Common extends Application {
         mIsScanFinished = isScanFinished;
     }
 
-    public void setIsGMusicLoggedIn( boolean isGMusicLoggedIn ) {
-        mIsGMusicLoggedIn = isGMusicLoggedIn;
-    }
-
     public void setService( AudioPlaybackService service ) {
         mService = service;
     }
@@ -985,10 +749,6 @@ public class Common extends Application {
 
     public void setIsFetchingPinnedSongs( boolean fetching ) {
         this.mIsFetchingPinnedSongs = fetching;
-    }
-
-    public void setIsGoogleAnalyticsEnabled( boolean enabled ) {
-        this.mIsGAnalyticsEnabled = enabled;
     }
 
 }

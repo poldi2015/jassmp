@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:background="@drawable/choice_item_background_holo"
+                android:layout_height="84dp">
+
+    <ImageView
+        android:id="@+id/listViewCoverIcon"
+        android:layout_height="@dimen/list_view_left_icon_size"
+        android:layout_width="@dimen/list_view_left_icon_size"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/empty_color_patch_circular"
+        android:paddingLeft="8dp"/>
+
+    <TextView
+        android:id="@+id/listViewTitleText"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_toRightOf="@+id/listViewCoverIcon"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="15dp"
+        android:ellipsize="marquee"
+        android:fadingEdge="horizontal"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:text="Artist Name"
+        android:textSize="18sp"/>
+
+</RelativeLayout>

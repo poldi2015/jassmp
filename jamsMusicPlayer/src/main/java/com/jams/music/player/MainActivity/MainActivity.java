@@ -41,9 +41,8 @@ import android.widget.Toast;
 import com.jams.music.player.Drawers.NavigationDrawerFragment;
 import com.jams.music.player.Drawers.QueueDrawerFragment;
 import com.jams.music.player.FoldersFragment.FilesFoldersFragment;
-import com.jams.music.player.GridViewFragment.GridViewFragment;
 import com.jams.music.player.Helpers.UIElementsHelper;
-import com.jams.music.player.ListViewFragment.ListViewFragment;
+import com.jams.music.player.ListViewFragment.FilterListViewFragment;
 import com.jams.music.player.ListViewFragment.SongListViewFragment;
 import com.jams.music.player.R;
 import com.jams.music.player.Utils.Common;
@@ -52,37 +51,36 @@ public class MainActivity extends FragmentActivity {
 
     //Context and Common object(s).
     private Context mContext;
-    private Common mApp;
+    private Common  mApp;
 
     //UI elements.
-    private FrameLayout mDrawerParentLayout;
-    private DrawerLayout mDrawerLayout;
-    private RelativeLayout mNavDrawerLayout;
-    private RelativeLayout mCurrentQueueDrawerLayout;
+    private FrameLayout           mDrawerParentLayout;
+    private DrawerLayout          mDrawerLayout;
+    private RelativeLayout        mNavDrawerLayout;
+    private RelativeLayout        mCurrentQueueDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
-    private QueueDrawerFragment mQueueDrawerFragment;
-    private Menu mMenu;
+    private QueueDrawerFragment   mQueueDrawerFragment;
+    private Menu                  mMenu;
 
     //Current fragment params.
     private Fragment mCurrentFragment;
-    public static int mCurrentFragmentId = 3;
+    public static int mCurrentFragmentId = -1;
     public static int mCurrentFragmentLayout;
 
     //Layout flags.
-    public static final String CURRENT_FRAGMENT = "CurrentFragment";
-    public static final String ARTISTS_FRAGMENT_LAYOUT = "ArtistsFragmentLayout";
+    public static final String CURRENT_FRAGMENT              = "CurrentFragment";
+    public static final String ARTISTS_FRAGMENT_LAYOUT       = "ArtistsFragmentLayout";
     public static final String ALBUM_ARTISTS_FRAGMENT_LAYOUT = "AlbumArtistsFragmentLayout";
-    public static final String ALBUMS_FRAGMENT_LAYOUT = "AlbumsFragmentLayout";
-    public static final String PLAYLISTS_FRAGMENT_LAYOUT = "PlaylistsFragmentLayout";
-    public static final String GENRES_FRAGMENT_LAYOUT = "GenresFragmentLayout";
-    public static final String FOLDERS_FRAGMENT_LAYOUT = "FoldersFragmentLayout";
-    public static final String FRAGMENT_HEADER = "FragmentHeader";
-    public static final int LIST_LAYOUT = 0;
-    public static final int GRID_LAYOUT = 1;
+    public static final String ALBUMS_FRAGMENT_LAYOUT        = "AlbumsFragmentLayout";
+    public static final String PLAYLISTS_FRAGMENT_LAYOUT     = "PlaylistsFragmentLayout";
+    public static final String GENRES_FRAGMENT_LAYOUT        = "GenresFragmentLayout";
+    public static final String FOLDERS_FRAGMENT_LAYOUT       = "FoldersFragmentLayout";
+    public static final String FRAGMENT_HEADER               = "FragmentHeader";
+    public static final int    LIST_LAYOUT                   = 0;
+    public static final int    GRID_LAYOUT                   = 1;
 
     @Override
     public void onCreate( Bundle savedInstanceState ) {
-
         //Context and Common object(s).
         mContext = getApplicationContext();
         mApp = (Common) getApplicationContext();
@@ -96,8 +94,7 @@ public class MainActivity extends FragmentActivity {
         mDrawerParentLayout = (FrameLayout) findViewById( R.id.main_activity_root );
         mDrawerLayout = (DrawerLayout) findViewById( R.id.main_activity_drawer_root );
         mNavDrawerLayout = (RelativeLayout) findViewById( R.id.nav_drawer_container );
-        mCurrentQueueDrawerLayout =
-                (RelativeLayout) findViewById( R.id.current_queue_drawer_container );
+        mCurrentQueueDrawerLayout = (RelativeLayout) findViewById( R.id.current_queue_drawer_container );
 
         //Load the drawer fragments.
         loadDrawerFragments();
@@ -111,23 +108,21 @@ public class MainActivity extends FragmentActivity {
         /**
          * Navigation drawer toggle.
          */
-        mDrawerToggle = new ActionBarDrawerToggle( this, mDrawerLayout,
-                R.drawable.ic_navigation_drawer,
-                0, 0 ) {
+        mDrawerToggle = new ActionBarDrawerToggle( this, mDrawerLayout, R.drawable.ic_navigation_drawer, 0, 0 ) {
 
             @Override
             public void onDrawerClosed( View view ) {
-                if( mQueueDrawerFragment != null &&
-                        view == mCurrentQueueDrawerLayout )
+                if( mQueueDrawerFragment != null && view == mCurrentQueueDrawerLayout ) {
                     mQueueDrawerFragment.setIsDrawerOpen( false );
+                }
 
             }
 
             @Override
             public void onDrawerOpened( View view ) {
-                if( mQueueDrawerFragment != null &&
-                        view == mCurrentQueueDrawerLayout )
+                if( mQueueDrawerFragment != null && view == mCurrentQueueDrawerLayout ) {
                     mQueueDrawerFragment.setIsDrawerOpen( true );
+                }
 
             }
 
@@ -143,6 +138,12 @@ public class MainActivity extends FragmentActivity {
             showAlbumArtScanningDialog();
             mApp.getSharedPreferences().edit().putBoolean( Common.FIRST_RUN, false ).commit();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState( Bundle savedInstanceState ) {
+        savedInstanceState.putInt( CURRENT_FRAGMENT, mCurrentFragmentId );
+        super.onSaveInstanceState( savedInstanceState );
     }
 
     /**
@@ -167,8 +168,7 @@ public class MainActivity extends FragmentActivity {
         if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ) {
 
             //Set the window background.
-            getWindow().setBackgroundDrawable(
-                    UIElementsHelper.getGeneralActionBarBackground( mContext ) );
+            getWindow().setBackgroundDrawable( UIElementsHelper.getGeneralActionBarBackground( mContext ) );
 
             int topPadding = Common.getStatusBarHeight( mContext );
             if( mDrawerLayout != null ) {
@@ -181,8 +181,7 @@ public class MainActivity extends FragmentActivity {
             TypedValue tv = new TypedValue();
             int actionBarHeight = 0;
             if( getTheme().resolveAttribute( android.R.attr.actionBarSize, tv, true ) ) {
-                actionBarHeight = TypedValue
-                        .complexToDimensionPixelSize( tv.data, getResources().getDisplayMetrics() );
+                actionBarHeight = TypedValue.complexToDimensionPixelSize( tv.data, getResources().getDisplayMetrics() );
             }
 
             if( mDrawerParentLayout != null ) {
@@ -191,141 +190,76 @@ public class MainActivity extends FragmentActivity {
             }
 
         }
+    }
 
+    public void loadFragment( Bundle savedInstanceState ) {
+        int fragmentId = -1;
+        if( savedInstanceState != null ) {
+            fragmentId = savedInstanceState.getInt( CURRENT_FRAGMENT );
+        }
+        switchContent( fragmentId );
     }
 
     /**
-     * Loads the correct fragment based on the selected browser.
+     * Loads the specified fragment into the target layout.
      */
-    public void loadFragment( Bundle savedInstanceState ) {
-        //Get the target fragment from savedInstanceState if it's not null (orientation changes?).
-        if( savedInstanceState != null ) {
-            mCurrentFragmentId = savedInstanceState.getInt( CURRENT_FRAGMENT );
-            invalidateOptionsMenu();
-
-        } else {
-            //Set the current fragment based on the intent's extras.
-            if( getIntent().hasExtra( CURRENT_FRAGMENT ) ) {
-                mCurrentFragmentId = getIntent().getExtras().getInt( CURRENT_FRAGMENT );
-            }
-
-            switch( mCurrentFragmentId ) {
-                case Common.ARTISTS_FRAGMENT:
-                    mCurrentFragment = getLayoutFragment( Common.ARTISTS_FRAGMENT );
-                    break;
-                case Common.ALBUM_ARTISTS_FRAGMENT:
-                    mCurrentFragment = getLayoutFragment( Common.ALBUM_ARTISTS_FRAGMENT );
-                    break;
-                case Common.ALBUMS_FRAGMENT:
-                    mCurrentFragment = getLayoutFragment( Common.ALBUMS_FRAGMENT );
-                    break;
-                case Common.SONGS_FRAGMENT:
-                    mCurrentFragment = getLayoutFragment( Common.SONGS_FRAGMENT );
-                    break;
-                case Common.PLAYLISTS_FRAGMENT:
-                    mCurrentFragment = getLayoutFragment( Common.PLAYLISTS_FRAGMENT );
-                    break;
-                case Common.GENRES_FRAGMENT:
-                    mCurrentFragment = getLayoutFragment( Common.GENRES_FRAGMENT );
-                    break;
-                case Common.FOLDERS_FRAGMENT:
-                    mCurrentFragment = new FilesFoldersFragment();
-                    break;
-            }
-
-            switchContent( mCurrentFragment );
+    public void switchContent( int fragmentId ) {
+        if( fragmentId == -1 && getIntent() != null && getIntent().getExtras() != null ) {
+            fragmentId = getIntent().getExtras().getInt( CURRENT_FRAGMENT, -1 );
         }
+        if( fragmentId == -1 ) {
+            fragmentId = Common.SONGS_FRAGMENT;
+        }
+        if( fragmentId == mCurrentFragmentId ) {
+            return;
+        }
+        mCurrentFragmentId = fragmentId;
+        mCurrentFragment = getLayoutFragment( fragmentId );
+        // Reset action bar
+        getActionBar().setDisplayHomeAsUpEnabled( true );
+        getActionBar().setDisplayShowHomeEnabled( true );
+        getActionBar().setDisplayShowCustomEnabled( false );
 
+        getSupportFragmentManager().beginTransaction().replace( R.id.mainActivityContainer, mCurrentFragment ).commit();
+
+        //Close the drawer(s).
+        mDrawerLayout.closeDrawer( Gravity.START );
+        invalidateOptionsMenu();
     }
 
     /**
      * Retrieves the correct fragment based on the saved layout preference.
      */
     private Fragment getLayoutFragment( int fragmentId ) {
-
-        //Instantiate a new bundle.
-        Fragment fragment = null;
+        Fragment fragment;
         Bundle bundle = new Bundle();
 
-        //Retrieve layout preferences for the current fragment.
         switch( fragmentId ) {
             case Common.ARTISTS_FRAGMENT:
-                mCurrentFragmentLayout =
-                        mApp.getSharedPreferences().getInt( ARTISTS_FRAGMENT_LAYOUT, GRID_LAYOUT );
+                fragment = new FilterListViewFragment();
                 bundle.putInt( Common.FRAGMENT_ID, Common.ARTISTS_FRAGMENT );
-                bundle.putString( FRAGMENT_HEADER,
-                        mContext.getResources().getString( R.string.artists ) );
-                break;
-            case Common.ALBUM_ARTISTS_FRAGMENT:
-                mCurrentFragmentLayout = mApp.getSharedPreferences()
-                        .getInt( ALBUM_ARTISTS_FRAGMENT_LAYOUT, GRID_LAYOUT );
-                bundle.putInt( Common.FRAGMENT_ID, Common.ALBUM_ARTISTS_FRAGMENT );
-                bundle.putString( FRAGMENT_HEADER,
-                        mContext.getResources().getString( R.string.album_artists ) );
+                bundle.putString( FRAGMENT_HEADER, mContext.getResources().getString( R.string.album_artists ) );
                 break;
             case Common.ALBUMS_FRAGMENT:
-                mCurrentFragmentLayout =
-                        mApp.getSharedPreferences().getInt( ALBUMS_FRAGMENT_LAYOUT, GRID_LAYOUT );
+                fragment = new FilterListViewFragment();
                 bundle.putInt( Common.FRAGMENT_ID, Common.ALBUMS_FRAGMENT );
-                bundle.putString( FRAGMENT_HEADER,
-                        mContext.getResources().getString( R.string.albums ) );
-                break;
-            case Common.PLAYLISTS_FRAGMENT:
-                mCurrentFragmentLayout = mApp.getSharedPreferences()
-                        .getInt( PLAYLISTS_FRAGMENT_LAYOUT, LIST_LAYOUT );
-                bundle.putInt( Common.FRAGMENT_ID, Common.PLAYLISTS_FRAGMENT );
-                bundle.putString( FRAGMENT_HEADER,
-                        mContext.getResources().getString( R.string.playlists ) );
+                bundle.putString( FRAGMENT_HEADER, mContext.getResources().getString( R.string.albums ) );
+
                 break;
             case Common.GENRES_FRAGMENT:
-                mCurrentFragmentLayout =
-                        mApp.getSharedPreferences().getInt( GENRES_FRAGMENT_LAYOUT, GRID_LAYOUT );
+                fragment = new FilterListViewFragment();
                 bundle.putInt( Common.FRAGMENT_ID, Common.GENRES_FRAGMENT );
-                bundle.putString( FRAGMENT_HEADER,
-                        mContext.getResources().getString( R.string.genres ) );
+                bundle.putString( FRAGMENT_HEADER, mContext.getResources().getString( R.string.genres ) );
                 break;
-            case Common.FOLDERS_FRAGMENT:
-                mCurrentFragmentLayout =
-                        mApp.getSharedPreferences().getInt( FOLDERS_FRAGMENT_LAYOUT, LIST_LAYOUT );
-                bundle.putInt( Common.FRAGMENT_ID, Common.FOLDERS_FRAGMENT );
-                bundle.putString( FRAGMENT_HEADER,
-                        mContext.getResources().getString( R.string.folders ) );
+            case Common.SONGS_FRAGMENT:
+            default:
+                fragment = new SongListViewFragment();
                 break;
         }
 
-        //Return the correct layout fragment.
-        if( mCurrentFragmentLayout == GRID_LAYOUT ) {
-            fragment = new GridViewFragment();
-            fragment.setArguments( bundle );
-        } else {
-            if( fragmentId == Common.SONGS_FRAGMENT ) {
-                fragment = new SongListViewFragment();
-            } else {
-                fragment = new ListViewFragment();
-                fragment.setArguments( bundle );
-            }
-        }
+        fragment.setArguments( bundle );
 
         return fragment;
-    }
-
-    /**
-     * Loads the specified fragment into the target layout.
-     */
-    public void switchContent( Fragment fragment ) {
-        // Reset action bar
-        getActionBar().setDisplayHomeAsUpEnabled( true );
-        getActionBar().setDisplayShowHomeEnabled( true );
-        getActionBar().setDisplayShowCustomEnabled( false );
-
-        getSupportFragmentManager().beginTransaction()
-                .replace( R.id.mainActivityContainer, fragment )
-                .commit();
-
-        //Close the drawer(s).
-        mDrawerLayout.closeDrawer( Gravity.START );
-        invalidateOptionsMenu();
-
     }
 
     /**
@@ -334,14 +268,14 @@ public class MainActivity extends FragmentActivity {
     private void loadDrawerFragments() {
         //Load the navigation drawer.
         getSupportFragmentManager().beginTransaction()
-                .replace( R.id.nav_drawer_container, new NavigationDrawerFragment() )
-                .commit();
+                                   .replace( R.id.nav_drawer_container, new NavigationDrawerFragment() )
+                                   .commit();
 
         //Load the current queue drawer.
         mQueueDrawerFragment = new QueueDrawerFragment();
         getSupportFragmentManager().beginTransaction()
-                .replace( R.id.current_queue_drawer_container, mQueueDrawerFragment )
-                .commit();
+                                   .replace( R.id.current_queue_drawer_container, mQueueDrawerFragment )
+                                   .commit();
 
     }
 
@@ -350,8 +284,7 @@ public class MainActivity extends FragmentActivity {
      */
     public void playAll( boolean shuffle ) {
         //Start the playback sequence.
-        mApp.getPlaybackKickstarter()
-                .initPlayback( mContext, "", Common.PLAY_ALL_SONGS, 0, true, true );
+        mApp.getPlaybackKickstarter().initPlayback( mContext, "", Common.PLAY_ALL_SONGS, 0, true, true );
 
     }
 
@@ -387,15 +320,13 @@ public class MainActivity extends FragmentActivity {
         inflater.inflate( R.menu.main_activity, menu );
 
         //Set the ActionBar background
-        getActionBar().setBackgroundDrawable(
-                UIElementsHelper.getGeneralActionBarBackground( mContext ) );
+        getActionBar().setBackgroundDrawable( UIElementsHelper.getGeneralActionBarBackground( mContext ) );
         getActionBar().setDisplayShowTitleEnabled( true );
         getActionBar().setDisplayUseLogoEnabled( false );
         getActionBar().setHomeButtonEnabled( true );
 
         //Set the ActionBar text color.
-        int actionBarTitleId =
-                Resources.getSystem().getIdentifier( "action_bar_title", "id", "android" );
+        int actionBarTitleId = Resources.getSystem().getIdentifier( "action_bar_title", "id", "android" );
         if( actionBarTitleId > 0 ) {
             TextView title = (TextView) findViewById( actionBarTitleId );
             if( title != null ) {
@@ -414,10 +345,7 @@ public class MainActivity extends FragmentActivity {
      * @param menu      The ActionBar menu to work with.
      * @param showPaste Pass true if the ActionBar is being updated for a copy/move operation.
      */
-    public void showFolderFragmentActionItems( String filePath,
-                                               MenuInflater inflater,
-                                               Menu menu,
-                                               boolean showPaste ) {
+    public void showFolderFragmentActionItems( String filePath, MenuInflater inflater, Menu menu, boolean showPaste ) {
         getMenu().clear();
         inflater.inflate( R.menu.files_folders_fragment, menu );
 
@@ -433,24 +361,24 @@ public class MainActivity extends FragmentActivity {
             //Change the ActionBar's background and show the Paste Here option.
             menu.findItem( R.id.action_paste ).setVisible( true );
             menu.findItem( R.id.action_cancel ).setVisible( true );
-            getActionBar().setBackgroundDrawable( mContext.getResources()
-                    .getDrawable( R.drawable.cab_background_top_apptheme ) );
+            getActionBar().setBackgroundDrawable(
+                    mContext.getResources().getDrawable( R.drawable.cab_background_top_apptheme ) );
 
             //Change the KitKat system bar color.
-            if( Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT )
+            if( Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT ) {
                 getWindow().setBackgroundDrawable( new ColorDrawable( 0xFF002E3E ) );
+            }
 
         } else {
             //Hide the Paste Here option and set the default ActionBar background.
             menu.findItem( R.id.action_paste ).setVisible( false );
             menu.findItem( R.id.action_cancel ).setVisible( false );
-            getActionBar().setBackgroundDrawable(
-                    UIElementsHelper.getGeneralActionBarBackground( mContext ) );
+            getActionBar().setBackgroundDrawable( UIElementsHelper.getGeneralActionBarBackground( mContext ) );
 
             //Change the KitKat system bar color.
-            if( Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT )
-                getWindow().setBackgroundDrawable(
-                        UIElementsHelper.getGeneralActionBarBackground( mContext ) );
+            if( Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT ) {
+                getWindow().setBackgroundDrawable( UIElementsHelper.getGeneralActionBarBackground( mContext ) );
+            }
 
         }
 
@@ -473,11 +401,11 @@ public class MainActivity extends FragmentActivity {
     @Override
     public boolean onCreateOptionsMenu( Menu menu ) {
         mMenu = menu;
-        if( mCurrentFragmentId == Common.FOLDERS_FRAGMENT )
-            showFolderFragmentActionItems( FilesFoldersFragment.currentDir,
-                    getMenuInflater(), menu, false );
-        else
+        if( mCurrentFragmentId == Common.FOLDERS_FRAGMENT ) {
+            showFolderFragmentActionItems( FilesFoldersFragment.currentDir, getMenuInflater(), menu, false );
+        } else {
             showMainActivityActionItems( getMenuInflater(), menu );
+        }
 
         return super.onCreateOptionsMenu( menu );
     }
@@ -516,10 +444,11 @@ public class MainActivity extends FragmentActivity {
                 return true;
             case R.id.action_cancel:
                 ( (FilesFoldersFragment) mCurrentFragment ).copyMoveSourceFile = null;
-                if( ( (FilesFoldersFragment) mCurrentFragment ).shouldMoveCopiedFile )
+                if( ( (FilesFoldersFragment) mCurrentFragment ).shouldMoveCopiedFile ) {
                     Toast.makeText( mContext, R.string.move_canceled, Toast.LENGTH_LONG ).show();
-                else
+                } else {
                     Toast.makeText( mContext, R.string.copy_canceled, Toast.LENGTH_LONG ).show();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected( item );
@@ -540,10 +469,11 @@ public class MainActivity extends FragmentActivity {
             mDrawerLayout.closeDrawer( Gravity.START );
 
         } else if( getCurrentFragmentId() == Common.FOLDERS_FRAGMENT ) {
-            if( ( (FilesFoldersFragment) mCurrentFragment ).getCurrentDir().equals( "/" ) )
+            if( ( (FilesFoldersFragment) mCurrentFragment ).getCurrentDir().equals( "/" ) ) {
                 super.onBackPressed();
-            else
+            } else {
                 ( (FilesFoldersFragment) mCurrentFragment ).getParentDir();
+            }
 
         } else {
             super.onBackPressed();
@@ -555,10 +485,8 @@ public class MainActivity extends FragmentActivity {
     public void onResume() {
         super.onResume();
         if( Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT ) {
-            getActionBar().setBackgroundDrawable(
-                    UIElementsHelper.getGeneralActionBarBackground( mContext ) );
-            getWindow().setBackgroundDrawable(
-                    UIElementsHelper.getGeneralActionBarBackground( mContext ) );
+            getActionBar().setBackgroundDrawable( UIElementsHelper.getGeneralActionBarBackground( mContext ) );
+            getWindow().setBackgroundDrawable( UIElementsHelper.getGeneralActionBarBackground( mContext ) );
         }
 
     }
@@ -569,10 +497,6 @@ public class MainActivity extends FragmentActivity {
 
     public int getCurrentFragmentId() {
         return mCurrentFragmentId;
-    }
-
-    public void setCurrentFragmentId( int id ) {
-        mCurrentFragmentId = id;
     }
 
     public Menu getMenu() {
