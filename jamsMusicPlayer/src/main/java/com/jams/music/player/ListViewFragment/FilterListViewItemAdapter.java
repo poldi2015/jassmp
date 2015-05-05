@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.andraskindler.quickscroll.Scrollable;
 import com.jams.music.player.Helpers.UIElementsHelper;
 import com.jams.music.player.ImageTransformers.PicassoCircularTransformer;
+import com.jams.music.player.MainActivity.MainActivity;
 import com.jams.music.player.R;
 import com.jams.music.player.Utils.Common;
 
@@ -40,10 +41,10 @@ public class FilterListViewItemAdapter extends SimpleCursorAdapter implements Sc
     //
     // private members
 
-    private final int    mFragmentId;
-    public        Holder mHolder;
+    private final MainActivity.FragmentId mFragmentId;
+    public        Holder                  mHolder;
 
-    public FilterListViewItemAdapter( final Context context, final Cursor cursor, final int fragmentId ) {
+    public FilterListViewItemAdapter( final Context context, final Cursor cursor, final MainActivity.FragmentId fragmentId ) {
         super( context, -1, cursor, new String[]{ }, new int[]{ }, 0 );
         mContext = context;
         mFragmentId = fragmentId;
@@ -102,8 +103,6 @@ public class FilterListViewItemAdapter extends SimpleCursorAdapter implements Sc
 
     private static class AlbumHolder extends Holder {
 
-        public static final int FRAGMENT_ID = Common.ALBUMS_FRAGMENT;
-
         private ImageView mCoverImage   = null;
         private TextView  mTitleText    = null;
         private TextView  mSubTitleText = null;
@@ -143,8 +142,6 @@ public class FilterListViewItemAdapter extends SimpleCursorAdapter implements Sc
 
     private static class ArtistHolder extends Holder {
 
-        public static final int FRAGMENT_ID = Common.ARTISTS_FRAGMENT;
-
         private ImageView mCoverImage = null;
         private TextView  mTitleText  = null;
 
@@ -178,8 +175,6 @@ public class FilterListViewItemAdapter extends SimpleCursorAdapter implements Sc
     }
 
     private static class GenreHolder extends Holder {
-
-        public static final int FRAGMENT_ID = Common.GENRES_FRAGMENT;
 
         private TextView mTitleText = null;
 
@@ -228,17 +223,17 @@ public class FilterListViewItemAdapter extends SimpleCursorAdapter implements Sc
             mSortColumnItem = sortColumnItem;
         }
 
-        public static Holder getHolder( final Common app, final View itemView, final int fragmentId ) {
+        public static Holder getHolder( final Common app, final View itemView, final MainActivity.FragmentId fragmentId ) {
             Holder holder = itemView != null ? (Holder) itemView.getTag() : null;
             if( holder == null ) {
                 switch( fragmentId ) {
-                    case AlbumHolder.FRAGMENT_ID:
+                    case ALBUMS:
                         holder = new AlbumHolder( app );
                         break;
-                    case ArtistHolder.FRAGMENT_ID:
+                    case ARTISTS:
                         holder = new ArtistHolder( app );
                         break;
-                    case GenreHolder.FRAGMENT_ID:
+                    case GENRES:
                         holder = new GenreHolder( app );
                         break;
                 }

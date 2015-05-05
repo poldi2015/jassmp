@@ -48,8 +48,6 @@ import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import com.google.analytics.tracking.android.GoogleAnalytics;
-import com.google.analytics.tracking.android.Tracker;
 import com.jams.music.player.BroadcastReceivers.HeadsetButtonsReceiver;
 import com.jams.music.player.BroadcastReceivers.HeadsetPlugBroadcastReceiver;
 import com.jams.music.player.DBHelpers.DBAccessHelper;
@@ -161,14 +159,6 @@ public class AudioPlaybackService extends Service {
     //Enqueue reorder scalar.
     private int mEnqueueReorderScalar = 0;
 
-    //Temp placeholder for GMusic Uri.
-    public static final Uri URI_BEING_LOADED = Uri.parse( "uri_being_loaded" );
-
-    //Google Analytics.
-    private GoogleAnalytics mGAInstance;
-    private Tracker         mTracker;
-    private long            mServiceStartTime;
-
     /**
      * Constructor that should be used whenever this
      * service is being explictly created.
@@ -196,7 +186,7 @@ public class AudioPlaybackService extends Service {
      * @param flags   Service flags.
      * @param startId Service start ID.
      */
-    @SuppressLint( "NewApi" )
+    @SuppressLint("NewApi")
     @Override
     public int onStartCommand( Intent intent, int flags, int startId ) {
         super.onStartCommand( intent, flags, startId );
@@ -399,7 +389,7 @@ public class AudioPlaybackService extends Service {
      * Builds and returns a fully constructed Notification for devices
      * on Jelly Bean and above (API 16+).
      */
-    @SuppressLint( "NewApi" )
+    @SuppressLint("NewApi")
     private Notification buildJBNotification( SongHelper songHelper ) {
         mNotificationBuilder = new NotificationCompat.Builder( mContext );
         mNotificationBuilder.setOngoing( true );
@@ -1119,7 +1109,7 @@ public class AudioPlaybackService extends Service {
 
         @Override
         public boolean onError( MediaPlayer mMediaPlayer, int what, int extra ) {
-			/* This error listener might seem like it's not doing anything. 
+            /* This error listener might seem like it's not doing anything.
 			 * However, removing this will cause the mMediaPlayer object to go crazy 
 			 * and skip around. The key here is to make this method return true. This 
 			 * notifies the mMediaPlayer object that we've handled all errors and that 

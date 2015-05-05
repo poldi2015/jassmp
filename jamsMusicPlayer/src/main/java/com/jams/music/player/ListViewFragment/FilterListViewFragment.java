@@ -47,8 +47,8 @@ public class FilterListViewFragment extends Fragment implements FilterDialog.Fil
     private View            mRootView        = null;
     private ViewStyleHelper mViewStyleHelper = null;
 
-    private int    mFragmentId    = -1;
-    private String mFragmentTitle = null;
+    private MainActivity.FragmentId mFragmentId    = MainActivity.FragmentId.NONE;
+    private String                  mFragmentTitle = null;
 
     private SynchronizedAsyncTask mAsyncExecutorTask = null;
 
@@ -63,7 +63,7 @@ public class FilterListViewFragment extends Fragment implements FilterDialog.Fil
         mAsyncExecutorTask = new SynchronizedAsyncTask();
 
         //Grab the fragment. This will determine which data to load into the cursor.
-        mFragmentId = getArguments().getInt( Common.FRAGMENT_ID );
+        mFragmentId = (MainActivity.FragmentId) getArguments().getSerializable( Common.FRAGMENT_ID );
         mFragmentTitle = getArguments().getString( MainActivity.FRAGMENT_HEADER );
 
         mRootView = inflater.inflate( R.layout.fragment_list_view, container, false );
@@ -134,7 +134,7 @@ public class FilterListViewFragment extends Fragment implements FilterDialog.Fil
 
     @Override
     public void onFilterDialogClick( int which ) {
-        ( (MainActivity) getActivity() ).switchContent( FilterDialog.FRAGMENT_IDS[ which ] );
+        ( (MainActivity) getActivity() ).switchFragment( FilterDialog.FRAGMENT_IDS[ which ] );
     }
 
     /**

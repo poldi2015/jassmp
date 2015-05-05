@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import com.jams.music.player.MainActivity.MainActivity;
 import com.jams.music.player.NowPlayingActivity.NowPlayingActivity;
 import com.jams.music.player.NowPlayingActivity.NowPlayingActivity.NowPlayingActivityListener;
 import com.jams.music.player.R;
@@ -39,10 +40,10 @@ public class PlaybackKickstarter implements NowPlayingActivityListener, PrepareS
     private Context mContext;
     private Common  mApp;
 
-    private String  mQuerySelection;
-    private int     mPlaybackRouteId;
-    private int     mCurrentSongIndex;
-    private boolean mPlayAll;
+    private String                  mQuerySelection;
+    private MainActivity.FragmentId mPlaybackRouteId;
+    private int                     mCurrentSongIndex;
+    private boolean                 mPlayAll;
 
     public PlaybackKickstarter( Context context ) {
         mContext = context;
@@ -87,7 +88,7 @@ public class PlaybackKickstarter implements NowPlayingActivityListener, PrepareS
      * always be called when the cursor for the service
      * needs to be changed.
      */
-    public void initPlayback( Context context, String querySelection, int playbackRouteId, int currentSongIndex, boolean showNowPlayingActivity, boolean playAll ) {
+    public void initPlayback( Context context, String querySelection, MainActivity.FragmentId playbackRouteId, int currentSongIndex, boolean showNowPlayingActivity, boolean playAll ) {
 
         mApp = (Common) mContext.getApplicationContext();
         mQuerySelection = querySelection;
@@ -220,18 +221,6 @@ public class PlaybackKickstarter implements NowPlayingActivityListener, PrepareS
 
     public void setBuildCursorListener( BuildCursorListener listener ) {
         mBuildCursorListener = listener;
-    }
-
-    public String getPreviousQuerySelection() {
-        return mQuerySelection;
-    }
-
-    public int getPreviousPlaybackRouteId() {
-        return mPlaybackRouteId;
-    }
-
-    public int getPreviousCurrentSongIndex() {
-        return mCurrentSongIndex;
     }
 
 }

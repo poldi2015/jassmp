@@ -62,11 +62,11 @@ import java.util.Map;
  */
 public class ListViewFragment extends Fragment {
 
-    private Context mContext;
-    private Common  mApp;
-    private View    mRootView;
-    private int     mFragmentId;
-    private String  mFragmentTitle;
+    private Context                 mContext;
+    private Common                  mApp;
+    private View                    mRootView;
+    private MainActivity.FragmentId mFragmentId;
+    private String                  mFragmentTitle;
 
     private QuickScroll          mQuickScroll;
     private Scrollable           mListViewAdapter;
@@ -92,7 +92,7 @@ public class ListViewFragment extends Fragment {
         mRootView.setBackgroundColor( UIElementsHelper.getGridViewBackground( mContext ) );
 
         //Grab the fragment. This will determine which data to load into the cursor.
-        mFragmentId = getArguments().getInt( Common.FRAGMENT_ID );
+        mFragmentId = (MainActivity.FragmentId) getArguments().getSerializable( Common.FRAGMENT_ID );
         mFragmentTitle = getArguments().getString( MainActivity.FRAGMENT_HEADER );
         mDBColumnsMap = new HashMap<Integer, String>();
 
@@ -136,8 +136,7 @@ public class ListViewFragment extends Fragment {
             mListView.setPadding( 0, topPadding, 0, navigationBarHeight );
             mQuickScroll.setPadding( 0, topPadding, 0, navigationBarHeight );
 
-            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mListView.getLayoutParams();
-            layoutParams = (RelativeLayout.LayoutParams) mSearchLayout.getLayoutParams();
+            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mSearchLayout.getLayoutParams();
             layoutParams.setMargins( 15, topPadding + 15, 15, 0 );
             mSearchLayout.setLayoutParams( layoutParams );
 
@@ -254,7 +253,7 @@ public class ListViewFragment extends Fragment {
         @Override
         public void onItemClick( AdapterView<?> arg0, View view, int index, long id ) {
             switch( mFragmentId ) {
-                case Common.SONGS_FRAGMENT:
+                case SONGS:
                     mApp.getPlaybackKickstarter()
                         .initPlayback( mContext, mQuerySelection, mFragmentId, index, true, false );
                     break;
@@ -305,17 +304,17 @@ public class ListViewFragment extends Fragment {
         private void loadDBColumnNames() {
 
             switch( mFragmentId ) {
-                case Common.ARTISTS_FRAGMENT:
+                case ARTISTS:
                     mDBColumnsMap.put( ListViewCardsAdapter.TITLE_TEXT, DBAccessHelper.SONG_ARTIST );
                     mDBColumnsMap.put( ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH );
                     mDBColumnsMap.put( ListViewCardsAdapter.ARTWORK_PATH, DBAccessHelper.SONG_ALBUM_ART_PATH );
                     break;
-                case Common.ALBUMS_FRAGMENT:
+                case ALBUMS:
                     mDBColumnsMap.put( ListViewCardsAdapter.TITLE_TEXT, DBAccessHelper.SONG_ALBUM );
                     mDBColumnsMap.put( ListViewCardsAdapter.FILE_PATH, DBAccessHelper.SONG_FILE_PATH );
                     mDBColumnsMap.put( ListViewCardsAdapter.ARTWORK_PATH, DBAccessHelper.SONG_ALBUM_ART_PATH );
                     break;
-                case Common.GENRES_FRAGMENT:
+                case GENRES:
                     break;
             }
 
@@ -409,10 +408,6 @@ public class ListViewFragment extends Fragment {
 
     public Cursor getCursor() {
         return mCursor;
-    }
-
-    public int getFragmentId() {
-        return mFragmentId;
     }
 
 	/*

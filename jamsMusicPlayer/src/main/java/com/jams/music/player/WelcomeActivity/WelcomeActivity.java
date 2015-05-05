@@ -15,12 +15,8 @@
  */
 package com.jams.music.player.WelcomeActivity;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -34,22 +30,30 @@ import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.widget.Toast;
 
 import com.jams.music.player.AsyncTasks.AsyncSaveMusicFoldersTask;
-import com.jams.music.player.MiscFragments.BuildingLibraryProgressFragment;
 import com.jams.music.player.R;
 import com.jams.music.player.Services.BuildMusicLibraryService;
-import com.jams.music.player.Utils.Common;
 import com.viewpagerindicator.LinePageIndicator;
 
 public class WelcomeActivity extends FragmentActivity {
 
+    //
+    // defines
+
+    public static final String INTENT_REFRESH_MUSIC_LIBRARY = "REFRESH_MUSIC_LIBRARY";
+    public static final int    FRAGMENT_WELCOME             = 0;
+    public static final int    FRAGMENT_MUSIC_FOLDERS       = 1;
+    public static final int    FRAGMENT_ALBUM_ART           = 2;
+    public static final int    FRAGMENT_READ_TO_SCAN        = 3;
+    public static final int    FRAGMENT_BUILD_LIBRARY       = 4;
+
+    //
+    // private members
+
     private Context           mContext;
-    private Common            mApp;
-    private ViewPager         welcomeViewPager;
-    private LinePageIndicator indicator;
-    private String            mAccountName;
+    private ViewPager         mPager;
+    private LinePageIndicator mIndicator;
 
     private       MusicFoldersFragment            mMusicFoldersFragment;
     public static BuildingLibraryProgressFragment mBuildingLibraryProgressFragment;
@@ -58,7 +62,6 @@ public class WelcomeActivity extends FragmentActivity {
     public void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
         mContext = this;
-        mApp = (Common) this.getApplicationContext();
         overridePendingTransition( R.anim.fade_in, R.anim.fade_out );
 
         setContentView( R.layout.activity_welcome );
@@ -68,73 +71,64 @@ public class WelcomeActivity extends FragmentActivity {
             getActionBar().hide();
         }
 
-        welcomeViewPager = (ViewPager) findViewById( R.id.welcome_pager );
-
-        FragmentManager fm = getSupportFragmentManager();
-        welcomeViewPager.setAdapter( new WelcomePagerAdapter( fm ) );
-        welcomeViewPager.setOffscreenPageLimit( 6 );
-
-        indicator = (LinePageIndicator) findViewById( R.id.indicator );
-        indicator.setViewPager( welcomeViewPager );
+        mPager = (ViewPager) findViewById( R.id.welcome_pager );
+        mPager.setAdapter( new WelcomePagerAdapter( getSupportFragmentManager() ) );
+        mPager.setOffscreenPageLimit( 6 );
 
         final float density = getResources().getDisplayMetrics().density;
-        indicator.setSelectedColor( 0x880099CC );
-        indicator.setUnselectedColor( 0xFF4F4F4F );
-        indicator.setStrokeWidth( 2 * density );
-        indicator.setLineWidth( 30 * density );
-        indicator.setOnPageChangeListener( pageChangeListener );
+        mIndicator = (LinePageIndicator) findViewById( R.id.indicator );
+        mIndicator.setViewPager( mPager );
+        mIndicator.setSelectedColor( 0x880099CC );
+        mIndicator.setUnselectedColor( 0xFF4F4F4F );
+        mIndicator.setStrokeWidth( 2 * density );
+        mIndicator.setLineWidth( 30 * density );
+        mIndicator.setOnPageChangeListener( mPageChangeListener );
 
         //Check if the library needs to be rebuilt and this isn't the first run.
-        if( getIntent().hasExtra( "REFRESH_MUSIC_LIBRARY" ) ) {
+        if( getIntent().hasExtra( INTENT_REFRESH_MUSIC_LIBRARY ) ) {
             showBuildingLibraryProgress();
         }
-
     }
 
     /**
      * Page scroll listener.
      */
-    private OnPageChangeListener pageChangeListener = new OnPageChangeListener() {
+    private final OnPageChangeListener mPageChangeListener = new OnPageChangeListener() {
 
         @Override
         public void onPageScrollStateChanged( int scrollState ) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         public void onPageScrolled( int position, float positionOffset, int positionOffsetPixels ) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         public void onPageSelected( int page ) {
+            switch( page ) {
+                case FRAGMENT_WELCOME:
+                case FRAGMENT_ALBUM_ART:
+                    // If the user swiped away from the music folders selection fragment,
+                    // save the music folders to the database.
+                    new AsyncSaveMusicFoldersTask( mContext.getApplicationContext(),
+                                                   mMusicFoldersFragment.getMusicFoldersSelectionFragment()
+                                                                        .getMusicFolders() ).execute();
 
-			/* If the user swiped away from the music folders 
-             * selection fragment, save the music folders to
-			 * the database.
-			 */
-            if( page == 0 || page == 2 ) {
-                new AsyncSaveMusicFoldersTask( mContext.getApplicationContext(),
-                                               mMusicFoldersFragment.getMusicFoldersSelectionFragment()
-                                                                    .getMusicFolders() ).execute();
+                    break;
+                case FRAGMENT_BUILD_LIBRARY:
+                    // If the user swiped away from the music folders selection fragment,
+                    // save the music folders tothe database.
+                    showBuildingLibraryProgress();
+                    break;
             }
-
-            //Launch the scanning AsyncTask.
-            if( page == 5 ) {
-                showBuildingLibraryProgress();
-            }
-
         }
 
     };
 
     private void showBuildingLibraryProgress() {
-
         //Disables swiping events on the pager.
-        welcomeViewPager.setCurrentItem( 5 );
-        welcomeViewPager.setOnTouchListener( new OnTouchListener() {
+        mPager.setCurrentItem( FRAGMENT_BUILD_LIBRARY );
+        mPager.setOnTouchListener( new OnTouchListener() {
 
             @Override
             public boolean onTouch( View arg0, MotionEvent arg1 ) {
@@ -144,165 +138,27 @@ public class WelcomeActivity extends FragmentActivity {
         } );
 
         //Fade out the ViewPager indicator.
-        Animation fadeOutAnim = AnimationUtils.loadAnimation( mContext, R.anim.fade_out );
+        final Animation fadeOutAnim = AnimationUtils.loadAnimation( mContext, R.anim.fade_out );
         fadeOutAnim.setDuration( 600 );
-        fadeOutAnim.setAnimationListener( fadeOutListener );
-        indicator.startAnimation( fadeOutAnim );
-
-    }
-
-    /**
-     * Fade out animation listener.
-     */
-    private AnimationListener fadeOutListener = new AnimationListener() {
-
-        @Override
-        public void onAnimationEnd( Animation arg0 ) {
-            indicator.setVisibility( View.INVISIBLE );
-
-            Intent intent = new Intent( mContext, BuildMusicLibraryService.class );
-            startService( intent );
-
-        }
-
-        @Override
-        public void onAnimationRepeat( Animation arg0 ) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onAnimationStart( Animation arg0 ) {
-            // TODO Auto-generated method stub
-
-        }
-
-    };
-
-    /**
-     * Asks the user to install the GMusic app.
-     */
-    private void promptUserInstallGooglePlayMusic() {
-        AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
-        AlertDialog dialog;
-        builder.setTitle( R.string.google_play_music_no_asterisk );
-        builder.setMessage( R.string.prompt_user_install_google_play_music );
-        builder.setPositiveButton( R.string.yes, new OnClickListener() {
+        fadeOutAnim.setAnimationListener( new AnimationListener() {
 
             @Override
-            public void onClick( DialogInterface dialog, int which ) {
-                dialog.dismiss();
-                Intent intent = new Intent( Intent.ACTION_VIEW );
-                intent.setData( Uri.parse( "market://details?id=com.google.android.music" ) );
-                startActivity( intent );
+            public void onAnimationEnd( Animation arg0 ) {
+                mIndicator.setVisibility( View.INVISIBLE );
+                final Intent intent = new Intent( mContext, BuildMusicLibraryService.class );
+                startService( intent );
+            }
 
+            @Override
+            public void onAnimationRepeat( Animation arg0 ) {
+            }
+
+            @Override
+            public void onAnimationStart( Animation arg0 ) {
             }
 
         } );
-
-        builder.setNegativeButton( R.string.no, new OnClickListener() {
-
-            @Override
-            public void onClick( DialogInterface dialog, int which ) {
-                mApp.getSharedPreferences().edit().putBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", false ).commit();
-                Toast.makeText( mContext, R.string.google_play_music_disabled, Toast.LENGTH_LONG ).show();
-                dialog.dismiss();
-
-            }
-
-        } );
-
-        dialog = builder.create();
-        dialog.show();
-    }
-
-    /**
-     * Ask the user to set up GMusic.
-     */
-    private void promptUserSetUpGooglePlayMusic() {
-        AlertDialog.Builder builder = new AlertDialog.Builder( mContext );
-        AlertDialog dialog;
-        builder.setTitle( R.string.tip );
-        builder.setMessage( R.string.prompt_user_set_up_google_play_music );
-        builder.setPositiveButton( R.string.let_me_check, new OnClickListener() {
-
-            @Override
-            public void onClick( DialogInterface dialog, int which ) {
-                Intent intent = getPackageManager().getLaunchIntentForPackage( "com.google.android.music" );
-                startActivity( intent );
-                dialog.dismiss();
-
-            }
-
-        } );
-
-        builder.setNeutralButton( R.string.sync_manually, new OnClickListener() {
-
-            @Override
-            public void onClick( DialogInterface dialog, int which ) {
-                dialog.dismiss();
-
-            }
-
-        } );
-
-        builder.setNegativeButton( R.string.set_up_already, new OnClickListener() {
-
-            @Override
-            public void onClick( DialogInterface dialog, int which ) {
-                dialog.dismiss();
-
-            }
-
-        } );
-
-        dialog = builder.create();
-        dialog.show();
-    }
-
-    @Override
-    protected void onActivityResult( int requestCode, int resultCode, Intent data ) {
-        //Result Code 45 = UserRecoverableAuthenticationException from GooglePlayMusicAuthenticationDialog.
-        if( requestCode == 45 ) {
-
-            final Intent finalData = data;
-            final int finalResultCode = resultCode;
-
-            runOnUiThread( new Runnable() {
-
-                @Override
-                public void run() {
-                    //An unknown error occurred.
-                    if( finalData == null ) {
-                        Toast.makeText( mContext, R.string.unknown_error_google_music, Toast.LENGTH_LONG ).show();
-                        return;
-                    }
-
-                    //The user handled the exception properly.
-                    if( finalResultCode == RESULT_OK ) {
-
-                        mApp.getSharedPreferences().edit().putBoolean( "GOOGLE_PLAY_MUSIC_ENABLED", true ).commit();
-                        mApp.getSharedPreferences()
-                            .edit()
-                            .putString( "GOOGLE_PLAY_MUSIC_ACCOUNT", mAccountName )
-                            .commit();
-
-                        return;
-                    }
-
-                    if( finalResultCode == RESULT_CANCELED ) {
-                        finish();
-                    }
-
-                    Toast.makeText( mContext, R.string.unknown_error_google_music, Toast.LENGTH_LONG ).show();
-                }
-
-            } );
-
-        } else if( resultCode == 10001 ) {
-
-        }
-
+        mIndicator.startAnimation( fadeOutAnim );
     }
 
     class WelcomePagerAdapter extends FragmentStatePagerAdapter {
@@ -311,22 +167,19 @@ public class WelcomeActivity extends FragmentActivity {
             super( fm );
         }
 
-        //This method controls which fragment should be shown on a specific screen.
         @Override
         public Fragment getItem( int position ) {
-
-            //Assign the appropriate screen to the fragment object, based on which screen is displayed.
             switch( position ) {
-                case 0:
+                case FRAGMENT_WELCOME:
                     return new WelcomeFragment();
-                case 1:
+                case FRAGMENT_MUSIC_FOLDERS:
                     mMusicFoldersFragment = new MusicFoldersFragment();
                     return mMusicFoldersFragment;
-                case 2:
+                case FRAGMENT_ALBUM_ART:
                     return new AlbumArtFragment();
-                case 4:
+                case FRAGMENT_READ_TO_SCAN:
                     return new ReadyToScanFragment();
-                case 5:
+                case FRAGMENT_BUILD_LIBRARY:
                     mBuildingLibraryProgressFragment = new BuildingLibraryProgressFragment();
                     return mBuildingLibraryProgressFragment;
                 default:
@@ -337,9 +190,8 @@ public class WelcomeActivity extends FragmentActivity {
 
         @Override
         public int getCount() {
-            return 6;
+            return 5;
         }
-
     }
 
     @Override

@@ -5,13 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
-import com.google.analytics.tracking.android.Log;
+import android.util.Log;
 
 public abstract class AbstractDBAccessor extends SQLiteOpenHelper {
 
     //
     // defines
+
+    public static final String TAG = AbstractDBAccessor.class.getSimpleName();
 
     public static final String DATABASE_NAME = "djp.db";
 
@@ -71,7 +72,7 @@ public abstract class AbstractDBAccessor extends SQLiteOpenHelper {
             getWritableDatabase().close();
             super.finalize();
         } catch( Exception e ) {
-            Log.e( e );
+            Log.e( TAG, "Failed to close database", e );
         }
     }
 

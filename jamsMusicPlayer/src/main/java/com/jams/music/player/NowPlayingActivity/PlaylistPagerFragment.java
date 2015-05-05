@@ -62,10 +62,10 @@ public class PlaylistPagerFragment extends Fragment implements AlbumArtLoadedLis
 
     private RelativeLayout bottomDarkPatch;
     private RelativeLayout songInfoLayout;
-    private TextView  songNameTextView;
-    private TextView  artistAlbumNameTextView;
-    private ImageView coverArt;
-    private ImageView overflowIcon;
+    private TextView       songNameTextView;
+    private TextView       artistAlbumNameTextView;
+    private ImageView      coverArt;
+    private ImageView      overflowIcon;
 
     private TextView mLyricsTextView;
     private TextView mLyricsEmptyTextView;

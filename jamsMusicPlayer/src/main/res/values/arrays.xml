@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="sliding_menu_array">
-        <item>Artists</item>
-        <item>Album Artists</item>
-        <item>Albums</item>
         <item>Songs</item>
-        <item>Playlists</item>
         <item>Genres</item>
-        <item>Folders</item>
+        <item>Artists</item>
+        <item>Albums</item>
         <item>Settings</item>
     </string-array>
 

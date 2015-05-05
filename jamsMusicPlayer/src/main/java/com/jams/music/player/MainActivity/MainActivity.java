@@ -36,6 +36,7 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.jams.music.player.Drawers.NavigationDrawerFragment;
 import com.jams.music.player.Drawers.QueueDrawerFragment;
 import com.jams.music.player.Helpers.UIElementsHelper;
 import com.jams.music.player.ListViewFragment.FilterListViewFragment;
@@ -44,6 +45,10 @@ import com.jams.music.player.R;
 import com.jams.music.player.Utils.Common;
 
 public class MainActivity extends FragmentActivity {
+
+    public static enum FragmentId {
+        NONE, SONGS, GENRES, ARTISTS, ALBUMS
+    }
 
     //Context and Common object(s).
     private Context mContext;
@@ -58,9 +63,7 @@ public class MainActivity extends FragmentActivity {
     private QueueDrawerFragment   mQueueDrawerFragment;
     private Menu                  mMenu;
 
-    //Current fragment params.
-    private Fragment mCurrentFragment;
-    public static int mCurrentFragmentId = -1;
+    private FragmentId mCurrentFragmentId = FragmentId.NONE;
 
     //Layout flags.
     public static final String CURRENT_FRAGMENT = "CurrentFragment";
@@ -90,7 +93,7 @@ public class MainActivity extends FragmentActivity {
         applyKitKatTranslucency();
 
         //Load the fragment.
-        loadFragment( savedInstanceState );
+        switchFragment( FragmentId.NONE, savedInstanceState );
 
         /**
          * Navigation drawer toggle.
@@ -131,8 +134,8 @@ public class MainActivity extends FragmentActivity {
     }
 
     @Override
-    protected void onSaveInstanceState( Bundle savedInstanceState ) {
-        savedInstanceState.putInt( CURRENT_FRAGMENT, mCurrentFragmentId );
+    protected void onSaveInstanceState( final Bundle savedInstanceState ) {
+        saveFragmentId( savedInstanceState, mCurrentFragmentId );
         super.onSaveInstanceState( savedInstanceState );
     }
 
@@ -146,7 +149,6 @@ public class MainActivity extends FragmentActivity {
         } else {
             setTheme( R.style.AppThemeLight );
         }
-
     }
 
     /**
@@ -182,30 +184,37 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
-    public void loadFragment( Bundle savedInstanceState ) {
-        int fragmentId = -1;
-        if( savedInstanceState != null ) {
-            fragmentId = savedInstanceState.getInt( CURRENT_FRAGMENT );
-        }
-        switchContent( fragmentId );
+    public void switchFragment( final FragmentId fragmentId ) {
+        switchFragment( fragmentId, null );
     }
 
     /**
      * Loads the specified fragment into the target layout.
      */
-    public void switchContent( int fragmentId ) {
-        if( fragmentId == -1 && getIntent() != null && getIntent().getExtras() != null ) {
-            fragmentId = getIntent().getExtras().getInt( CURRENT_FRAGMENT, -1 );
+    public void switchFragment( FragmentId fragmentId, final Bundle bundle ) {
+        if( fragmentId == null ) {
+            fragmentId = FragmentId.NONE;
         }
-        if( fragmentId == -1 ) {
-            fragmentId = Common.SONGS_FRAGMENT;
+        if( fragmentId == FragmentId.NONE ) {
+            if( bundle != null ) {
+                // From bundle
+
+                fragmentId = loadFragmentId( bundle );
+            } else if( getIntent() != null && getIntent().getExtras() != null ) {
+                // from intent
+
+                fragmentId = loadFragmentId( getIntent().getExtras() );
+            } else {
+                // default
+
+                fragmentId = FragmentId.SONGS;
+            }
         }
         if( fragmentId == mCurrentFragmentId ) {
             return;
         }
-        mCurrentFragmentId = fragmentId;
-        mCurrentFragment = getLayoutFragment( fragmentId );
-        // Reset action bar
+
+        // Update ActionBar
         final ActionBar actionBar = getActionBar();
         if( actionBar != null ) {
             getActionBar().setDisplayHomeAsUpEnabled( true );
@@ -213,43 +222,48 @@ public class MainActivity extends FragmentActivity {
             getActionBar().setDisplayShowCustomEnabled( false );
         }
 
-        getSupportFragmentManager().beginTransaction().replace( R.id.mainActivityContainer, mCurrentFragment ).commit();
+        mCurrentFragmentId = fragmentId;
+
+        // Switch fragment
+        getSupportFragmentManager().beginTransaction()
+                                   .replace( R.id.mainActivityContainer, getLayoutFragment( mCurrentFragmentId ) )
+                                   .commit();
 
         //Close the drawer(s).
         mDrawerLayout.closeDrawer( Gravity.START );
+
+        // Invalidate Options
         invalidateOptionsMenu();
     }
 
     /**
      * Retrieves the correct fragment based on the saved layout preference.
      */
-    private Fragment getLayoutFragment( int fragmentId ) {
+    private Fragment getLayoutFragment( final FragmentId fragmentId ) {
         Fragment fragment;
         Bundle bundle = new Bundle();
 
         switch( fragmentId ) {
-            case Common.ARTISTS_FRAGMENT:
+            case ARTISTS:
                 fragment = new FilterListViewFragment();
-                bundle.putInt( Common.FRAGMENT_ID, Common.ARTISTS_FRAGMENT );
+                bundle.putSerializable( Common.FRAGMENT_ID, fragmentId );
                 bundle.putString( FRAGMENT_HEADER, mContext.getResources().getString( R.string.album_artists ) );
                 break;
-            case Common.ALBUMS_FRAGMENT:
+            case ALBUMS:
                 fragment = new FilterListViewFragment();
-                bundle.putInt( Common.FRAGMENT_ID, Common.ALBUMS_FRAGMENT );
+                bundle.putSerializable( Common.FRAGMENT_ID, fragmentId );
                 bundle.putString( FRAGMENT_HEADER, mContext.getResources().getString( R.string.albums ) );
-
                 break;
-            case Common.GENRES_FRAGMENT:
+            case GENRES:
                 fragment = new FilterListViewFragment();
-                bundle.putInt( Common.FRAGMENT_ID, Common.GENRES_FRAGMENT );
+                bundle.putSerializable( Common.FRAGMENT_ID, fragmentId );
                 bundle.putString( FRAGMENT_HEADER, mContext.getResources().getString( R.string.genres ) );
                 break;
-            case Common.SONGS_FRAGMENT:
+            case SONGS:
             default:
                 fragment = new SongListViewFragment();
                 break;
         }
-
         fragment.setArguments( bundle );
 
         return fragment;
@@ -259,12 +273,16 @@ public class MainActivity extends FragmentActivity {
      * Loads the drawer fragments.
      */
     private void loadDrawerFragments() {
+        //Load the navigation drawer.
+        getSupportFragmentManager().beginTransaction()
+                                   .replace( R.id.nav_drawer_container, new NavigationDrawerFragment() )
+                                   .commit();
+
         //Load the current queue drawer.
         mQueueDrawerFragment = new QueueDrawerFragment();
         getSupportFragmentManager().beginTransaction()
                                    .replace( R.id.current_queue_drawer_container, mQueueDrawerFragment )
                                    .commit();
-
     }
 
     /**
@@ -389,12 +407,22 @@ public class MainActivity extends FragmentActivity {
 
     }
 
-    /**
-     * Getters/Setters.
-     */
-
     public Menu getMenu() {
         return mMenu;
     }
 
+    private FragmentId loadFragmentId( final Bundle bundle ) {
+        return FragmentId.valueOf( bundle.getString( CURRENT_FRAGMENT, FragmentId.NONE.name() ) );
+    }
+
+    private void saveFragmentId( final Bundle bundle, FragmentId fragmentId ) {
+        if( fragmentId == null ) {
+            fragmentId = FragmentId.NONE;
+        }
+        bundle.putString( CURRENT_FRAGMENT, fragmentId.name() );
+    }
+
+    public FragmentId getCurrentFragmentId() {
+        return mCurrentFragmentId;
+    }
 }

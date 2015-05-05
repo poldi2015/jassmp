@@ -144,7 +144,7 @@ public class SettingsMusicFoldersDialog extends DialogFragment {
 
                 Intent intent = new Intent( mContext, WelcomeActivity.class );
                 intent.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP );
-                intent.putExtra( "REFRESH_MUSIC_LIBRARY", true );
+                intent.putExtra( WelcomeActivity.INTENT_REFRESH_MUSIC_LIBRARY, true );
                 mContext.startActivity( intent );
 
             }
@@ -197,7 +197,7 @@ public class SettingsMusicFoldersDialog extends DialogFragment {
                     if( file.isDirectory() ) {
 
 						/*
-						 * Starting with Android 4.2, /storage/emulated/legacy/... 
+                         * Starting with Android 4.2, /storage/emulated/legacy/...
 						 * is a symlink that points to the actual directory where 
 						 * the user's files are stored. We need to detect the 
 						 * actual directory's file path here.

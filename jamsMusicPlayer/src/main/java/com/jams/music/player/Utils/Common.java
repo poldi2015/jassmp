@@ -101,11 +101,7 @@ public class Common extends MultiDexApplication {
     public static final String UPDATE_EQ_FRAGMENT        = "UpdateEQFragment";
 
     //Contants for identifying each fragment/activity.
-    public static final String FRAGMENT_ID      = "FragmentId";
-    public static final int    ARTISTS_FRAGMENT = 0;
-    public static final int    ALBUMS_FRAGMENT  = 2;
-    public static final int    SONGS_FRAGMENT   = 3;
-    public static final int    GENRES_FRAGMENT  = 5;
+    public static final String FRAGMENT_ID = "FragmentId";
 
     //Device orientation constants.
     public static final int ORIENTATION_PORTRAIT  = 0;

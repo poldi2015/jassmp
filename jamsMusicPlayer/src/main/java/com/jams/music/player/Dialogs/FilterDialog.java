@@ -6,13 +6,14 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
+import com.jams.music.player.MainActivity.MainActivity;
 import com.jams.music.player.R;
-import com.jams.music.player.Utils.Common;
 
 public class FilterDialog extends DialogFragment {
 
-    public static final int[] FRAGMENT_IDS = { Common.GENRES_FRAGMENT, Common.ARTISTS_FRAGMENT,
-                                               Common.ALBUMS_FRAGMENT };
+    public static final MainActivity.FragmentId[] FRAGMENT_IDS = { MainActivity.FragmentId.GENRES,
+                                                                   MainActivity.FragmentId.ARTISTS,
+                                                                   MainActivity.FragmentId.ALBUMS };
 
     private final FilterDialogListener mListener;
 

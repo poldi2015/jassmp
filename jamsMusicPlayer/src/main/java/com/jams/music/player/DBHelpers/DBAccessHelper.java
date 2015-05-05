@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.jams.music.player.MainActivity.MainActivity;
 import com.jams.music.player.Utils.Common;
 
 /**
@@ -105,13 +106,17 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate( SQLiteDatabase db ) {
         //Music library table.
-        String[] musicLibraryTableCols = { SONG_ID, SONG_TITLE, SONG_ARTIST, SONG_ALBUM, SONG_DURATION, SONG_FILE_PATH,
+        String[] musicLibraryTableCols = { SONG_ID, SONG_TITLE, SONG_ARTIST, SONG_ALBUM, SONG_DURATION, SONG_BPM,
+                                           SONG_FILE_PATH,
                                            SONG_TRACK_NUMBER, SONG_GENRE, SONG_PLAY_COUNT, SONG_YEAR, ADDED_TIMESTAMP,
                                            SONG_RATING, SONG_ALBUM_ART_PATH, ARTIST_ART_LOCATION, SAVED_POSITION };
 
         String[] musicLibraryTableColTypes = new String[ musicLibraryTableCols.length ];
         for( int i = 0; i < musicLibraryTableCols.length; i++ ) {
             musicLibraryTableColTypes[ i ] = "TEXT";
+            if( i == 5 ) {
+                musicLibraryTableColTypes[ i ] = "INTEGER";
+            }
         }
 
         String createMusicLibraryTable = buildCreateStatement( MUSIC_LIBRARY_TABLE, musicLibraryTableCols,
@@ -124,7 +129,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade( final SQLiteDatabase db, final int oldVersion, final int newVersion ) {
-        if( oldVersion == 1 && newVersion == 2 ) {
+        if( newVersion == 2 ) {
             // Music Library table
             final String[] musicLibraryTableNames = { SONG_BPM };
             final String[] musicLibraryTableTypes = { "INTEGER" };
@@ -180,14 +185,14 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * *********************************************************
      */
 
-    public Cursor getFragmentCursor( Context context, String querySelection, int fragmentId ) {
+    public Cursor getFragmentCursor( Context context, String querySelection, MainActivity.FragmentId fragmentId ) {
         return getFragmentCursor( context, querySelection, fragmentId, SONG_TITLE, OrderDirection.ASC );
     }
 
     /**
      * Returns the cursor based on the specified fragment.
      */
-    public Cursor getFragmentCursor( Context context, String querySelection, int fragmentId, String orderBy, OrderDirection orderDirection ) {
+    public Cursor getFragmentCursor( Context context, String querySelection, MainActivity.FragmentId fragmentId, String orderBy, OrderDirection orderDirection ) {
         return getFragmentCursorHelper( querySelection, fragmentId, orderBy, orderDirection );
     }
 
@@ -195,16 +200,18 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Helper method for getFragmentCursor(). Returns the correct
      * cursor retrieval method for the specified fragment.
      */
-    private Cursor getFragmentCursorHelper( String querySelection, int fragmentId, String orderBy, OrderDirection orderDirection ) {
+    private Cursor getFragmentCursorHelper( String querySelection, MainActivity.FragmentId fragmentId, String orderBy, OrderDirection orderDirection ) {
         switch( fragmentId ) {
-            case Common.ARTISTS_FRAGMENT:
+            case ARTISTS:
                 return getAllUniqueArtists( querySelection );
-            case Common.ALBUMS_FRAGMENT:
+            case ALBUMS:
                 return getAllUniqueAlbums( querySelection );
-            case Common.SONGS_FRAGMENT:
-                querySelection += " ORDER BY " + orderBy + " " + orderDirection.name();
-                return getAllSongsSearchable( querySelection );
-            case Common.GENRES_FRAGMENT:
+            case SONGS:
+                if( orderBy != null ) {
+                    orderBy = orderBy + " " + orderDirection.name();
+                }
+                return getAllSongsSearchable( querySelection, orderBy );
+            case GENRES:
                 return getAllUniqueGenres( querySelection );
             default:
                 return null;
@@ -215,7 +222,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     /**
      * Returns the playback cursor based on the specified query selection.
      */
-    public Cursor getPlaybackCursor( Context context, String querySelection, int fragmentId ) {
+    public Cursor getPlaybackCursor( Context context, String querySelection, MainActivity.FragmentId fragmentId ) {
         return getPlaybackCursorHelper( querySelection, fragmentId );
     }
 
@@ -223,19 +230,20 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Helper method for getPlaybackCursor(). Returns the correct
      * cursor retrieval method for the specified playback/fragment route.
      */
-    private Cursor getPlaybackCursorHelper( String querySelection, int fragmentId ) {
+    private Cursor getPlaybackCursorHelper( String querySelection, MainActivity.FragmentId fragmentId ) {
+        String orderBy = null;
         switch( fragmentId ) {
-            case Common.ARTISTS_FRAGMENT:
-            case Common.ALBUMS_FRAGMENT:
-            case Common.GENRES_FRAGMENT:
-                querySelection += " ORDER BY " + SONG_TRACK_NUMBER + "*1 ASC";
+            case ARTISTS:
+            case ALBUMS:
+            case GENRES:
+                orderBy = SONG_TRACK_NUMBER + "*1 ASC";
                 break;
-            case Common.SONGS_FRAGMENT:
-                querySelection += " ORDER BY " + SONG_TITLE + " ASC";
+            case SONGS:
+                orderBy = SONG_TITLE + " ASC";
                 break;
         }
 
-        return getAllSongsSearchable( querySelection );
+        return getAllSongsSearchable( querySelection, orderBy );
     }
 
     /**
@@ -243,8 +251,18 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * This method can also be used to search all songs if a
      * valid selection parameter is passed.
      */
-    public Cursor getAllSongsSearchable( String selection ) {
-        String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + " WHERE " + selection;
+    public Cursor getAllSongsSearchable( String selection, String orderBy ) {
+        if( selection != null && !"".equals( selection ) ) {
+            selection = " WHERE " + selection;
+        } else {
+            selection = "";
+        }
+        if( orderBy != null && !"".equals( orderBy ) ) {
+            orderBy = " ORDER BY " + orderBy;
+        } else {
+            orderBy = "";
+        }
+        String selectQuery = "SELECT  * FROM " + MUSIC_LIBRARY_TABLE + selection + orderBy;
 
         return getDatabase().rawQuery( selectQuery, null );
     }
@@ -257,8 +275,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Returns a selection cursor of all unique artists.
      */
     public Cursor getAllUniqueArtists( String selection ) {
-        if( selection != null ) {
+        if( selection != null && !"".equals( selection ) ) {
             selection = " WHERE " + selection;
+        } else {
+            selection = "";
         }
         String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ARTIST + "), " + _ID + ", " + SONG_FILE_PATH + ", "
                                      + ARTIST_ART_LOCATION + ", " + SONG_ALBUM_ART_PATH + ", " + SONG_DURATION
@@ -273,8 +293,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Returns a selection cursor of all unique albums.
      */
     public Cursor getAllUniqueAlbums( String selection ) {
-        if( selection != null ) {
+        if( selection != null && !"".equals( selection ) ) {
             selection = " WHERE " + selection;
+        } else {
+            selection = "";
         }
         String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ALBUM + "), " +
                                      _ID + ", " + SONG_ARTIST + ", " + SONG_FILE_PATH + ", " +
@@ -292,8 +314,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Returns a selection cursor of all unique genres.
      */
     public Cursor getAllUniqueGenres( String selection ) {
-        if( selection != null ) {
+        if( selection != null && !"".equals( selection ) ) {
             selection = " WHERE " + selection;
+        } else {
+            selection = "";
         }
         String selectDistinctQuery = "SELECT DISTINCT(" + SONG_GENRE + "), " +
                                      _ID + ", " + SONG_FILE_PATH + ", " + SONG_ALBUM_ART_PATH + ", " + SONG_DURATION

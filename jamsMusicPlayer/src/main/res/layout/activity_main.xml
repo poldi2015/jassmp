@@ -25,9 +25,15 @@
 
         <RelativeLayout
             android:id="@+id/current_queue_drawer_container"
-            android:layout_width="520dp"
+            android:layout_width="320dp"
             android:layout_height="match_parent"
             android:layout_gravity="end"/>
+
+        <RelativeLayout
+            android:id="@+id/nav_drawer_container"
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"/>
 
     </android.support.v4.widget.DrawerLayout>
 

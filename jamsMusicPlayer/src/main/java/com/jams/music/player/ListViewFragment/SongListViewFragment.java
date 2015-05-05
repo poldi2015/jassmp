@@ -217,15 +217,13 @@ public class SongListViewFragment extends Fragment
 
     @Override
     public void onFilterDialogClick( int which ) {
-        ( (MainActivity) getActivity() ).switchContent( FilterDialog.FRAGMENT_IDS[ which ] );
+        ( (MainActivity) getActivity() ).switchFragment( FilterDialog.FRAGMENT_IDS[ which ] );
     }
 
     @Override
     public void onOrderDialogClick( int which ) {
         final String orderBy = ITEM_TO_ORDER_BY.valueAt( which );
-        if( orderBy != null ) {
-            reloadDatabase( 0, orderBy );
-        }
+        reloadDatabase( 0, orderBy );
     }
 
     @SuppressWarnings( "unused" )
@@ -251,7 +249,7 @@ public class SongListViewFragment extends Fragment
         @Override
         public void onItemClick( AdapterView<?> arg0, View view, int index, long id ) {
             mApp.getPlaybackKickstarter()
-                .initPlayback( mContext, mQuerySelection, Common.SONGS_FRAGMENT, index, true, false );
+                .initPlayback( mContext, mQuerySelection, MainActivity.FragmentId.SONGS, index, true, false );
         }
 
     };
@@ -332,7 +330,7 @@ public class SongListViewFragment extends Fragment
         @Override
         public void doInBackground() {
             mCursor = mApp.getDBAccessHelper()
-                          .getFragmentCursor( mContext, mQuerySelection, Common.SONGS_FRAGMENT, mOrderBy,
+                          .getFragmentCursor( mContext, mQuerySelection, MainActivity.FragmentId.SONGS, mOrderBy,
                                               mOrderDirection );
         }
 
