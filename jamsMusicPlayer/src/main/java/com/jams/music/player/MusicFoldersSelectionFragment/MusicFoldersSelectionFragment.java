@@ -31,7 +31,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.jams.music.player.DBHelpers.MusicFolderAccessor;
+import com.jams.music.player.DBHelpers.FolderTableAccessor;
 import com.jams.music.player.Helpers.TypefaceHelper;
 import com.jams.music.player.Helpers.UIElementsHelper;
 import com.jams.music.player.R;
@@ -118,7 +118,7 @@ public class MusicFoldersSelectionFragment extends Fragment {
         mRootDir = Environment.getExternalStorageDirectory().getAbsolutePath().toString();
         mCurrentDir = mRootDir;
 
-        mMusicFolders = MusicFolderAccessor.getInstance( mApp ).getAllMusicFolderPaths();
+        mMusicFolders = FolderTableAccessor.getInstance( mApp ).getAllMusicFolderPaths();
 
         //Get the folder hierarchy of the selected folder.
         getDir( mRootDir );
@@ -170,7 +170,7 @@ public class MusicFoldersSelectionFragment extends Fragment {
                     if( file.isDirectory() ) {
 
 						/*
-						 * Starting with Android 4.2, /storage/emulated/legacy/... 
+                         * Starting with Android 4.2, /storage/emulated/legacy/...
 						 * is a symlink that points to the actual directory where 
 						 * the user's files are stored. We need to detect the 
 						 * actual directory's file path here.

@@ -96,11 +96,11 @@ public class NavigationDrawerFragment extends Fragment {
     //
     // private members
 
-    private ListView                mmMenuItemsView;
-    private Handler                 mHandler;
+    private ListView mmMenuItemsView;
+    private Handler  mHandler;
 
-    @SuppressWarnings( "deprecation" )
-    @SuppressLint( "NewApi" )
+    @SuppressWarnings("deprecation")
+    @SuppressLint("NewApi")
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
         final Context context = getActivity();
@@ -114,7 +114,7 @@ public class NavigationDrawerFragment extends Fragment {
         mmMenuItemsView = (ListView) rootView.findViewById( R.id.browsers_list_view );
         resetAdapter( getActivity() );
         mmMenuItemsView.setOnItemClickListener( mMenuItemsClickListener );
-        setListViewHeightBasedOnChildren( mmMenuItemsView );
+        //setListViewHeightBasedOnChildren( mmMenuItemsView );
 
         mmMenuItemsView.setDividerHeight( 0 );
 
@@ -159,10 +159,10 @@ public class NavigationDrawerFragment extends Fragment {
 
     };
 
-    public void resetAdapter( final Activity activity  ) {
+    public void resetAdapter( final Activity activity ) {
         MainActivity.FragmentId currentFragment = MainActivity.FragmentId.NONE;
         if( activity instanceof MainActivity ) {
-            currentFragment = ((MainActivity)activity).getCurrentFragmentId();
+            currentFragment = ( (MainActivity) activity ).getCurrentFragmentId();
 
         }
         mmMenuItemsView.setAdapter( new NavigationDrawerAdapter( activity, currentFragment ) );

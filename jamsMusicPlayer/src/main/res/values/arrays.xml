@@ -49,12 +49,6 @@
         <item>Dark</item>
     </string-array>
 
-    <string-array name="dialog_menu_filter_items">
-        <item>Genre</item>
-        <item>Artist</item>
-        <item>Album</item>
-    </string-array>
-
     <string-array name="dialog_menu_order_items">
         <item>Sort by name</item>
         <item>Sort by rating</item>

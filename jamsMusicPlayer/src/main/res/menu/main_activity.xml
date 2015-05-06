@@ -14,13 +14,6 @@
         android:orderInCategory="99"/>
 
     <item
-        android:id="@+id/action_filter"
-        android:title="@string/option_button_filter"
-        android:icon="@drawable/default_screen"
-        android:showAsAction="always"
-        android:orderInCategory="100"/>
-
-    <item
         android:id="@+id/action_order"
         android:title="@string/option_button_filter"
         android:icon="@drawable/queue_drawer"

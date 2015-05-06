@@ -63,7 +63,7 @@ public class MainActivity extends FragmentActivity {
     private QueueDrawerFragment   mQueueDrawerFragment;
     private Menu                  mMenu;
 
-    private FragmentId mCurrentFragmentId = FragmentId.NONE;
+    private FragmentId mCurrentFragmentId = null;
 
     //Layout flags.
     public static final String CURRENT_FRAGMENT = "CurrentFragment";

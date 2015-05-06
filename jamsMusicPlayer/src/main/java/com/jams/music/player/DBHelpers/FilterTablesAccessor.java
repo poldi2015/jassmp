@@ -12,33 +12,46 @@ import java.util.Set;
 /**
  * Created by poldi on 01.05.15.
  */
-public class FilterDBsAccessor extends AbstractDBAccessor {
+public class FilterTablesAccessor extends AbstractTableAccessor {
 
     //
     // defines
 
+    public static enum Filter {
+        GENRE( Song.COLUMN_SONG_GENRE ), ARTIST( Song.COLUMN_SONG_ARTIST ), ALBUM( Song.COLUMN_SONG_ALBUM ), RATING(
+                Song.COLUMN_SONG_RATING );
+
+        public final Column songTableColumn;
+
+        private Filter( final Column songTableColumn ) {
+            this.songTableColumn = songTableColumn;
+        }
+    }
 
     public static final String DB_NAME_PREFIX = "Filter";
 
-    public static final Column COLUMN_NAME       = new Column( "name", ColumnFlag.PRIMARY_KEY );
+    public static final Column COLUMN_NAME       = new Column( "name", ColumnFlag.UNIQUE );
+    public static final Column COLUMN_KEY        = new Column( "key", ColumnFlag.UNIQUE );
     public static final Column COLUMN_SELECTED   = new Column( "selected", ColumnType.INTEGER, "1" );
     public static final Column COLUMN_SONG_COUNT = new Column( "song_count", ColumnType.INTEGER, "0" );
 
-    public static final Column[] COLUMNS = { COLUMN_NAME, COLUMN_SELECTED, };
+    public static final Column[] COLUMNS = { COLUMN_ID, COLUMN_KEY, COLUMN_NAME, COLUMN_SELECTED, };
 
     //
     // private members
 
-    private static final Map<String, FilterDBsAccessor> sInstances = new HashMap<String, FilterDBsAccessor>();
+    private final Filter mFilter;
+    private static final Map<Filter, FilterTablesAccessor> sInstances = new HashMap<Filter, FilterTablesAccessor>();
 
-    private FilterDBsAccessor( final Context context, final String filter ) {
-        super( DB_NAME_PREFIX + filter, context );
+    private FilterTablesAccessor( final Context context, final Filter filter ) {
+        super( DB_NAME_PREFIX + filter.name(), context );
+        mFilter = filter;
     }
 
-    public static synchronized FilterDBsAccessor getInstance( final Context context, final String filter ) {
-        FilterDBsAccessor helper = sInstances.get( filter );
+    public static synchronized FilterTablesAccessor getInstance( final Context context, final Filter filter ) {
+        FilterTablesAccessor helper = sInstances.get( filter );
         if( helper == null ) {
-            helper = new FilterDBsAccessor( context, filter );
+            helper = new FilterTablesAccessor( context, filter );
             sInstances.put( filter, helper );
         }
 
@@ -50,9 +63,8 @@ public class FilterDBsAccessor extends AbstractDBAccessor {
         return COLUMNS;
     }
 
-    @Override
-    protected Column[] getAdditionalColumns( int version ) {
-        return new Column[ 0 ];
+    public Filter getFilter() {
+        return mFilter;
     }
 
     public Set<String> getNames() {
@@ -78,7 +90,7 @@ public class FilterDBsAccessor extends AbstractDBAccessor {
         values.put( COLUMN_NAME.name, name );
         values.put( COLUMN_SELECTED.name, 1 );
         values.put( COLUMN_SONG_COUNT.name, songCount );
-        insertEntry( values );
+        replaceEntry( values );
     }
 
     public void removeName( final String name ) {

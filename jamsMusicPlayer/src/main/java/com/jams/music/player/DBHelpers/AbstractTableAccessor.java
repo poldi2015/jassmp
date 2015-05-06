@@ -7,16 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-public abstract class AbstractDBAccessor extends SQLiteOpenHelper {
+public abstract class AbstractTableAccessor extends SQLiteOpenHelper {
 
     //
     // defines
 
-    public static final String TAG = AbstractDBAccessor.class.getSimpleName();
-
-    public static final String DATABASE_NAME = "djp.db";
-
-    public static final int DATABASE_VERSION = 1;
+    public static final String TAG = AbstractTableAccessor.class.getSimpleName();
 
     public static final Column COLUMN_ID = new Column( "_id", ColumnType.INTEGER, ColumnFlag.PRIMARY_KEY );
 
@@ -24,12 +20,16 @@ public abstract class AbstractDBAccessor extends SQLiteOpenHelper {
     //
     // private members
 
+    private final Context mContext;
     private final String mTableName;
 
-    protected AbstractDBAccessor( final String tableName, final Context context ) {
-        super( context, DATABASE_NAME, null, DATABASE_VERSION );
+    protected AbstractTableAccessor( final String tableName, final Context context ) {
+        super( context, DatabaseAccessor.DATABASE_NAME, null, DatabaseAccessor.DATABASE_VERSION );
+        mContext = context;
         mTableName = tableName;
     }
+
+    protected abstract Column[] getTableColumns();
 
     private void begin() {
         if( !getWritableDatabase().inTransaction() ) {
@@ -44,25 +44,19 @@ public abstract class AbstractDBAccessor extends SQLiteOpenHelper {
         }
     }
 
-    protected abstract Column[] getTableColumns();
-
-    protected abstract Column[] getAdditionalColumns( final int version );
-
     @Override
     public void onCreate( final SQLiteDatabase db ) {
+        final String dropTableStatement = "DROP TABLE IF EXISTS " + mTableName;
+        db.execSQL( dropTableStatement );
         final String createStatement = buildCreateStatement( mTableName, getTableColumns() );
         db.execSQL( createStatement );
     }
 
 
     @Override
-    public void onUpgrade( SQLiteDatabase db, int oldVersion, int newVersion ) {
-        for( int version = oldVersion + 1; version <= newVersion; version++ ) {
-            final Column[] columns = getAdditionalColumns( version );
-            for( final Column column : columns ) {
-                final String upgradeStatement = buildUpgradeStatement( mTableName, column );
-                db.execSQL( upgradeStatement );
-            }
+    public void onUpgrade( final SQLiteDatabase db, final int oldVersion, final int newVersion ) {
+        if( oldVersion != newVersion ) {
+            onCreate( db );
         }
     }
 
@@ -78,9 +72,9 @@ public abstract class AbstractDBAccessor extends SQLiteOpenHelper {
 
     private String buildCreateStatement( final String tableName, final Column[] columns ) {
         final StringBuilder createStatement = new StringBuilder( "CREATE TABLE IF NOT EXISTS " );
-
         createStatement.append( tableName );
         createStatement.append( " ( " );
+
         boolean first = true;
 
         for( final Column column : columns ) {
@@ -106,7 +100,7 @@ public abstract class AbstractDBAccessor extends SQLiteOpenHelper {
                 default:
                     if( column.hasDefaultValue() ) {
                         createStatement.append( " DEFAULT " );
-                        createStatement.append( column.getDefaultLiteral() );
+                        createStatement.append( column.getDefaultLiteral( mContext ) );
                     }
                     break;
             }
@@ -115,21 +109,6 @@ public abstract class AbstractDBAccessor extends SQLiteOpenHelper {
         createStatement.append( ")" );
 
         return createStatement.toString();
-    }
-
-    private String buildUpgradeStatement( final String tableName, final Column column ) {
-        final StringBuilder upgradeStatement = new StringBuilder( "ALTER TABLE " );
-        upgradeStatement.append( tableName );
-        upgradeStatement.append( " ADD COLUMN " );
-        upgradeStatement.append( column.name );
-        upgradeStatement.append( " " );
-        upgradeStatement.append( column.type.name() );
-        if( column.hasDefaultValue() ) {
-            upgradeStatement.append( " DEFAULT " );
-            upgradeStatement.append( column.getDefaultLiteral() );
-        }
-
-        return upgradeStatement.toString();
     }
 
     protected Cursor queryEntries( final QueryBuilder query ) {
@@ -161,6 +140,11 @@ public abstract class AbstractDBAccessor extends SQLiteOpenHelper {
         getWritableDatabase().insertWithOnConflict( mTableName, null, values, SQLiteDatabase.CONFLICT_IGNORE );
     }
 
+    protected void replaceEntry( final ContentValues values ) {
+        begin();
+        getWritableDatabase().insertWithOnConflict( mTableName, null, values, SQLiteDatabase.CONFLICT_REPLACE );
+    }
+
     protected void removeEntry( final Column column, final String value ) {
         begin();
         getWritableDatabase().delete( mTableName, column.name + " =  '" + value + "'", null );
@@ -179,51 +163,6 @@ public abstract class AbstractDBAccessor extends SQLiteOpenHelper {
 
     protected void deleteAllEntries() {
         deleteEntries( null );
-    }
-
-    protected static class Column {
-        public final String     name;
-        public final ColumnType type;
-        public final String     defaultValue;
-        public final ColumnFlag flag;
-
-        public Column( final String name ) {
-            this( name, ColumnType.TEXT, null, ColumnFlag.NONE );
-        }
-
-        public Column( final String name, final ColumnFlag flag ) {
-            this( name, ColumnType.TEXT, null, flag );
-        }
-
-        public Column( final String name, final ColumnType type, final ColumnFlag flag ) {
-            this( name, type, null, flag );
-        }
-
-        public Column( final String name, final ColumnType type, final String defaultValue ) {
-            this( name, type, defaultValue, ColumnFlag.NONE );
-        }
-
-        private Column( final String name, final ColumnType type, final String defaultValue, final ColumnFlag flag ) {
-            this.name = name;
-            this.type = type;
-            this.defaultValue = defaultValue;
-            this.flag = flag;
-        }
-
-        public String getDefaultLiteral() {
-            if( defaultValue == null ) {
-                return "NULL";
-            }
-            if( type.isNumber() ) {
-                return defaultValue;
-            }
-            return "'" + defaultValue + "'";
-        }
-
-        public boolean hasDefaultValue() {
-            return defaultValue != null;
-        }
-
     }
 
     protected static enum ColumnFlag {

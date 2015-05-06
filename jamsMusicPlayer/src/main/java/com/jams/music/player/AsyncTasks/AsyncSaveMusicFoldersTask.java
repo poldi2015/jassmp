@@ -18,7 +18,7 @@ package com.jams.music.player.AsyncTasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.jams.music.player.DBHelpers.MusicFolderAccessor;
+import com.jams.music.player.DBHelpers.FolderTableAccessor;
 import com.jams.music.player.Utils.Common;
 
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class AsyncSaveMusicFoldersTask extends AsyncTask<String, Void, Boolean> 
 
     @Override
     protected Boolean doInBackground( String... params ) {
-        MusicFolderAccessor.getInstance( mApp ).replaceMusicFolders( mMusicFolders );
+        FolderTableAccessor.getInstance( mApp ).replaceMusicFolders( mMusicFolders );
         return true;
     }
 

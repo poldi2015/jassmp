@@ -25,8 +25,6 @@ import android.support.v4.app.Fragment;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +40,6 @@ import android.widget.TextView;
 import com.andraskindler.quickscroll.QuickScroll;
 import com.jams.music.player.DBHelpers.DBAccessHelper;
 import com.jams.music.player.DBHelpers.OrderDirection;
-import com.jams.music.player.Dialogs.FilterDialog;
 import com.jams.music.player.Dialogs.OrderDialog;
 import com.jams.music.player.Helpers.PauseOnScrollHelper;
 import com.jams.music.player.Helpers.TypefaceHelper;
@@ -57,8 +54,7 @@ import com.jams.music.player.Utils.SynchronizedAsyncTask;
  *
  * @author Saravan Pantham
  */
-public class SongListViewFragment extends Fragment
-        implements FilterDialog.FilterDialogListener, OrderDialog.OrderDialogListener {
+public class SongListViewFragment extends Fragment implements OrderDialog.OrderDialogListener {
 
     private static final SparseArray<String> ITEM_TO_ORDER_BY;
 
@@ -85,7 +81,6 @@ public class SongListViewFragment extends Fragment
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
-
         setHasOptionsMenu( true );
         mRootView = inflater.inflate( R.layout.fragment_list_view, container, false );
         mContext = getActivity().getApplicationContext();
@@ -182,42 +177,13 @@ public class SongListViewFragment extends Fragment
 
 
     @Override
-    public void onCreateOptionsMenu( Menu menu, MenuInflater inflater ) {
-        inflater.inflate( R.menu.sort_menu, menu );
-        for( int i = 0; i < menu.size(); i++ ) {
-            final MenuItem item = menu.getItem( i );
-            if( item == null ) {
-                continue;
-            }
-            setSortOrderIcon( item, ITEM_TO_ORDER_BY.get( item.getItemId() ) );
-        }
-    }
-
-    @Override
     public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
-            case R.id.action_filter:
-                new FilterDialog( this ).show( getFragmentManager(), "FilterDialog" );
-                break;
             case R.id.action_order:
                 new OrderDialog( this ).show( getFragmentManager(), "OrderDialog" );
                 break;
-            default:
-                final String orderBy = ITEM_TO_ORDER_BY.get( item.getItemId() );
-                if( orderBy != null ) {
-                    reloadDatabase( 0, orderBy );
-                    setSortOrderIcon( item, orderBy );
-                    return true;
-                }
-                break;
-
         }
         return super.onOptionsItemSelected( item );
-    }
-
-    @Override
-    public void onFilterDialogClick( int which ) {
-        ( (MainActivity) getActivity() ).switchFragment( FilterDialog.FRAGMENT_IDS[ which ] );
     }
 
     @Override
@@ -226,7 +192,7 @@ public class SongListViewFragment extends Fragment
         reloadDatabase( 0, orderBy );
     }
 
-    @SuppressWarnings( "unused" )
+    @SuppressWarnings("unused")
     private void setSortOrderIcon( final MenuItem item, final String orderBy ) {
         //        if( orderBy == null ) return;
         //        final DBAccessHelper.OrderDirection orderDirection = getOrderDirectionFromPreferences(

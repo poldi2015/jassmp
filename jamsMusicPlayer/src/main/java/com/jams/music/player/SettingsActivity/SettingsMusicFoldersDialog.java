@@ -33,7 +33,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.jams.music.player.DBHelpers.MusicFolderAccessor;
+import com.jams.music.player.DBHelpers.FolderTableAccessor;
 import com.jams.music.player.Helpers.TypefaceHelper;
 import com.jams.music.player.Helpers.UIElementsHelper;
 import com.jams.music.player.R;
@@ -118,7 +118,7 @@ public class SettingsMusicFoldersDialog extends DialogFragment {
         mFoldersListView.setDividerHeight( 1 );
         mRootDir = Environment.getExternalStorageDirectory().getAbsolutePath().toString();
         mCurrentDir = mRootDir;
-        mMusicFolders = MusicFolderAccessor.getInstance( mApp ).getAllMusicFolderPaths();
+        mMusicFolders = FolderTableAccessor.getInstance( mApp ).getAllMusicFolderPaths();
 
         //Get the folder hierarchy of the selected folder.
         getDir( mRootDir );
@@ -284,7 +284,7 @@ public class SettingsMusicFoldersDialog extends DialogFragment {
         super.onDestroyView();
 
         if( isRemoving() ) {
-            MusicFolderAccessor.getInstance( mApp ).replaceMusicFolders( mMusicFolders );
+            FolderTableAccessor.getInstance( mApp ).replaceMusicFolders( mMusicFolders );
         }
 
     }

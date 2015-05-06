@@ -43,12 +43,6 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     //Commmon utils object.
     private Common mApp;
 
-    //Database Version.
-    private static final int DATABASE_VERSION = 2;
-
-    //Database Name.
-    private static final String DATABASE_NAME = "Jams.db";
-
     //Common fields.
     public static final String _ID     = "_id";
     public static final String SONG_ID = "song_id";
@@ -69,10 +63,9 @@ public class DBAccessHelper extends SQLiteOpenHelper {
     public static final String ADDED_TIMESTAMP     = "added_timestamp";
     public static final String SONG_BPM            = "bpm";
     public static final String SONG_ALBUM_ART_PATH = "album_art_path";
-    public static final String ARTIST_ART_LOCATION = "artist_art_location";
 
     public DBAccessHelper( Context context ) {
-        super( context, DATABASE_NAME, null, DATABASE_VERSION );
+        super( context, DatabaseAccessor.DATABASE_NAME, null, DatabaseAccessor.DATABASE_VERSION );
         mApp = (Common) context.getApplicationContext();
 
     }
@@ -105,39 +98,10 @@ public class DBAccessHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate( SQLiteDatabase db ) {
-        //Music library table.
-        String[] musicLibraryTableCols = { SONG_ID, SONG_TITLE, SONG_ARTIST, SONG_ALBUM, SONG_DURATION, SONG_BPM,
-                                           SONG_FILE_PATH,
-                                           SONG_TRACK_NUMBER, SONG_GENRE, SONG_PLAY_COUNT, SONG_YEAR, ADDED_TIMESTAMP,
-                                           SONG_RATING, SONG_ALBUM_ART_PATH, ARTIST_ART_LOCATION, SAVED_POSITION };
-
-        String[] musicLibraryTableColTypes = new String[ musicLibraryTableCols.length ];
-        for( int i = 0; i < musicLibraryTableCols.length; i++ ) {
-            musicLibraryTableColTypes[ i ] = "TEXT";
-            if( i == 5 ) {
-                musicLibraryTableColTypes[ i ] = "INTEGER";
-            }
-        }
-
-        String createMusicLibraryTable = buildCreateStatement( MUSIC_LIBRARY_TABLE, musicLibraryTableCols,
-                                                               musicLibraryTableColTypes );
-
-        //Execute the CREATE statements.
-        db.execSQL( createMusicLibraryTable );
-
     }
 
     @Override
     public void onUpgrade( final SQLiteDatabase db, final int oldVersion, final int newVersion ) {
-        if( newVersion == 2 ) {
-            // Music Library table
-            final String[] musicLibraryTableNames = { SONG_BPM };
-            final String[] musicLibraryTableTypes = { "INTEGER" };
-            for( int i = 0; i < musicLibraryTableNames.length; i++ ) {
-                db.execSQL( buildUpgradeStatement( MUSIC_LIBRARY_TABLE, musicLibraryTableNames[ i ],
-                                                   musicLibraryTableTypes[ i ] ) );
-            }
-        }
     }
 
     @Override
@@ -149,35 +113,6 @@ public class DBAccessHelper extends SQLiteOpenHelper {
         }
 
     }
-
-    /**
-     * Constructs a fully formed CREATE statement using the input
-     * parameters.
-     */
-    private String buildCreateStatement( String tableName, String[] columnNames, String[] columnTypes ) {
-        String createStatement = "";
-        if( columnNames.length == columnTypes.length ) {
-            createStatement += "CREATE TABLE IF NOT EXISTS " + tableName + "(" + _ID + " INTEGER PRIMARY KEY, ";
-
-            for( int i = 0; i < columnNames.length; i++ ) {
-
-                if( i == columnNames.length - 1 ) {
-                    createStatement += columnNames[ i ] + " " + columnTypes[ i ] + ")";
-                } else {
-                    createStatement += columnNames[ i ] + " " + columnTypes[ i ] + ", ";
-                }
-
-            }
-
-        }
-
-        return createStatement;
-    }
-
-    private String buildUpgradeStatement( final String tableName, final String columnName, final String columnType ) {
-        return "ALTER TABLE " + tableName + " ADD COLUMN " + columnName + " " + columnType;
-    }
-
 
     /**
      * ********************************************************
@@ -281,8 +216,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
             selection = "";
         }
         String selectDistinctQuery = "SELECT DISTINCT(" + SONG_ARTIST + "), " + _ID + ", " + SONG_FILE_PATH + ", "
-                                     + ARTIST_ART_LOCATION + ", " + SONG_ALBUM_ART_PATH + ", " + SONG_DURATION
-                                     + " FROM " + MUSIC_LIBRARY_TABLE +
+                                     + SONG_ALBUM_ART_PATH + ", " + SONG_DURATION + " FROM " + MUSIC_LIBRARY_TABLE +
                                      selection + " GROUP BY " + SONG_ARTIST + " ORDER BY " + SONG_ARTIST + " ASC";
 
         return getDatabase().rawQuery( selectDistinctQuery, null );

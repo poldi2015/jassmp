@@ -12,7 +12,7 @@ import java.util.Map;
  * <p/>
  * If no path pattern is configured in the table all music from the MediaStore is loaded.
  */
-public class MusicFolderAccessor extends AbstractDBAccessor {
+public class FolderTableAccessor extends AbstractTableAccessor {
 
     //
     // defines
@@ -27,15 +27,15 @@ public class MusicFolderAccessor extends AbstractDBAccessor {
     //
     // private members
 
-    private static MusicFolderAccessor sInstance = null;
+    private static FolderTableAccessor sInstance = null;
 
-    public MusicFolderAccessor( Context context ) {
+    public FolderTableAccessor( Context context ) {
         super( TABLE_NAME, context );
     }
 
-    public static synchronized MusicFolderAccessor getInstance( Context context ) {
+    public static synchronized FolderTableAccessor getInstance( Context context ) {
         if( sInstance == null ) {
-            sInstance = new MusicFolderAccessor( context.getApplicationContext() );
+            sInstance = new FolderTableAccessor( context.getApplicationContext() );
         }
 
         return sInstance;
@@ -44,11 +44,6 @@ public class MusicFolderAccessor extends AbstractDBAccessor {
     @Override
     protected Column[] getTableColumns() {
         return COLUMNS;
-    }
-
-    @Override
-    protected Column[] getAdditionalColumns( int version ) {
-        return new Column[ 0 ];
     }
 
     public void addMusicFolderPath( final String folderPath, final boolean include ) {

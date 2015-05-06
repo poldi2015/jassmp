@@ -20,7 +20,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -29,18 +28,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.andraskindler.quickscroll.QuickScroll;
-import com.jams.music.player.Dialogs.FilterDialog;
 import com.jams.music.player.MainActivity.MainActivity;
 import com.jams.music.player.R;
 import com.jams.music.player.Utils.Common;
 import com.jams.music.player.Utils.SynchronizedAsyncTask;
 
-/**
- * Generic, multipurpose ListView fragment.
- *
- * @author Saravan Pantham
- */
-public class FilterListViewFragment extends Fragment implements FilterDialog.FilterDialogListener {
+public class FilterListViewFragment extends Fragment {
 
     private Context         mContext         = null;
     private Common          mApp             = null;
@@ -117,24 +110,6 @@ public class FilterListViewFragment extends Fragment implements FilterDialog.Fil
             mAsyncExecutorTask = new SynchronizedAsyncTask();
         }
         mAsyncExecutorTask.execute( delay, new AsyncRunQuery() );
-    }
-
-    @Override
-    public boolean onOptionsItemSelected( MenuItem item ) {
-        switch( item.getItemId() ) {
-            case R.id.action_filter:
-                new FilterDialog( this ).show( getFragmentManager(), "FilterDialog" );
-                break;
-            default:
-                break;
-
-        }
-        return super.onOptionsItemSelected( item );
-    }
-
-    @Override
-    public void onFilterDialogClick( int which ) {
-        ( (MainActivity) getActivity() ).switchFragment( FilterDialog.FRAGMENT_IDS[ which ] );
     }
 
     /**
