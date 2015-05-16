@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Jams</string>
+    <string name="app_name">JASS mp</string>
     <string name="action_settings">Settings</string>
     <string name="action_search">Settings</string>
     <string name="hello_world">Hello world!</string>
@@ -753,7 +753,7 @@
     <string name="discard_saved_position">Discard saved position.</string>
     <string name="clear_saved_position">Clear saved position</string>
     <string name="track_start_from_beginning_next_time_play">This track will start from the beginning the next time you play it.</string>
-    <string name="app_full_name">Jams Music Player</string>
+    <string name="app_full_name">JASS music player</string>
     <string name="dashclock_description">Displays current track information.</string>
     <string name="show_lockscreen_controls">Show lockscreen controls</string>
     <string name="show_lockscreen_controls_description">Toggle lockscreen playback controls.</string>
