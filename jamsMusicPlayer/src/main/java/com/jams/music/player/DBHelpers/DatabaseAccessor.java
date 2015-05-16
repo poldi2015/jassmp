@@ -42,16 +42,32 @@ public class DatabaseAccessor extends SQLiteOpenHelper {
         return sInstance;
     }
 
+    public Context getContext() {
+        return mContext;
+    }
+
+    public SQLiteDatabase getDatabase() {
+        return getWritableDatabase();
+    }
 
     @Override
     public void onCreate( final SQLiteDatabase db ) {
+        getFolderTableAccessor().onCreate( db );
+        getSongTableAccessor().onCreate( db );
+        for( final FilterTablesAccessor.Filter filter : FilterTablesAccessor.Filter.values() ) {
+            getFilterTablesAccessor( filter ).onCreate( db );
+        }
     }
 
 
     @Override
     public void onUpgrade( final SQLiteDatabase db, final int oldVersion, final int newVersion ) {
         if( oldVersion != newVersion ) {
-            onCreate( db );
+            getFolderTableAccessor().onUpgrade( db, oldVersion, newVersion );
+            getSongTableAccessor().onUpgrade( db, oldVersion, newVersion );
+            for( final FilterTablesAccessor.Filter filter : FilterTablesAccessor.Filter.values() ) {
+                getFilterTablesAccessor( filter ).onUpgrade( db, oldVersion, newVersion );
+            }
         }
     }
 
@@ -79,7 +95,7 @@ public class DatabaseAccessor extends SQLiteOpenHelper {
 
     public void updateSong( final Song song ) {
         getSongTableAccessor().updateSong( song );
-        updateFilterCache( song );
+        updateFilterCreationCache( song );
     }
 
     public void commit() {
@@ -91,15 +107,16 @@ public class DatabaseAccessor extends SQLiteOpenHelper {
         mFilterCreationCache.clear();
     }
 
-    private void updateFilterCache( final Song song ) {
+    private void updateFilterCreationCache( final Song song ) {
         for( final FilterTablesAccessor.Filter filter : FilterTablesAccessor.Filter.values() ) {
             Map<String, Integer> filterToSongCount = mFilterCreationCache.get( filter );
             if( filterToSongCount == null ) {
                 filterToSongCount = new HashMap<String, Integer>();
             }
-            final String entryName = song.getValue( filter.songTableColumn );
-            final Integer songCount = filterToSongCount.get( entryName );
-            filterToSongCount.put( entryName, new Integer( songCount != null ? ( songCount.intValue() + 1 ) : 1 ) );
+            // Rating is an integer whereas the others are all strings
+            final Object entryKey = song.getValue( filter.filterColumnInSongTable );
+            final Integer songCount = filterToSongCount.get( entryKey.toString() );
+            filterToSongCount.put( entryKey.toString(), songCount != null ? ( songCount + 1 ) : 1 );
         }
     }
 

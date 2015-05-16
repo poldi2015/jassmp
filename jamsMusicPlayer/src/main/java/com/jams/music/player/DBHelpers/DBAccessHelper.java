@@ -45,7 +45,6 @@ public class DBAccessHelper extends SQLiteOpenHelper {
 
     //Common fields.
     public static final String _ID     = "_id";
-    public static final String SONG_ID = "song_id";
 
     //Music library table.
     public static final String MUSIC_LIBRARY_TABLE = "MusicLibraryTable";
@@ -287,7 +286,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
             return;
         }
 
-        String where = SONG_ID + "=" + "'" + songId + "'";
+        String where = Song.COLUMN_ID.name + "=" + "'" + songId + "'";
         ContentValues values = new ContentValues();
         values.put( SAVED_POSITION, lastPlaybackPosition );
 
@@ -299,7 +298,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Returns the album art path of the specified song.
      */
     public String getAlbumArtBySongId( String songId ) {
-        String where = SONG_ID + "=" + "'" + songId + "'";
+        String where = Song.COLUMN_ID.name + "=" + "'" + songId + "'";
         Cursor cursor = getDatabase().query( MUSIC_LIBRARY_TABLE, new String[]{ _ID, SONG_ALBUM_ART_PATH }, where, null,
                                              null, null, null );
 
@@ -328,7 +327,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Returns a cursor with the specified song.
      */
     public Cursor getSongById( String songID ) {
-        String selection = SONG_ID + "=" + "'" + songID + "'";
+        String selection = Song.COLUMN_ID.name + "=" + "'" + songID + "'";
         return getDatabase().query( MUSIC_LIBRARY_TABLE, null, selection, null, null, null, null );
 
     }
@@ -338,7 +337,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Returns the rating for the specified song.
      */
     public int getSongRating( String songId ) {
-        String where = SONG_ID + "=" + "'" + songId + "'";
+        String where = Song.COLUMN_ID.name + "=" + "'" + songId + "'";
         Cursor cursor = getDatabase().query( MUSIC_LIBRARY_TABLE, new String[]{ _ID, SONG_RATING }, where, null, null,
                                              null, null );
 
@@ -356,7 +355,7 @@ public class DBAccessHelper extends SQLiteOpenHelper {
      * Sets the rating for the specified song.
      */
     public void setSongRating( String songId, int rating ) {
-        String where = SONG_ID + "=" + "'" + songId + "'";
+        String where = Song.COLUMN_ID.name + "=" + "'" + songId + "'";
         ContentValues values = new ContentValues();
         values.put( SONG_RATING, rating );
         getDatabase().update( MUSIC_LIBRARY_TABLE, values, where, null );

@@ -51,6 +51,7 @@ import android.widget.Toast;
 import com.jams.music.player.BroadcastReceivers.HeadsetButtonsReceiver;
 import com.jams.music.player.BroadcastReceivers.HeadsetPlugBroadcastReceiver;
 import com.jams.music.player.DBHelpers.DBAccessHelper;
+import com.jams.music.player.DBHelpers.Song;
 import com.jams.music.player.Helpers.AudioManagerHelper;
 import com.jams.music.player.Helpers.SongHelper;
 import com.jams.music.player.PlaybackKickstarter.PlaybackKickstarter.BuildCursorListener;
@@ -727,8 +728,8 @@ public class AudioPlaybackService extends Service {
 
         String[] matrixCursorColumns = { DBAccessHelper.SONG_ARTIST, DBAccessHelper.SONG_ALBUM,
                                          DBAccessHelper.SONG_TITLE, DBAccessHelper.SONG_FILE_PATH,
-                                         DBAccessHelper.SONG_DURATION, DBAccessHelper.SONG_GENRE,
-                                         DBAccessHelper.SONG_ID, DBAccessHelper.SONG_ALBUM_ART_PATH };
+                                         DBAccessHelper.SONG_DURATION, DBAccessHelper.SONG_GENRE, Song.COLUMN_ID.name,
+                                         DBAccessHelper.SONG_ALBUM_ART_PATH };
 
         //Create an empty matrix getCursor() with the specified columns.
         MatrixCursor mMatrixCursor = new MatrixCursor( matrixCursorColumns );
@@ -772,7 +773,7 @@ public class AudioPlaybackService extends Service {
                                               tempCursor.getColumnIndex( DBAccessHelper.SONG_FILE_PATH ) ),
                                       tempCursor.getString( tempCursor.getColumnIndex( DBAccessHelper.SONG_DURATION ) ),
                                       tempCursor.getString( tempCursor.getColumnIndex( DBAccessHelper.SONG_GENRE ) ),
-                                      tempCursor.getString( tempCursor.getColumnIndex( DBAccessHelper.SONG_ID ) ),
+                                      tempCursor.getString( tempCursor.getColumnIndex( Song.COLUMN_ID.name ) ),
                                       tempCursor.getString(
                                               tempCursor.getColumnIndex( DBAccessHelper.SONG_ALBUM_ART_PATH ) ) } );
 

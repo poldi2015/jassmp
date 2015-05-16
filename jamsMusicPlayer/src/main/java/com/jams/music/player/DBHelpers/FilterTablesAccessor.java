@@ -9,9 +9,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by poldi on 01.05.15.
- */
 public class FilterTablesAccessor extends AbstractTableAccessor {
 
     //
@@ -21,10 +18,10 @@ public class FilterTablesAccessor extends AbstractTableAccessor {
         GENRE( Song.COLUMN_SONG_GENRE ), ARTIST( Song.COLUMN_SONG_ARTIST ), ALBUM( Song.COLUMN_SONG_ALBUM ), RATING(
                 Song.COLUMN_SONG_RATING );
 
-        public final Column songTableColumn;
+        public final Column filterColumnInSongTable;
 
-        private Filter( final Column songTableColumn ) {
-            this.songTableColumn = songTableColumn;
+        private Filter( final Column filterColumnInSongTable ) {
+            this.filterColumnInSongTable = filterColumnInSongTable;
         }
     }
 

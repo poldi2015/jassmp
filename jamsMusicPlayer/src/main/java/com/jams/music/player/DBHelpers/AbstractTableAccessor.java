@@ -4,10 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-public abstract class AbstractTableAccessor extends SQLiteOpenHelper {
+public abstract class AbstractTableAccessor {
 
     //
     // defines
@@ -20,31 +19,29 @@ public abstract class AbstractTableAccessor extends SQLiteOpenHelper {
     //
     // private members
 
-    private final Context mContext;
-    private final String mTableName;
+    private final String           mTableName;
+    private final DatabaseAccessor mDatabaseAccessor;
 
     protected AbstractTableAccessor( final String tableName, final Context context ) {
-        super( context, DatabaseAccessor.DATABASE_NAME, null, DatabaseAccessor.DATABASE_VERSION );
-        mContext = context;
+        mDatabaseAccessor = DatabaseAccessor.getInstance( context );
         mTableName = tableName;
     }
 
     protected abstract Column[] getTableColumns();
 
     private void begin() {
-        if( !getWritableDatabase().inTransaction() ) {
-            getWritableDatabase().beginTransaction();
+        if( !mDatabaseAccessor.getDatabase().inTransaction() ) {
+            mDatabaseAccessor.getDatabase().beginTransaction();
         }
     }
 
     public void commit() {
-        if( getWritableDatabase().inTransaction() ) {
-            getWritableDatabase().setTransactionSuccessful();
-            getWritableDatabase().endTransaction();
+        if( mDatabaseAccessor.getDatabase().inTransaction() ) {
+            mDatabaseAccessor.getDatabase().setTransactionSuccessful();
+            mDatabaseAccessor.getDatabase().endTransaction();
         }
     }
 
-    @Override
     public void onCreate( final SQLiteDatabase db ) {
         final String dropTableStatement = "DROP TABLE IF EXISTS " + mTableName;
         db.execSQL( dropTableStatement );
@@ -53,17 +50,15 @@ public abstract class AbstractTableAccessor extends SQLiteOpenHelper {
     }
 
 
-    @Override
     public void onUpgrade( final SQLiteDatabase db, final int oldVersion, final int newVersion ) {
         if( oldVersion != newVersion ) {
             onCreate( db );
         }
     }
 
-    @Override
     protected void finalize() throws Throwable {
         try {
-            getWritableDatabase().close();
+            mDatabaseAccessor.getDatabase().close();
             super.finalize();
         } catch( Exception e ) {
             Log.e( TAG, "Failed to close database", e );
@@ -100,7 +95,7 @@ public abstract class AbstractTableAccessor extends SQLiteOpenHelper {
                 default:
                     if( column.hasDefaultValue() ) {
                         createStatement.append( " DEFAULT " );
-                        createStatement.append( column.getDefaultLiteral( mContext ) );
+                        createStatement.append( column.getDefaultLiteral( mDatabaseAccessor.getContext() ) );
                     }
                     break;
             }
@@ -112,7 +107,7 @@ public abstract class AbstractTableAccessor extends SQLiteOpenHelper {
     }
 
     protected Cursor queryEntries( final QueryBuilder query ) {
-        return getWritableDatabase().rawQuery( query.build(), null );
+        return mDatabaseAccessor.getDatabase().rawQuery( query.build(), null );
     }
 
     protected boolean resetToFirst( final Cursor cursor ) {
@@ -125,7 +120,7 @@ public abstract class AbstractTableAccessor extends SQLiteOpenHelper {
 
     protected boolean hasEntries( String whereExpr ) {
         final String query = new QueryBuilder().addResultExpr( "count(*)" ).setWhereWhereExpr( whereExpr ).build();
-        final Cursor cursor = getWritableDatabase().rawQuery( query, null );
+        final Cursor cursor = mDatabaseAccessor.getDatabase().rawQuery( query, null );
         try {
             return cursor != null && cursor.getCount() > 0;
         } finally {
@@ -137,28 +132,30 @@ public abstract class AbstractTableAccessor extends SQLiteOpenHelper {
 
     protected void insertEntry( final ContentValues values ) {
         begin();
-        getWritableDatabase().insertWithOnConflict( mTableName, null, values, SQLiteDatabase.CONFLICT_IGNORE );
+        mDatabaseAccessor.getDatabase()
+                         .insertWithOnConflict( mTableName, null, values, SQLiteDatabase.CONFLICT_IGNORE );
     }
 
     protected void replaceEntry( final ContentValues values ) {
         begin();
-        getWritableDatabase().insertWithOnConflict( mTableName, null, values, SQLiteDatabase.CONFLICT_REPLACE );
+        mDatabaseAccessor.getDatabase()
+                         .insertWithOnConflict( mTableName, null, values, SQLiteDatabase.CONFLICT_REPLACE );
     }
 
     protected void removeEntry( final Column column, final String value ) {
         begin();
-        getWritableDatabase().delete( mTableName, column.name + " =  '" + value + "'", null );
+        mDatabaseAccessor.getDatabase().delete( mTableName, column.name + " =  '" + value + "'", null );
     }
 
     protected void updateEntry( final ContentValues values, final String whereExpr ) {
         begin();
-        getWritableDatabase().updateWithOnConflict( mTableName, values, whereExpr, null,
-                                                    SQLiteDatabase.CONFLICT_IGNORE );
+        mDatabaseAccessor.getDatabase()
+                         .updateWithOnConflict( mTableName, values, whereExpr, null, SQLiteDatabase.CONFLICT_IGNORE );
     }
 
     protected void deleteEntries( final String where ) {
         begin();
-        getWritableDatabase().delete( mTableName, where, null );
+        mDatabaseAccessor.getDatabase().delete( mTableName, where, null );
     }
 
     protected void deleteAllEntries() {

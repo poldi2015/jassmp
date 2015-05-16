@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 import com.jams.music.player.DBHelpers.DBAccessHelper;
+import com.jams.music.player.DBHelpers.Song;
 import com.jams.music.player.Utils.Common;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -231,26 +232,7 @@ public class SongHelper {
     };
 
     private int getIdColumnIndex() {
-        if( mApp.getAudioPlaybackService().getCursor().getColumnIndex( MediaStore.Audio.Media.IS_MUSIC ) == -1 ) {
-            //We're dealing with Jams' internal DB schema.
-            return mApp.getAudioPlaybackService().getCursor().getColumnIndex( DBAccessHelper.SONG_ID );
-        } else {
-            String isMusicColName = MediaStore.Audio.Media.IS_MUSIC;
-            int isMusicColumnIndex = mApp.getAudioPlaybackService().getCursor().getColumnIndex( isMusicColName );
-
-            //Check if the current row is from Jams' internal DB schema or MediaStore.
-            if( mApp.getAudioPlaybackService().getCursor().getString( isMusicColumnIndex ).isEmpty() )
-            //We're dealing with Jams' internal DB schema.
-            {
-                return mApp.getAudioPlaybackService().getCursor().getColumnIndex( DBAccessHelper.SONG_ID );
-            } else
-            //The current row is from MediaStore's DB schema.
-            {
-                return mApp.getAudioPlaybackService().getCursor().getColumnIndex( MediaStore.Audio.Media._ID );
-            }
-
-        }
-
+        return mApp.getAudioPlaybackService().getCursor().getColumnIndex( Song.COLUMN_ID.name );
     }
 
     private int getFilePathColumnIndex() {

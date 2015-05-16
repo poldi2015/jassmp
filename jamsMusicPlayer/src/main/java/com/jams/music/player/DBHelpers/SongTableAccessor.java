@@ -2,9 +2,6 @@ package com.jams.music.player.DBHelpers;
 
 import android.content.Context;
 
-/**
- * Created by poldi on 02.05.15.
- */
 public class SongTableAccessor extends AbstractTableAccessor {
 
     //
