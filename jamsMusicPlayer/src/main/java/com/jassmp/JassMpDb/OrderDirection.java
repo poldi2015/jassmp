@@ -1,4 +1,4 @@
-package com.jassmp.DBHelpers;
+package com.jassmp.JassMpDb;
 
 /**
  * Created by poldi on 02.05.15.

@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 
-import com.jassmp.DBHelpers.Column;
+import com.jassmp.Dao.Column;
 import com.jassmp.R;
 
 public class GenreValueMapper extends DefaultValueMapper {

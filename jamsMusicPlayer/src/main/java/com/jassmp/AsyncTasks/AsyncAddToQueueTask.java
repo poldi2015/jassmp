@@ -22,7 +22,8 @@ import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
-import com.jassmp.DBHelpers.DBAccessHelper;
+import com.jassmp.JassMpDb.DBAccessHelper;
+import com.jassmp.JassMpDb.DatabaseAccessor;
 import com.jassmp.NowPlayingActivity.NowPlayingActivity;
 import com.jassmp.R;
 import com.jassmp.Services.AudioPlaybackService;
@@ -147,19 +148,21 @@ public class AsyncAddToQueueTask extends AsyncTask<Boolean, Integer, Boolean> {
                                + DBAccessHelper.SONG_ALBUM + "=" + "'" + mAlbumName + "'" + " AND "
                                + DBAccessHelper.SONG_TITLE + "=" + "'" + mSongTitle + "'";
 
-            mCursor = dbHelper.getReadableDatabase()
-                              .query( DBAccessHelper.MUSIC_LIBRARY_TABLE, null, selection, null, null, null,
-                                      DBAccessHelper.SONG_TITLE + " ASC" );
+            mCursor = DatabaseAccessor.getInstance( mApp )
+                                      .getDatabase()
+                                      .query( DBAccessHelper.MUSIC_LIBRARY_TABLE, null, selection, null, null, null,
+                                              DBAccessHelper.SONG_TITLE + " ASC" );
 
             mPlayingNext = mSongTitle;
         } else if( mEnqueueType.equals( "ARTIST" ) ) {
             String selection = DBAccessHelper.SONG_ARTIST + "=" + "'" + mArtistName + "'";
 
 
-            mCursor = dbHelper.getReadableDatabase()
-                              .query( DBAccessHelper.MUSIC_LIBRARY_TABLE, null, selection, null, null, null,
-                                      DBAccessHelper.SONG_ALBUM + " ASC" + ", " + DBAccessHelper.SONG_TRACK_NUMBER
-                                      + "*1 ASC" );
+            mCursor = DatabaseAccessor.getInstance( mApp )
+                                      .getDatabase()
+                                      .query( DBAccessHelper.MUSIC_LIBRARY_TABLE, null, selection, null, null, null,
+                                              DBAccessHelper.SONG_ALBUM + " ASC" + ", "
+                                              + DBAccessHelper.SONG_TRACK_NUMBER + "*1 ASC" );
 
             mPlayingNext = mArtistName;
         } else if( mEnqueueType.equals( "ALBUM" ) ) {
@@ -168,19 +171,21 @@ public class AsyncAddToQueueTask extends AsyncTask<Boolean, Integer, Boolean> {
                                + DBAccessHelper.SONG_ALBUM + "=" + "'" + mAlbumName + "'";
 
 
-            mCursor = dbHelper.getReadableDatabase()
-                              .query( DBAccessHelper.MUSIC_LIBRARY_TABLE, null, selection, null, null, null,
-                                      DBAccessHelper.SONG_TRACK_NUMBER + "*1 ASC" );
+            mCursor = DatabaseAccessor.getInstance( mApp )
+                                      .getDatabase()
+                                      .query( DBAccessHelper.MUSIC_LIBRARY_TABLE, null, selection, null, null, null,
+                                              DBAccessHelper.SONG_TRACK_NUMBER + "*1 ASC" );
 
             mPlayingNext = mAlbumName;
         } else if( mEnqueueType.equals( "GENRE" ) ) {
 
             String selection = DBAccessHelper.SONG_GENRE + "=" + "'" + mGenreName + "'";
 
-            mCursor = dbHelper.getReadableDatabase()
-                              .query( DBAccessHelper.MUSIC_LIBRARY_TABLE, null, selection, null, null, null,
-                                      DBAccessHelper.SONG_ALBUM + " ASC, " +
-                                      DBAccessHelper.SONG_TRACK_NUMBER + "*1 ASC" );
+            mCursor = DatabaseAccessor.getInstance( mApp )
+                                      .getDatabase()
+                                      .query( DBAccessHelper.MUSIC_LIBRARY_TABLE, null, selection, null, null, null,
+                                              DBAccessHelper.SONG_ALBUM + " ASC, " +
+                                              DBAccessHelper.SONG_TRACK_NUMBER + "*1 ASC" );
 
             mPlayingNext = mGenreName;
         }

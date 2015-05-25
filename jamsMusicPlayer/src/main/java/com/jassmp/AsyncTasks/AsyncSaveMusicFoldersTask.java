@@ -18,7 +18,7 @@ package com.jassmp.AsyncTasks;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.jassmp.DBHelpers.FolderTableAccessor;
+import com.jassmp.JassMpDb.FolderTableAccessor;
 import com.jassmp.Utils.Common;
 
 import java.util.HashMap;

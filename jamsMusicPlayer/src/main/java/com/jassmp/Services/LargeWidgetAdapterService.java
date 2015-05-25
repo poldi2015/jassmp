@@ -25,7 +25,7 @@ import android.graphics.Color;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
-import com.jassmp.DBHelpers.DBAccessHelper;
+import com.jassmp.JassMpDb.DBAccessHelper;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;

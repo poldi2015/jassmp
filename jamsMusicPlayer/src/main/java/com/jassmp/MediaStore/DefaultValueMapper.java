@@ -2,7 +2,7 @@ package com.jassmp.MediaStore;
 
 import android.database.Cursor;
 
-import com.jassmp.DBHelpers.Column;
+import com.jassmp.Dao.Column;
 
 public class DefaultValueMapper {
     public String mediaKey;

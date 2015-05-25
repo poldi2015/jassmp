@@ -31,9 +31,9 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.jassmp.DBHelpers.FolderTableAccessor;
 import com.jassmp.Helpers.TypefaceHelper;
 import com.jassmp.Helpers.UIElementsHelper;
+import com.jassmp.JassMpDb.FolderTableAccessor;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 

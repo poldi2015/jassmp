@@ -1,8 +1,10 @@
-package com.jassmp.DBHelpers;
+package com.jassmp.JassMpDb;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+
+import com.jassmp.Dao.Column;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -20,7 +22,7 @@ public class FolderTableAccessor extends AbstractTableAccessor {
     public static final String TABLE_NAME = "MusicFoldersTable";
 
     public static final Column COLUMN_FOLDER_PATH = new Column( "folder_path" );
-    public static final Column COLUMN_INCLUDE     = new Column( "include", ColumnType.INTEGER, "1" );
+    public static final Column COLUMN_INCLUDE     = new Column( "include", Column.ColumnType.INTEGER, "1" );
 
     public static final Column[] COLUMNS = { COLUMN_ID, COLUMN_FOLDER_PATH, COLUMN_INCLUDE, };
 
@@ -42,7 +44,7 @@ public class FolderTableAccessor extends AbstractTableAccessor {
     }
 
     @Override
-    protected Column[] getTableColumns() {
+    public Column[] getTableColumns() {
         return COLUMNS;
     }
 
@@ -93,16 +95,14 @@ public class FolderTableAccessor extends AbstractTableAccessor {
     //    }
 
     public boolean hasMusicFolders() {
-        return hasEntries( null );
+        return getNumberOfEntries( null ) > 0;
     }
 
     public LinkedHashMap<String, Boolean> getAllMusicFolderPaths() {
-        final String where = COLUMN_INCLUDE.name;
-        final Cursor cursor = queryEntries( new QueryBuilder().addResultColumn( COLUMN_FOLDER_PATH )
-                                                              .addResultColumn( COLUMN_INCLUDE )
-                                                              .setWhereWhereExpr( where )
-                                                              .setOrderByColumn( COLUMN_FOLDER_PATH,
-                                                                                 OrderDirection.ASC ) );
+        final Cursor cursor = queryEntries( new QueryBuilder().result( COLUMN_FOLDER_PATH )
+                                                              .result( COLUMN_INCLUDE )
+                                                              .where( COLUMN_INCLUDE )
+                                                              .order( COLUMN_FOLDER_PATH, OrderDirection.ASC ) );
         final LinkedHashMap<String, Boolean> folderPaths = new LinkedHashMap<String, Boolean>();
         try {
             if( resetToFirst( cursor ) ) {
@@ -134,7 +134,7 @@ public class FolderTableAccessor extends AbstractTableAccessor {
             path = path.substring( secondSlashIndex, path.length() );
         }
 
-        return escapeTextLiteral( path );
+        return escapeText( path );
     }
 
 }

@@ -71,8 +71,8 @@ public class QueueDrawerFragment extends Fragment {
     private boolean mInitListViewParams = true;
     private boolean mDrawerOpen         = false;
 
-    @SuppressWarnings("deprecation")
-    @SuppressLint("NewApi")
+    @SuppressWarnings( "deprecation" )
+    @SuppressLint( "NewApi" )
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 

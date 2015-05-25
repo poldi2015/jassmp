@@ -1,7 +1,8 @@
-package com.jassmp.DBHelpers;
+package com.jassmp.Dao;
 
 import android.content.ContentValues;
 
+import com.jassmp.JassMpDb.SongTableAccessor;
 import com.jassmp.R;
 
 import java.math.BigInteger;
@@ -9,7 +10,7 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Song {
+public class SongDao {
 
     public static final String KEY                 = "key";
     public static final String SONG_TITLE          = "title";
@@ -26,41 +27,52 @@ public class Song {
     public static final String ADDED_TIMESTAMP     = "added_timestamp";
     public static final String SONG_BPM            = "bpm";
     public static final String SONG_ALBUM_ART_PATH = "album_art_path";
+    public static final String SONG_GENRE_ID       = "genreId";
+    public static final String SONG_ARTIST_ID      = "artistId";
+    public static final String SONG_ALBUM_ID       = "albumId";
+    public static final String SONG_RATING_ID      = "ratingId";
 
     public static final Column COLUMN_ID                  = SongTableAccessor.COLUMN_ID;
-    public static final Column COLUMN_KEY                 = new Column( KEY, AbstractTableAccessor.ColumnFlag.UNIQUE );
+    public static final Column COLUMN_KEY                 = new Column( KEY, Column.ColumnFlag.UNIQUE );
     public static final Column COLUMN_SONG_TITLE          = new Column( SONG_TITLE );
     public static final Column COLUMN_SONG_ARTIST         = new Column( SONG_ARTIST, R.string.unknown_artist );
     public static final Column COLUMN_SONG_ALBUM          = new Column( SONG_ALBUM, R.string.unknown_album );
-    public static final Column COLUMN_SONG_DURATION       = new Column( SONG_DURATION,
-                                                                        AbstractTableAccessor.ColumnType.INTEGER, "0" );
+    public static final Column COLUMN_SONG_DURATION       = new Column( SONG_DURATION, Column.ColumnType.INTEGER, "0" );
     public static final Column COLUMN_SONG_FILE_PATH      = new Column( SONG_FILE_PATH );
-    public static final Column COLUMN_SONG_TRACK_NUMBER   = new Column( SONG_TRACK_NUMBER,
-                                                                        AbstractTableAccessor.ColumnType.INTEGER, "0" );
+    public static final Column COLUMN_SONG_TRACK_NUMBER   = new Column( SONG_TRACK_NUMBER, Column.ColumnType.INTEGER,
+                                                                        "0" );
     public static final Column COLUMN_SONG_GENRE          = new Column( SONG_GENRE, R.string.unknown_genre );
-    public static final Column COLUMN_SONG_PLAY_COUNT     = new Column( SONG_PLAY_COUNT,
-                                                                        AbstractTableAccessor.ColumnType.INTEGER, "0" );
-    public static final Column COLUMN_SONG_SAVED_POSITION = new Column( SAVED_POSITION,
-                                                                        AbstractTableAccessor.ColumnType.INTEGER, "0" );
+    public static final Column COLUMN_SONG_PLAY_COUNT     = new Column( SONG_PLAY_COUNT, Column.ColumnType.INTEGER,
+                                                                        "0" );
+    public static final Column COLUMN_SONG_SAVED_POSITION = new Column( SAVED_POSITION, Column.ColumnType.INTEGER,
+                                                                        "0" );
     public static final Column COLUMN_SONG_YEAR           = new Column( SONG_YEAR, "" );
-    public static final Column COLUMN_SONG_RATING         = new Column( SONG_RATING,
-                                                                        AbstractTableAccessor.ColumnType.INTEGER, "0" );
+    public static final Column COLUMN_SONG_RATING         = new Column( SONG_RATING, Column.ColumnType.INTEGER, "0" );
     public static final Column COLUMN_ADDED_TIMESTAMP     = new Column( ADDED_TIMESTAMP );
-    public static final Column COLUMN_SONG_BPM            = new Column( SONG_BPM, "0" );
+    public static final Column COLUMN_SONG_BPM            = new Column( SONG_BPM, Column.ColumnType.INTEGER, "0" );
     public static final Column COLUMN_SONG_ALBUM_ART_PATH = new Column( SONG_ALBUM_ART_PATH );
+    public static final Column COLUMN_SONG_GENRE_ID       = new Column( SONG_GENRE_ID, Column.ColumnType.INTEGER,
+                                                                        "-1" );
+    public static final Column COLUMN_SONG_ARTIST_ID      = new Column( SONG_ARTIST_ID, Column.ColumnType.INTEGER,
+                                                                        "-1" );
+    public static final Column COLUMN_SONG_ALBUM_ID       = new Column( SONG_ALBUM_ID, Column.ColumnType.INTEGER,
+                                                                        "-1" );
+    public static final Column COLUMN_SONG_RATING_ID      = new Column( SONG_RATING_ID, Column.ColumnType.INTEGER,
+                                                                        "-1" );
 
     public static final Column[] COLUMNS = { COLUMN_ID, COLUMN_KEY, COLUMN_SONG_TITLE, COLUMN_SONG_ARTIST,
                                              COLUMN_SONG_ALBUM, COLUMN_SONG_DURATION, COLUMN_SONG_FILE_PATH,
                                              COLUMN_SONG_TRACK_NUMBER, COLUMN_SONG_GENRE, COLUMN_SONG_PLAY_COUNT,
                                              COLUMN_SONG_SAVED_POSITION, COLUMN_SONG_YEAR, COLUMN_SONG_RATING,
-                                             COLUMN_ADDED_TIMESTAMP, COLUMN_SONG_BPM, COLUMN_SONG_ALBUM_ART_PATH };
+                                             COLUMN_ADDED_TIMESTAMP, COLUMN_SONG_BPM, COLUMN_SONG_ALBUM_ART_PATH,
+                                             COLUMN_SONG_GENRE_ID, COLUMN_SONG_ARTIST_ID, COLUMN_SONG_ALBUM_ID,
+                                             COLUMN_SONG_RATING_ID };
 
     private static final String HASH_PADDING = "000000000000000000000000000000";
 
     private final Map<Column, Object> mValues;
 
-
-    public Song( final Map<Column, Object> values ) {
+    public SongDao( final Map<Column, Object> values ) {
         mValues = new HashMap<Column, Object>( COLUMNS.length );
         for( final Column column : COLUMNS ) {
             if( !COLUMN_ID.equals( column ) ) {
@@ -68,6 +80,94 @@ public class Song {
             }
         }
         mValues.put( COLUMN_KEY, generateKey( mValues.get( COLUMN_SONG_FILE_PATH ) ) );
+    }
+
+    public int getId() {
+        return (Integer) mValues.get( COLUMN_ID );
+    }
+
+    public String getKey() {
+        return (String) mValues.get( COLUMN_KEY );
+    }
+
+    public String getTitle() {
+        return (String) mValues.get( COLUMN_SONG_TITLE );
+    }
+
+    public String getArtist() {
+        return (String) mValues.get( COLUMN_SONG_ARTIST );
+    }
+
+    public String getAlbum() {
+        return (String) mValues.get( COLUMN_SONG_ALBUM );
+    }
+
+    public int getDuration() {
+        return (Integer) mValues.get( COLUMN_SONG_DURATION );
+    }
+
+    public String getFilePath() {
+        return (String) mValues.get( COLUMN_SONG_FILE_PATH );
+    }
+
+    public int getTrackNumber() {
+        return (Integer) mValues.get( COLUMN_SONG_TRACK_NUMBER );
+    }
+
+    public String getGenre() {
+        return (String) mValues.get( COLUMN_SONG_GENRE );
+    }
+
+    public int getPlayCount() {
+        return (Integer) mValues.get( COLUMN_SONG_PLAY_COUNT );
+    }
+
+    public int getSavedPosition() {
+        return (Integer) mValues.get( COLUMN_SONG_SAVED_POSITION );
+    }
+
+    public String getYear() {
+        return (String) mValues.get( COLUMN_SONG_YEAR );
+    }
+
+    public int getRating() {
+        return (Integer) mValues.get( COLUMN_SONG_RATING );
+    }
+
+    public int getAddedTimestamp() {
+        return (Integer) mValues.get( COLUMN_ADDED_TIMESTAMP );
+    }
+
+    public int getBpm() {
+        return (Integer) mValues.get( COLUMN_SONG_BPM );
+    }
+
+    public String getAlbumArtPath() {
+        return (String) mValues.get( COLUMN_SONG_ALBUM_ART_PATH );
+    }
+
+    public int getGenreId() {
+        return (Integer) mValues.get( COLUMN_SONG_GENRE_ID );
+    }
+
+    public int getArtistId() {
+        return (Integer) mValues.get( COLUMN_SONG_ARTIST_ID );
+    }
+
+    public int getAlbumId() {
+        return (Integer) mValues.get( COLUMN_SONG_ALBUM_ID );
+    }
+
+    public int getRatingId() {
+        return (Integer) mValues.get( COLUMN_SONG_RATING_ID );
+    }
+
+    public boolean hasValue( final Column column ) {
+        return mValues.containsKey( column );
+    }
+
+    public void putValue( final Column column, Object value ) {
+        mValues.put( column, value );
     }
 
     public <T> T getValue( final Column column ) {
@@ -148,5 +248,11 @@ public class Song {
         }
     }
 
-
+    @Override
+    public String toString() {
+        return "SongDao{" +
+               "id=" + mValues.get( COLUMN_ID ) +
+               ",title=" + mValues.get( COLUMN_SONG_TITLE ) +
+               '}';
+    }
 }

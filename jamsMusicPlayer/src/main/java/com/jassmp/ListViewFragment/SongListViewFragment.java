@@ -1,22 +1,6 @@
-/*
- * Copyright (C) 2014 Saravan Pantham
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.jassmp.ListViewFragment;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.os.Build;
@@ -25,6 +9,8 @@ import android.support.v4.app.Fragment;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,33 +24,31 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.andraskindler.quickscroll.QuickScroll;
-import com.jassmp.DBHelpers.DBAccessHelper;
-import com.jassmp.DBHelpers.OrderDirection;
+import com.jassmp.Dao.Column;
+import com.jassmp.Dao.SongCursorAdapter;
+import com.jassmp.Dao.SongDao;
 import com.jassmp.Dialogs.OrderDialog;
 import com.jassmp.Helpers.PauseOnScrollHelper;
 import com.jassmp.Helpers.TypefaceHelper;
 import com.jassmp.Helpers.UIElementsHelper;
+import com.jassmp.JassMpDb.OrderDirection;
+import com.jassmp.JassMpDb.SongTableAccessor;
 import com.jassmp.MainActivity.MainActivity;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 import com.jassmp.Utils.SynchronizedAsyncTask;
 
-/**
- * Generic, multipurpose ListView fragment.
- *
- * @author Saravan Pantham
- */
 public class SongListViewFragment extends Fragment implements OrderDialog.OrderDialogListener {
 
-    private static final SparseArray<String> ITEM_TO_ORDER_BY;
+    private static final SparseArray<Column> ITEM_TO_ORDER_BY;
 
     static {
-        ITEM_TO_ORDER_BY = new SparseArray<String>();
-        ITEM_TO_ORDER_BY.put( R.id.song_list_sort_name, DBAccessHelper.SONG_TITLE );
-        ITEM_TO_ORDER_BY.put( R.id.song_list_sort_rating, DBAccessHelper.SONG_RATING );
-        ITEM_TO_ORDER_BY.put( R.id.song_list_sort_bpm, DBAccessHelper.SONG_BPM );
-        ITEM_TO_ORDER_BY.put( R.id.song_list_sort_artist, DBAccessHelper.SONG_ARTIST );
-        ITEM_TO_ORDER_BY.put( R.id.song_list_sort_duration, DBAccessHelper.SONG_DURATION );
+        ITEM_TO_ORDER_BY = new SparseArray<Column>();
+        ITEM_TO_ORDER_BY.put( R.id.song_list_sort_name, SongDao.COLUMN_SONG_TITLE );
+        ITEM_TO_ORDER_BY.put( R.id.song_list_sort_rating, SongDao.COLUMN_SONG_RATING );
+        ITEM_TO_ORDER_BY.put( R.id.song_list_sort_bpm, SongDao.COLUMN_SONG_BPM );
+        ITEM_TO_ORDER_BY.put( R.id.song_list_sort_artist, SongDao.COLUMN_SONG_ARTIST );
+        ITEM_TO_ORDER_BY.put( R.id.song_list_sort_duration, SongDao.COLUMN_SONG_DURATION );
     }
 
     private Context mContext  = null;
@@ -73,10 +57,9 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
 
     private SynchronizedAsyncTask mAsyncExecutorTask = null;
 
-    private QuickScroll mQuickScroll = null;
-    private ListView    mListView    = null;
-
-    private String mQuerySelection = "";
+    private QuickScroll             mQuickScroll     = null;
+    private ListView                mListView        = null;
+    private SongListViewItemAdapter mListViewAdapter = null;
 
 
     @Override
@@ -161,20 +144,24 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
         super.onDestroyView();
     }
 
-
     /**
      * Loads or reloads the database and refreshes the views if necessary.
      *
      * @param delay   delay in millis
      * @param orderBy column to order with
      */
-    public void reloadDatabase( final int delay, final String orderBy ) {
+    public void reloadDatabase( final int delay, final Column orderBy ) {
         if( mAsyncExecutorTask.isDisposed() ) {
             mAsyncExecutorTask = new SynchronizedAsyncTask();
         }
         mAsyncExecutorTask.execute( delay, new AsyncRunQuery( orderBy, null ) );
     }
 
+    @Override
+    public void onCreateOptionsMenu( final Menu menu, final MenuInflater inflater ) {
+        inflater.inflate( R.menu.song_list_view_fragment_menu, menu );
+        super.onCreateOptionsMenu( menu, inflater );
+    }
 
     @Override
     public boolean onOptionsItemSelected( MenuItem item ) {
@@ -188,24 +175,9 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
 
     @Override
     public void onOrderDialogClick( int which ) {
-        final String orderBy = ITEM_TO_ORDER_BY.valueAt( which );
-        reloadDatabase( 0, orderBy );
+        reloadDatabase( 0, ITEM_TO_ORDER_BY.valueAt( which ) );
     }
 
-    @SuppressWarnings("unused")
-    private void setSortOrderIcon( final MenuItem item, final String orderBy ) {
-        //        if( orderBy == null ) return;
-        //        final DBAccessHelper.OrderDirection orderDirection = getOrderDirectionFromPreferences(
-        // orderBy );
-        //        switch( orderDirection ) {
-        //            case ASC:
-        //                item.setIcon( R.drawable.down );
-        //                break;
-        //            case DESC:
-        //                item.setIcon( R.drawable.down );
-        //                break;
-        //        }
-    }
 
     /**
      * Item click listener for the ListView.
@@ -215,7 +187,7 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
         @Override
         public void onItemClick( AdapterView<?> arg0, View view, int index, long id ) {
             mApp.getPlaybackKickstarter()
-                .initPlayback( mContext, mQuerySelection, MainActivity.FragmentId.SONGS, index, true, false );
+                .initPlayback( mContext, "", MainActivity.FragmentId.SONGS, index, true, false );
         }
 
     };
@@ -223,8 +195,12 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
     /**
      * @return current sort order from the preferences
      */
-    private String getOrderByFromPreferences() {
-        return mApp.getSharedPreferences().getString( Common.SORT_COLUMN, DBAccessHelper.SONG_TITLE );
+    private Column getOrderByFromPreferences() {
+        final int key = mApp.getSharedPreferences().getInt( Common.SORT_COLUMN, -1 );
+        if( key == -1 ) {
+            return SongDao.COLUMN_SONG_TITLE;
+        }
+        return ITEM_TO_ORDER_BY.get( key );
     }
 
     /**
@@ -232,8 +208,9 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
      *
      * @param orderBy the new sort order
      */
-    private void setOrderByInPreferences( final String orderBy ) {
-        mApp.getSharedPreferences().edit().putString( Common.SORT_COLUMN, orderBy ).apply();
+    private void setOrderByInPreferences( final Column orderBy ) {
+        final int key = ITEM_TO_ORDER_BY.keyAt( ITEM_TO_ORDER_BY.indexOfValue( orderBy ) );
+        mApp.getSharedPreferences().edit().putInt( Common.SORT_COLUMN, key );
     }
 
     /**
@@ -242,20 +219,20 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
      * @param orderBy the order column or null to take the current from the preferences
      * @return the direction
      */
-    private OrderDirection getOrderDirectionFromPreferences( String orderBy ) {
+    private OrderDirection getOrderDirectionFromPreferences( Column orderBy ) {
         if( orderBy == null ) {
-            orderBy = mApp.getSharedPreferences().getString( Common.SORT_COLUMN, DBAccessHelper.SONG_TITLE );
+            orderBy = getOrderByFromPreferences();
         }
 
         return OrderDirection.valueOf( mApp.getSharedPreferences()
-                                           .getString( Common.SORT_DIRECTION_COLUMN + "_" + orderBy,
+                                           .getString( Common.SORT_DIRECTION_COLUMN + "_" + orderBy.name,
                                                        OrderDirection.ASC.name() ) );
     }
 
-    private void setOrderDirectionInPreferences( final String orderBy, final OrderDirection orderDirection ) {
+    private void setOrderDirectionInPreferences( final Column orderBy, final OrderDirection orderDirection ) {
         mApp.getSharedPreferences()
             .edit()
-            .putString( Common.SORT_DIRECTION_COLUMN + "_" + orderBy, orderDirection.name() )
+            .putString( Common.SORT_DIRECTION_COLUMN + "_" + orderBy.name, orderDirection.name() )
             .apply();
     }
 
@@ -265,13 +242,12 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
      */
     public class AsyncRunQuery extends SynchronizedAsyncTask.Executor {
 
-        private SongListViewItemAdapter mListViewAdapter = null;
-        private Cursor                  mCursor          = null;
+        private SongCursorAdapter mCursorAdapter = null;
 
-        private String         mOrderBy        = DBAccessHelper.SONG_TITLE;
+        private Column         mOrderBy        = SongDao.COLUMN_SONG_TITLE;
         private OrderDirection mOrderDirection = OrderDirection.ASC;
 
-        public AsyncRunQuery( String orderBy, OrderDirection orderDirection ) {
+        public AsyncRunQuery( Column orderBy, OrderDirection orderDirection ) {
             super();
 
             if( orderBy == null ) {
@@ -295,18 +271,17 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
 
         @Override
         public void doInBackground() {
-            mCursor = mApp.getDBAccessHelper()
-                          .getFragmentCursor( mContext, mQuerySelection, MainActivity.FragmentId.SONGS, mOrderBy,
-                                              mOrderDirection );
+            mCursorAdapter = SongTableAccessor.getInstance( mApp )
+                                              .getFilteredSongsCursorAdapter( mOrderBy, mOrderDirection );
         }
 
         @Override
         public void cancel() {
-            if( mCursor != null && !mCursor.isClosed() ) {
+            if( !mCursorAdapter.isClosed() ) {
                 if( mListViewAdapter != null ) {
-                    mListViewAdapter.changeCursor( null );
+                    mListViewAdapter.swapCursorAdapter( null );
                 }
-                mCursor.close();
+                mCursorAdapter.close();
             }
         }
 
@@ -352,7 +327,7 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
         }
 
         private void createList() {
-            mListViewAdapter = new SongListViewItemAdapter( mContext, mCursor, SongListViewFragment.this );
+            mListViewAdapter = new SongListViewItemAdapter( mContext, mCursorAdapter, SongListViewFragment.this );
             mListView.setAdapter( mListViewAdapter );
             mListView.setOnItemClickListener( onItemClickListener );
 
@@ -374,7 +349,7 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
         }
 
         private void reloadList() {
-            mListViewAdapter.swapCursor( mCursor );
+            mListViewAdapter.swapCursorAdapter( mCursorAdapter );
             mListView.startAnimation( createAnimation() );
         }
 

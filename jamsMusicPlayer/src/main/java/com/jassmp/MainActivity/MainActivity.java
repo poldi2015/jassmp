@@ -29,7 +29,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -304,17 +303,7 @@ public class MainActivity extends FragmentActivity {
         builder.create().show();
     }
 
-    /**
-     * Inflates the generic MainActivity ActionBar layout.
-     *
-     * @param inflater The ActionBar's menu inflater.
-     * @param menu     The ActionBar menu to work with.
-     */
-    private void showMainActivityActionItems( MenuInflater inflater, Menu menu ) {
-        //Inflate the menu.
-        getMenu().clear();
-        inflater.inflate( R.menu.main_activity, menu );
-
+    private void updateActionBarStatus() {
         //Set the ActionBar background
         final ActionBar actionBar = getActionBar();
         if( actionBar != null ) {
@@ -342,7 +331,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     public boolean onCreateOptionsMenu( Menu menu ) {
         mMenu = menu;
-        showMainActivityActionItems( getMenuInflater(), menu );
+        updateActionBarStatus();
 
         return super.onCreateOptionsMenu( menu );
     }
@@ -358,9 +347,6 @@ public class MainActivity extends FragmentActivity {
         }
 
         switch( item.getItemId() ) {
-            case R.id.action_search:
-                //ArtistsFragment.showSearch();
-                return true;
             case R.id.action_queue_drawer:
                 if( mDrawerLayout != null && mCurrentQueueDrawerLayout != null ) {
                     if( mDrawerLayout.isDrawerOpen( mCurrentQueueDrawerLayout ) ) {

@@ -4,7 +4,7 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 
-import com.jassmp.DBHelpers.Column;
+import com.jassmp.Dao.Column;
 
 public class ArtValueMapper extends DefaultValueMapper {
 

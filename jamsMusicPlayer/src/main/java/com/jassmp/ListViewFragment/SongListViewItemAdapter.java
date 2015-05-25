@@ -16,7 +16,6 @@
 package com.jassmp.ListViewFragment;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -31,7 +30,8 @@ import android.widget.TextView;
 
 import com.andraskindler.quickscroll.Scrollable;
 import com.jassmp.AsyncTasks.AsyncAddToQueueTask;
-import com.jassmp.DBHelpers.DBAccessHelper;
+import com.jassmp.Dao.SongCursorAdapter;
+import com.jassmp.Dao.SongDao;
 import com.jassmp.Helpers.TypefaceHelper;
 import com.jassmp.Helpers.UIElementsHelper;
 import com.jassmp.ImageTransformers.PicassoCircularTransformer;
@@ -40,57 +40,35 @@ import com.jassmp.Utils.Common;
 import com.squareup.picasso.RequestCreator;
 
 /**
- * Generic ListView adapter for ListViewFragment.
- *
- * @author Saravan Pantham
+ * Shows the Library
  */
 public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scrollable {
+
+    //
+    // defines
+
+    public static final String INVALID_POSITION = " N/A ";
 
     //
     // private members
 
     private final Context              mContext;
+    private       SongCursorAdapter    mCursorAdapter;
     private final Common               mApp;
     private       SongListViewFragment mListViewFragment;
     public static Holder mHolder = null;
     private       String mName   = "";
 
-    public SongListViewItemAdapter( final Context context, final Cursor cursor, final SongListViewFragment listViewFragment ) {
-        super( context, -1, cursor, new String[]{ }, new int[]{ }, 0 );
+    public SongListViewItemAdapter( final Context context, final SongCursorAdapter cursorAdapter, final SongListViewFragment listViewFragment ) {
+        super( context, -1, cursorAdapter.getCursor(), new String[]{ }, new int[]{ }, 0 );
+        mCursorAdapter = cursorAdapter;
         mContext = context;
         mListViewFragment = listViewFragment;
         mApp = (Common) mContext.getApplicationContext();
     }
 
-    /**
-     * Quick scroll indicator implementation.
-     */
     @Override
-    public String getIndicatorForPosition( int childPosition, int groupPosition ) {
-        Cursor c = (Cursor) getItem( childPosition );
-        String title = c.getString( c.getColumnIndex( Items.TITLE.getDbColumn() ) );
-        if( title != null && title.length() > 1 ) {
-            return "  " + title.substring( 0, 1 ).toUpperCase() + "  ";
-        } else {
-            return "  N/A  ";
-        }
-    }
-
-    /**
-     * Returns the current position of the top view in the list/grid.
-     */
-    @Override
-    public int getScrollPosition( int childPosition, int groupPosition ) {
-        return childPosition;
-    }
-
-    /**
-     * Returns the individual row/child in the list/grid.
-     */
-    @Override
-    public View getView( int position, View convertView, ViewGroup parent ) {
-        Cursor c = (Cursor) getItem( position );
-
+    public synchronized View getView( int position, View convertView, ViewGroup parent ) {
         if( convertView == null ) {
             convertView = LayoutInflater.from( mContext ).inflate( R.layout.songlist_view_item, parent, false );
 
@@ -121,14 +99,17 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
             mHolder = (Holder) convertView.getTag();
         }
 
-        //Retrieve data from the cursor.
-        mHolder.setTitle( c.getString( c.getColumnIndex( Items.TITLE.getDbColumn() ) ) );
-        mHolder.setArtist( c.getString( c.getColumnIndex( Items.ARTIST.getDbColumn() ) ) );
-        mHolder.setFilePath( c.getString( c.getColumnIndex( Items.FILE_PATH.getDbColumn() ) ) );
-        mHolder.setCoverPath( c.getString( c.getColumnIndex( Items.COVER_PATH.getDbColumn() ) ) );
-        mHolder.setDuration( c.getString( c.getColumnIndex( Items.DURATION.getDbColumn() ) ) );
-        mHolder.setRating( c.getInt( c.getColumnIndex( Items.RATING.getDbColumn() ) ) );
-        mHolder.setBpm( c.getInt( c.getColumnIndex( Items.BPM.getDbColumn() ) ) );
+        if( isValid() ) {
+            final SongDao songDao = mCursorAdapter.getDaoFromCursor( position );
+            //Retrieve data from the cursor.
+            mHolder.setTitle( songDao.getTitle() );
+            mHolder.setArtist( songDao.getArtist() );
+            mHolder.setFilePath( songDao.getFilePath() );
+            mHolder.setCoverPath( songDao.getAlbumArtPath() );
+            mHolder.setDuration( songDao.getDuration() );
+            mHolder.setRating( songDao.getRating() );
+            mHolder.setBpm( songDao.getBpm() );
+        }
 
         //Load the album art.
         mApp.getPicasso()
@@ -140,6 +121,52 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
 
         return convertView;
     }
+
+    @Override
+    public synchronized String getIndicatorForPosition( int childPosition, int groupPosition ) {
+        if( !isValid() ) {
+            return INVALID_POSITION;
+        }
+        final SongDao dao = mCursorAdapter.getDaoFromCursor( childPosition );
+        if( dao == null ) {
+            return INVALID_POSITION;
+        }
+        final String title = dao.getTitle();
+        if( title != null && title.length() > 1 ) {
+            return "  " + title.substring( 0, 1 ).toUpperCase() + "  ";
+        } else {
+            return INVALID_POSITION;
+        }
+    }
+
+    /**
+     * Returns the current position of the top view in the list/grid.
+     */
+    @Override
+    public int getScrollPosition( int childPosition, int groupPosition ) {
+        return childPosition;
+    }
+
+    public synchronized boolean isValid() {
+        return mCursorAdapter != null && mCursorAdapter.isValidPosition();
+    }
+
+    public synchronized void swapCursorAdapter( final SongCursorAdapter cursorAdapter ) {
+        if( cursorAdapter == null ) {
+            if( mCursorAdapter != null ) {
+                mCursorAdapter.close();
+            }
+            mCursorAdapter = null;
+            changeCursor( null );
+        } else if( cursorAdapter != mCursorAdapter ) {
+            if( mCursorAdapter != null ) {
+                mCursorAdapter.close();
+            }
+            mCursorAdapter = cursorAdapter;
+            changeCursor( cursorAdapter.getCursor() );
+        }
+    }
+
 
     /**
      * Click listener for overflow button.
@@ -185,31 +212,7 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
 
     };
 
-    public enum Items {
-        TITLE( DBAccessHelper.SONG_TITLE ),
-        ARTIST( DBAccessHelper.SONG_ARTIST ),
-        DURATION( DBAccessHelper.SONG_DURATION ),
-        BPM( DBAccessHelper.SONG_BPM ),
-        RATING( DBAccessHelper.SONG_RATING ),
-        FILE_PATH( DBAccessHelper.SONG_FILE_PATH ),
-        COVER_PATH( DBAccessHelper.SONG_ALBUM_ART_PATH );
 
-        private final String mDbColumn;
-
-        private Items( final String dbColumn ) {
-            mDbColumn = dbColumn;
-        }
-
-        public String getDbColumn() {
-            return mDbColumn;
-        }
-    }
-
-    /**
-     * Holder subclass for ListViewCardsAdapter.
-     *
-     * @author Saravan Pantham
-     */
     public static class Holder {
 
         //
@@ -227,7 +230,7 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
         public TextView    artistTextView;
         public String      artist;
         public TextView    durationTextView;
-        public String      duration;
+        public int         duration;
         public TextView    bpmTextView;
         public int         bpm;
         public ImageView   ratingIcon;
@@ -256,9 +259,9 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
             artistTextView.setText( artist );
         }
 
-        public void setDuration( String duration ) {
+        public void setDuration( int duration ) {
             this.duration = duration;
-            durationTextView.setText( duration );
+            durationTextView.setText( Integer.toString( duration ) );
         }
 
         public void setBpm( int bpm ) {

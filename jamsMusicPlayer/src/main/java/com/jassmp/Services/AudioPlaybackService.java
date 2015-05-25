@@ -50,10 +50,10 @@ import android.widget.Toast;
 
 import com.jassmp.BroadcastReceivers.HeadsetButtonsReceiver;
 import com.jassmp.BroadcastReceivers.HeadsetPlugBroadcastReceiver;
-import com.jassmp.DBHelpers.DBAccessHelper;
-import com.jassmp.DBHelpers.Song;
+import com.jassmp.Dao.SongDao;
 import com.jassmp.Helpers.AudioManagerHelper;
 import com.jassmp.Helpers.SongHelper;
+import com.jassmp.JassMpDb.DBAccessHelper;
 import com.jassmp.PlaybackKickstarter.PlaybackKickstarter.BuildCursorListener;
 import com.jassmp.R;
 import com.jassmp.RemoteControlClient.RemoteControlClientCompat;
@@ -728,8 +728,8 @@ public class AudioPlaybackService extends Service {
 
         String[] matrixCursorColumns = { DBAccessHelper.SONG_ARTIST, DBAccessHelper.SONG_ALBUM,
                                          DBAccessHelper.SONG_TITLE, DBAccessHelper.SONG_FILE_PATH,
-                                         DBAccessHelper.SONG_DURATION, DBAccessHelper.SONG_GENRE, Song.COLUMN_ID.name,
-                                         DBAccessHelper.SONG_ALBUM_ART_PATH };
+                                         DBAccessHelper.SONG_DURATION, DBAccessHelper.SONG_GENRE,
+                                         SongDao.COLUMN_ID.name, DBAccessHelper.SONG_ALBUM_ART_PATH };
 
         //Create an empty matrix getCursor() with the specified columns.
         MatrixCursor mMatrixCursor = new MatrixCursor( matrixCursorColumns );
@@ -773,7 +773,7 @@ public class AudioPlaybackService extends Service {
                                               tempCursor.getColumnIndex( DBAccessHelper.SONG_FILE_PATH ) ),
                                       tempCursor.getString( tempCursor.getColumnIndex( DBAccessHelper.SONG_DURATION ) ),
                                       tempCursor.getString( tempCursor.getColumnIndex( DBAccessHelper.SONG_GENRE ) ),
-                                      tempCursor.getString( tempCursor.getColumnIndex( Song.COLUMN_ID.name ) ),
+                                      tempCursor.getString( tempCursor.getColumnIndex( SongDao.COLUMN_ID.name ) ),
                                       tempCursor.getString(
                                               tempCursor.getColumnIndex( DBAccessHelper.SONG_ALBUM_ART_PATH ) ) } );
 
@@ -1320,7 +1320,7 @@ public class AudioPlaybackService extends Service {
             //Set mMediaPlayer's song data.
             SongHelper songHelper = new SongHelper();
             if( mFirstRun ) {
-	    		/*
+                /*
 	    		 * We're not preloading the next song (mMediaPlayer2 is not 
 	    		 * playing right now). mMediaPlayer's song is pointed at 
 	    		 * by mCurrentSongIndex.

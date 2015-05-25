@@ -31,7 +31,8 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.widget.Toast;
 
-import com.jassmp.DBHelpers.DBAccessHelper;
+import com.jassmp.JassMpDb.DBAccessHelper;
+import com.jassmp.JassMpDb.DatabaseAccessor;
 import com.jassmp.R;
 import com.jassmp.Services.AutoFetchAlbumArtService;
 import com.jassmp.Utils.Common;
@@ -131,8 +132,10 @@ public class AsyncAutoGetAlbumArtTask extends AsyncTask<String, String, Void> {
         String[] projection = { DBAccessHelper._ID, DBAccessHelper.SONG_FILE_PATH, DBAccessHelper.SONG_ALBUM,
                                 DBAccessHelper.SONG_ARTIST, DBAccessHelper.SONG_TITLE };
 
-        Cursor cursor = dbHelper.getWritableDatabase()
-                                .query( DBAccessHelper.MUSIC_LIBRARY_TABLE, projection, null, null, null, null, null );
+        Cursor cursor = DatabaseAccessor.getInstance( mApp )
+                                        .getDatabase()
+                                        .query( DBAccessHelper.MUSIC_LIBRARY_TABLE, projection, null, null, null, null,
+                                                null );
 
         if( cursor.getCount() != 0 ) {
 
@@ -464,7 +467,9 @@ public class AsyncAutoGetAlbumArtTask extends AsyncTask<String, String, Void> {
             songFilePath = songFilePath.replace( "'", "''" );
             String where = DBAccessHelper.SONG_FILE_PATH + "=" + "'" + songFilePath + "'";
             values.put( DBAccessHelper.SONG_ALBUM_ART_PATH, folderPath + "/" + albumArtFileName + ".jpg" );
-            dbHelper.getWritableDatabase().update( DBAccessHelper.MUSIC_LIBRARY_TABLE, values, where, null );
+            DatabaseAccessor.getInstance( mApp )
+                            .getDatabase()
+                            .update( DBAccessHelper.MUSIC_LIBRARY_TABLE, values, where, null );
 
         }
 

@@ -21,8 +21,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 
-import com.jassmp.DBHelpers.Column;
-import com.jassmp.DBHelpers.Song;
+import com.jassmp.Dao.Column;
+import com.jassmp.Dao.SongDao;
 import com.jassmp.Utils.AudioFileReader;
 
 import java.io.File;
@@ -40,18 +40,18 @@ public class MediaStoreSongIterator {
                 private List<String> mProjection = new ArrayList<String>();
 
                 {
-                    add( Song.COLUMN_SONG_TITLE, MediaStore.Audio.Media.TITLE );
-                    add( Song.COLUMN_SONG_ARTIST, MediaStore.Audio.Media.ARTIST );
-                    add( Song.COLUMN_SONG_ALBUM, MediaStore.Audio.Media.ALBUM );
-                    add( Song.COLUMN_SONG_DURATION, MediaStore.Audio.Media.DURATION );
-                    add( new TrackValueMapper( Song.COLUMN_SONG_TRACK_NUMBER, MediaStore.Audio.Media.TRACK ) );
-                    add( Song.COLUMN_SONG_YEAR, MediaStore.Audio.Media.YEAR );
-                    add( Song.COLUMN_ADDED_TIMESTAMP, MediaStore.Audio.Media.DATE_ADDED );
-                    add( Song.COLUMN_SONG_FILE_PATH, MediaStore.Audio.Media.DATA );
-                    add( new BpmValueMapper( Song.COLUMN_SONG_BPM, MediaStore.Audio.Media.DATA ) );
-                    add( new RatingValueMapper( Song.COLUMN_SONG_RATING, MediaStore.Audio.Media.DATA ) );
-                    add( new GenreValueMapper( Song.COLUMN_SONG_GENRE ) );
-                    add( new ArtValueMapper( Song.COLUMN_SONG_ALBUM_ART_PATH, MediaStore.Audio.Media.ALBUM_ID ) );
+                    add( SongDao.COLUMN_SONG_TITLE, MediaStore.Audio.Media.TITLE );
+                    add( SongDao.COLUMN_SONG_ARTIST, MediaStore.Audio.Media.ARTIST );
+                    add( SongDao.COLUMN_SONG_ALBUM, MediaStore.Audio.Media.ALBUM );
+                    add( SongDao.COLUMN_SONG_DURATION, MediaStore.Audio.Media.DURATION );
+                    add( new TrackValueMapper( SongDao.COLUMN_SONG_TRACK_NUMBER, MediaStore.Audio.Media.TRACK ) );
+                    add( SongDao.COLUMN_SONG_YEAR, MediaStore.Audio.Media.YEAR );
+                    add( SongDao.COLUMN_ADDED_TIMESTAMP, MediaStore.Audio.Media.DATE_ADDED );
+                    add( SongDao.COLUMN_SONG_FILE_PATH, MediaStore.Audio.Media.DATA );
+                    add( new BpmValueMapper( SongDao.COLUMN_SONG_BPM, MediaStore.Audio.Media.DATA ) );
+                    add( new RatingValueMapper( SongDao.COLUMN_SONG_RATING, MediaStore.Audio.Media.DATA ) );
+                    add( new GenreValueMapper( SongDao.COLUMN_SONG_GENRE ) );
+                    add( new ArtValueMapper( SongDao.COLUMN_SONG_ALBUM_ART_PATH, MediaStore.Audio.Media.ALBUM_ID ) );
 
                     buildProjection();
                 }
@@ -107,7 +107,7 @@ public class MediaStoreSongIterator {
         return mSongsCursor.getCount();
     }
 
-    public Song getNext() {
+    public SongDao getNext() {
         if( mSongsCursor == null || mSongsCursor.isClosed() ) {
             // After end
             return null;
@@ -137,7 +137,7 @@ public class MediaStoreSongIterator {
             mSongsCursor.close();
         }
 
-        return new Song( values );
+        return new SongDao( values );
     }
 
     private Cursor getSongCursor( Context context, String selection, String[] projection, String sortOrder ) {

@@ -60,7 +60,7 @@ public class BuildMusicLibraryService extends Service implements AsyncBuildLibra
         startForeground( mNotificationId, mNotification );
 
         //Go crazy with a full-on scan.
-        AsyncBuildLibraryTask task = new AsyncBuildLibraryTask( mContext, this );
+        AsyncBuildLibraryTask task = new AsyncBuildLibraryTask( mContext );
         task.setOnBuildLibraryProgressUpdate( WelcomeActivity.mBuildingLibraryProgressFragment );
         task.setOnBuildLibraryProgressUpdate( this );
         task.executeOnExecutor( AsyncTask.THREAD_POOL_EXECUTOR );

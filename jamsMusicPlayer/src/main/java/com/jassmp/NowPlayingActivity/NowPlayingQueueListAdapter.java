@@ -24,9 +24,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jassmp.DBHelpers.DBAccessHelper;
 import com.jassmp.Helpers.TypefaceHelper;
 import com.jassmp.Helpers.UIElementsHelper;
+import com.jassmp.JassMpDb.DBAccessHelper;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 

@@ -1,23 +1,24 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
     <item
         android:id="@+id/action_search"
         android:title="@string/search"
         android:icon="@drawable/search_light"
         android:showAsAction="always"
         android:orderInCategory="100"/>
-
+    -->
+    <!--
     <item
         android:id="@+id/action_queue_drawer"
         android:title="@string/current_queue"
         android:icon="@drawable/btn_playback_play_light"
         android:showAsAction="always"
         android:orderInCategory="99"/>
-
+    -->
     <item
         android:id="@+id/action_order"
         android:title="@string/option_button_filter"
         android:icon="@drawable/queue_drawer"
         android:showAsAction="always"
         android:orderInCategory="100"/>
-
 </menu>

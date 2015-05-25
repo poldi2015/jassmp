@@ -22,8 +22,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 
-import com.jassmp.DBHelpers.DBAccessHelper;
-import com.jassmp.DBHelpers.Song;
+import com.jassmp.Dao.SongDao;
+import com.jassmp.JassMpDb.DBAccessHelper;
 import com.jassmp.Utils.Common;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -232,7 +232,7 @@ public class SongHelper {
     };
 
     private int getIdColumnIndex() {
-        return mApp.getAudioPlaybackService().getCursor().getColumnIndex( Song.COLUMN_ID.name );
+        return mApp.getAudioPlaybackService().getCursor().getColumnIndex( SongDao.COLUMN_ID.name );
     }
 
     private int getFilePathColumnIndex() {

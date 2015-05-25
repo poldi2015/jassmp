@@ -42,9 +42,9 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.jassmp.DBHelpers.DBAccessHelper;
 import com.jassmp.Helpers.TypefaceHelper;
 import com.jassmp.Helpers.UIElementsHelper;
+import com.jassmp.JassMpDb.DBAccessHelper;
 import com.jassmp.R;
 import com.jassmp.Services.AudioPlaybackService;
 import com.jassmp.Utils.Common;

@@ -25,8 +25,8 @@ import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
 
-import com.jassmp.DBHelpers.DBAccessHelper;
 import com.jassmp.Helpers.UIElementsHelper;
+import com.jassmp.JassMpDb.DBAccessHelper;
 import com.jassmp.NowPlayingActivity.NowPlayingActivity;
 import com.jassmp.PlaybackKickstarter.PlaybackKickstarter;
 import com.jassmp.R;

@@ -15,22 +15,20 @@
  */
 package com.jassmp.AsyncTasks;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
 import android.os.PowerManager;
 import android.widget.Toast;
 
-import com.jassmp.DBHelpers.DBAccessHelper;
-import com.jassmp.DBHelpers.DatabaseAccessor;
-import com.jassmp.DBHelpers.FolderTableAccessor;
-import com.jassmp.DBHelpers.Song;
+import com.jassmp.Dao.SongCursorAdapter;
+import com.jassmp.Dao.SongDao;
 import com.jassmp.Helpers.FileExtensionFilter;
+import com.jassmp.JassMpDb.DatabaseAccessor;
+import com.jassmp.JassMpDb.FolderTableAccessor;
+import com.jassmp.JassMpDb.SongTableAccessor;
 import com.jassmp.MediaStore.MediaStoreSongIterator;
 import com.jassmp.R;
-import com.jassmp.Services.BuildMusicLibraryService;
 import com.jassmp.Utils.Common;
 
 import java.io.File;
@@ -39,11 +37,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-/**
- * The Mother of all AsyncTasks in this app.
- *
- * @author Saravan Pantham
- */
 public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
 
     private Context                                 mContext;
@@ -57,7 +50,7 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
 
     private PowerManager.WakeLock mWakeLock;
 
-    public AsyncBuildLibraryTask( Context context, BuildMusicLibraryService service ) {
+    public AsyncBuildLibraryTask( final Context context ) {
         mContext = context;
         mApp = (Common) mContext;
         mBuildLibraryProgressUpdate = new ArrayList<OnBuildLibraryProgressUpdate>();
@@ -149,7 +142,7 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
             progressStepSize = 250000;
         }
 
-        Song song;
+        SongDao song;
         final DatabaseAccessor databaseAccessor = DatabaseAccessor.getInstance( mContext );
         // TODO: Clear database
         while( ( song = mediaStoreSongIterator.getNext() ) != null ) {
@@ -167,70 +160,34 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
      * the library and searches for their album art.
      */
     private void getAlbumArt() {
-
-        //Get a cursor with a list of all local music files on the device.
-        Cursor cursor = mApp.getDBAccessHelper().getAllSongs();
-        mCurrentTask = mContext.getResources().getString( R.string.building_album_art );
-
-        if( cursor == null || cursor.getCount() < 1 ) {
+        final SongTableAccessor songTableAccessor = SongTableAccessor.getInstance( mApp );
+        final SongCursorAdapter songCursorAdapter = songTableAccessor.getAllSongsCursorAdapter( null, null );
+        final int count = songCursorAdapter.getCount();
+        if( count <= 0 ) {
             return;
         }
 
-        //Tracks the progress of this method.
-        int subProgress = 0;
-        if( cursor.getCount() != 0 ) {
-            subProgress = 750000 / ( cursor.getCount() );
+        mCurrentTask = mContext.getResources().getString( R.string.building_album_art );
+        int subProgress = 750000 / count;
+        DatabaseAccessor.getInstance( mApp ).getDatabase().beginTransactionNonExclusive();
+
+        for( int position = 0; position < count; position++ ) {
+            final SongDao dao = songCursorAdapter.getDaoFromCursor( position );
+            mOverallProgress += subProgress;
+            publishProgress();
+            songTableAccessor.setArtworkPath( dao, getArtwork( dao.getFilePath() ) );
+        }
+        songCursorAdapter.close();
+        songTableAccessor.commit();
+    }
+
+    private String getArtwork( final String songFilePath ) {
+        if( mApp.getSharedPreferences().getInt( "ALBUM_ART_SOURCE", 0 ) == 0
+            || mApp.getSharedPreferences().getInt( "ALBUM_ART_SOURCE", 0 ) == 1 ) {
+            return getEmbeddedArtwork( songFilePath );
         } else {
-            subProgress = 750000 / 1;
+            return getArtworkFromFolder( songFilePath );
         }
-
-        try {
-            mApp.getDBAccessHelper().getWritableDatabase().beginTransactionNonExclusive();
-
-            //Loop through the cursor and retrieve album art.
-            for( int i = 0; i < cursor.getCount(); i++ ) {
-
-                try {
-                    cursor.moveToPosition( i );
-                    mOverallProgress += subProgress;
-                    publishProgress();
-
-                    String filePath = cursor.getString( cursor.getColumnIndex( DBAccessHelper.SONG_FILE_PATH ) );
-                    String artworkPath = "";
-                    if( mApp.getSharedPreferences().getInt( "ALBUM_ART_SOURCE", 0 ) == 0
-                        || mApp.getSharedPreferences().getInt( "ALBUM_ART_SOURCE", 0 ) == 1 ) {
-                        artworkPath = getEmbeddedArtwork( filePath );
-                    } else {
-                        artworkPath = getArtworkFromFolder( filePath );
-                    }
-
-                    String normalizedFilePath = filePath.replace( "'", "''" );
-
-                    //Store the artwork file path into the DB.
-                    ContentValues values = new ContentValues();
-                    values.put( DBAccessHelper.SONG_ALBUM_ART_PATH, artworkPath );
-                    String where = DBAccessHelper.SONG_FILE_PATH + "='" + normalizedFilePath + "'";
-
-                    mApp.getDBAccessHelper()
-                        .getWritableDatabase()
-                        .update( DBAccessHelper.MUSIC_LIBRARY_TABLE, values, where, null );
-                    mApp.getDBAccessHelper().getWritableDatabase().yieldIfContendedSafely();
-                } catch( Exception e ) {
-                    e.printStackTrace();
-                    continue;
-                }
-
-            }
-
-            mApp.getDBAccessHelper().getWritableDatabase().setTransactionSuccessful();
-            mApp.getDBAccessHelper().getWritableDatabase().endTransaction();
-            cursor.close();
-            cursor = null;
-
-        } catch( Exception e ) {
-            e.printStackTrace();
-        }
-
     }
 
     /**
