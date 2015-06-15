@@ -23,7 +23,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
-import com.jassmp.Helpers.UIElementsHelper;
+import com.jassmp.GuiHelper.UIElementsHelper;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 

@@ -33,7 +33,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jassmp.Dialogs.NowPlayingColorSchemesDialog;
-import com.jassmp.Helpers.UIElementsHelper;
+import com.jassmp.GuiHelper.UIElementsHelper;
+import com.jassmp.Preferences.Preferences;
+import com.jassmp.Preferences.Theme;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 
@@ -50,8 +52,8 @@ public class SettingsAppearanceFragment extends PreferenceFragment {
 
     private Preference         mAppThemePreference;
     private Preference         mColorPreference;
-    private Preference         mDefaultScreenPreference;
     private CheckBoxPreference mLockscreenControlsPreference;
+    private Preferences mPreferences = null;
 
     @Override
     public void onCreate( Bundle onSavedInstanceState ) {
@@ -66,6 +68,7 @@ public class SettingsAppearanceFragment extends PreferenceFragment {
 
         mContext = getActivity().getApplicationContext();
         mApp = (Common) mContext;
+        mPreferences = new Preferences( mContext );
         mListView = (ListView) mRootView.findViewById( android.R.id.list );
 
         //Set the ActionBar background and text color.
@@ -75,14 +78,14 @@ public class SettingsAppearanceFragment extends PreferenceFragment {
         TextView actionBarText = (TextView) getActivity().findViewById( titleId );
         actionBarText.setTextColor( 0xFFFFFFFF );
 
+        mAppThemePreference = getPreferenceManager().findPreference( "preference_key_app_theme" );
         mColorPreference = getPreferenceManager().findPreference( "preference_key_player_color_scheme" );
-        mDefaultScreenPreference = getPreferenceManager().findPreference( "preference_key_startup_screen" );
         mLockscreenControlsPreference = (CheckBoxPreference) getPreferenceManager().findPreference(
                 "preference_key_lockscreen_controls" );
 
         //Apply the click listeners.
+        mAppThemePreference.setOnPreferenceClickListener( mAppThemeClickListener );
         mColorPreference.setOnPreferenceClickListener( colorClickListener );
-        mDefaultScreenPreference.setOnPreferenceClickListener( defaultScreenClickListener );
         mLockscreenControlsPreference.setOnPreferenceChangeListener( lockscreenControlsClickListener );
 
         return mRootView;
@@ -117,41 +120,20 @@ public class SettingsAppearanceFragment extends PreferenceFragment {
     /**
      * Click listener for the color preference.
      */
-    private Preference.OnPreferenceClickListener colorClickListener = new Preference.OnPreferenceClickListener() {
+    private Preference.OnPreferenceClickListener mAppThemeClickListener = new Preference.OnPreferenceClickListener() {
 
         @Override
         public boolean onPreferenceClick( Preference preference ) {
-            FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-            NowPlayingColorSchemesDialog appThemeDialog = new NowPlayingColorSchemesDialog();
-            appThemeDialog.show( ft, "colorSchemesDialog" );
-
-            return false;
-        }
-
-    };
-
-    /**
-     * Click listener for the default browser preference.
-     */
-    private Preference.OnPreferenceClickListener defaultScreenClickListener
-            = new Preference.OnPreferenceClickListener() {
-
-        @Override
-        public boolean onPreferenceClick( Preference preference ) {
-            //Get the current preference.
-            int currentPreference = mApp.getSharedPreferences().getInt( Common.STARTUP_BROWSER, 0 );
+            final Theme currentTheme = mPreferences.getCurrentTheme();
 
             AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-            builder.setTitle( R.string.default_browser );
-            builder.setSingleChoiceItems( R.array.startup_screen_items, currentPreference,
+            builder.setTitle( R.string.app_theme );
+            builder.setSingleChoiceItems( R.array.app_theme_choices, currentTheme.ordinal(),
                                           new DialogInterface.OnClickListener() {
 
                                               @Override
                                               public void onClick( DialogInterface dialog, int which ) {
-                                                  mApp.getSharedPreferences()
-                                                      .edit()
-                                                      .putInt( Common.STARTUP_BROWSER, which )
-                                                      .commit();
+                                                  mPreferences.setCurrentTheme( Theme.values()[ which ] );
                                                   dialog.dismiss();
                                                   Toast.makeText( mContext, R.string.changes_saved, Toast.LENGTH_SHORT )
                                                        .show();
@@ -167,6 +149,22 @@ public class SettingsAppearanceFragment extends PreferenceFragment {
     };
 
     /**
+     * Click listener for the color preference.
+     */
+    private Preference.OnPreferenceClickListener colorClickListener = new Preference.OnPreferenceClickListener() {
+
+        @Override
+        public boolean onPreferenceClick( Preference preference ) {
+            FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+            NowPlayingColorSchemesDialog appThemeDialog = new NowPlayingColorSchemesDialog();
+            appThemeDialog.show( ft, "colorSchemesDialog" );
+
+            return false;
+        }
+
+    };
+
+    /**
      * Checkbox click listener for the lockscreen controls preference.
      */
     private Preference.OnPreferenceChangeListener lockscreenControlsClickListener
@@ -175,7 +173,7 @@ public class SettingsAppearanceFragment extends PreferenceFragment {
         @Override
         public boolean onPreferenceChange( Preference preference, Object newValue ) {
             boolean value = (Boolean) newValue;
-            mApp.getSharedPreferences().edit().putBoolean( Common.SHOW_LOCKSCREEN_CONTROLS, value ).commit();
+            mPreferences.setShowLockScreenControls( value );
             ( (CheckBoxPreference) preference ).setChecked( value );
             return false;
         }

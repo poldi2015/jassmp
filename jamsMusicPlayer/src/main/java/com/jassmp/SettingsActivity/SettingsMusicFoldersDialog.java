@@ -33,9 +33,10 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.jassmp.Helpers.TypefaceHelper;
-import com.jassmp.Helpers.UIElementsHelper;
+import com.jassmp.GuiHelper.TypefaceHelper;
+import com.jassmp.GuiHelper.UIElementsHelper;
 import com.jassmp.JassMpDb.FolderTableAccessor;
+import com.jassmp.Preferences.Preferences;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 import com.jassmp.WelcomeActivity.WelcomeActivity;
@@ -107,10 +108,13 @@ public class SettingsMusicFoldersDialog extends DialogFragment {
         } else {
             mUpIcon.setImageResource( UIElementsHelper.getIcon( mContext, "up" ) );
 
-            if( mApp.getCurrentTheme() == Common.DARK_THEME ) {
-                mUpIcon.setImageResource( R.drawable.icon_list_divider_light );
-            } else {
-                mUpIcon.setImageResource( R.drawable.icon_list_divider );
+            switch( new Preferences( mApp ).getCurrentTheme() ) {
+                case DARK:
+                    mUpIcon.setImageResource( R.drawable.icon_list_divider_light );
+                    break;
+                case LIGHT:
+                    mUpIcon.setImageResource( R.drawable.icon_list_divider );
+                    break;
             }
 
         }

@@ -23,13 +23,15 @@ import android.widget.Toast;
 
 import com.jassmp.Dao.SongCursorAdapter;
 import com.jassmp.Dao.SongDao;
-import com.jassmp.Helpers.FileExtensionFilter;
 import com.jassmp.JassMpDb.DatabaseAccessor;
 import com.jassmp.JassMpDb.FolderTableAccessor;
 import com.jassmp.JassMpDb.SongTableAccessor;
 import com.jassmp.MediaStore.MediaStoreSongIterator;
+import com.jassmp.Preferences.AlbumArtSource;
+import com.jassmp.Preferences.Preferences;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
+import com.jassmp.Utils.FileExtensionFilter;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,9 +41,10 @@ import java.util.LinkedHashMap;
 
 public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
 
-    private Context                                 mContext;
-    private Common                                  mApp;
-    public  ArrayList<OnBuildLibraryProgressUpdate> mBuildLibraryProgressUpdate;
+    private Context mContext;
+    private Common  mApp;
+    private Preferences mPreferences = null;
+    public ArrayList<OnBuildLibraryProgressUpdate> mBuildLibraryProgressUpdate;
 
     private String                  mCurrentTask      = "";
     private int                     mOverallProgress  = 0;
@@ -53,6 +56,7 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
     public AsyncBuildLibraryTask( final Context context ) {
         mContext = context;
         mApp = (Common) mContext;
+        mPreferences = new Preferences( context );
         mBuildLibraryProgressUpdate = new ArrayList<OnBuildLibraryProgressUpdate>();
     }
 
@@ -73,7 +77,8 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
         /**
          * Called whenever mOverall Progress has been updated.
          */
-        public void onProgressUpdate( AsyncBuildLibraryTask task, String mCurrentTask, int overallProgress, int maxProgress, boolean mediaStoreTransferDone );
+        public void onProgressUpdate( AsyncBuildLibraryTask task, String mCurrentTask, int overallProgress,
+                                      int maxProgress, boolean mediaStoreTransferDone );
 
         /**
          * Called when this AsyncTask finishes executing
@@ -182,11 +187,14 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
     }
 
     private String getArtwork( final String songFilePath ) {
-        if( mApp.getSharedPreferences().getInt( "ALBUM_ART_SOURCE", 0 ) == 0
-            || mApp.getSharedPreferences().getInt( "ALBUM_ART_SOURCE", 0 ) == 1 ) {
-            return getEmbeddedArtwork( songFilePath );
-        } else {
-            return getArtworkFromFolder( songFilePath );
+        switch( mPreferences.getAlbumArtSource() ) {
+            default:
+            case PREFER_EMBEDDED_ART:
+            case EMBEDDED_ART_ONLY:
+                return getEmbeddedArtwork( songFilePath );
+            case PREFER_FOLDER_ART:
+            case FOLDER_ART_OLNY:
+                return getArtworkFromFolder( songFilePath );
         }
     }
 
@@ -284,31 +292,35 @@ public class AsyncBuildLibraryTask extends AsyncTask<String, String, Void> {
      * Returns an empty string otherwise.
      */
     public String getEmbeddedArtwork( String filePath ) {
-        File file = new File( filePath );
-        if( !file.exists() ) {
-            if( mApp.getSharedPreferences().getInt( "ALBUM_ART_SOURCE", 0 ) == 0 ) {
-                return getArtworkFromFolder( filePath );
-            } else {
-                return "";
-            }
-
-        } else {
-            mMMDR.setDataSource( filePath );
-            byte[] embeddedArt = mMMDR.getEmbeddedPicture();
-
-            if( embeddedArt != null ) {
-                return "byte://" + filePath;
-            } else {
-                if( mApp.getSharedPreferences().getInt( "ALBUM_ART_SOURCE", 0 ) == 0 ) {
-                    return getArtworkFromFolder( filePath );
-                } else {
-                    return "";
+        final AlbumArtSource albumArtSource = mPreferences.getAlbumArtSource();
+        byte[] embeddedArt = null;
+        switch( albumArtSource ) {
+            default:
+            case EMBEDDED_ART_ONLY:
+            case PREFER_EMBEDDED_ART:
+                mMMDR.setDataSource( filePath );
+                embeddedArt = mMMDR.getEmbeddedPicture();
+                if( embeddedArt != null ) {
+                    return "byte://" + filePath;
+                } else if( albumArtSource == AlbumArtSource.PREFER_EMBEDDED_ART ) {
+                    if( new File( filePath ).exists() ) {
+                        return getArtworkFromFolder( filePath );
+                    }
                 }
-
-            }
-
+                return "";
+            case PREFER_FOLDER_ART:
+            case FOLDER_ART_OLNY:
+                if( new File( filePath ).exists() ) {
+                    return getArtworkFromFolder( filePath );
+                } else if( albumArtSource == AlbumArtSource.PREFER_FOLDER_ART ) {
+                    mMMDR.setDataSource( filePath );
+                    embeddedArt = mMMDR.getEmbeddedPicture();
+                    if( embeddedArt != null ) {
+                        return "byte://" + filePath;
+                    }
+                }
+                return "";
         }
-
     }
 
     @Override

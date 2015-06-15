@@ -30,28 +30,27 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.jassmp.Drawers.NavigationDrawerFragment;
-import com.jassmp.Drawers.QueueDrawerFragment;
-import com.jassmp.Helpers.UIElementsHelper;
-import com.jassmp.ListViewFragment.FilterListViewFragment;
-import com.jassmp.ListViewFragment.SongListViewFragment;
+import com.jassmp.FilterFragment.FilterListViewFragment;
+import com.jassmp.GuiHelper.UIElementsHelper;
+import com.jassmp.LibraryFragment.SongListViewFragment;
+import com.jassmp.MainMenu.MainMenuDrawerFragment;
+import com.jassmp.NowPlayingFragment.NowPlayingListViewFragment;
+import com.jassmp.Preferences.Preferences;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 
 public class MainActivity extends FragmentActivity {
 
     public static enum FragmentId {
-        NONE, SONGS, GENRES, ARTISTS, ALBUMS
+        NONE, SONGS, NOW_PLAYING, GENRES, ARTISTS, ALBUMS
     }
 
     //Context and Common object(s).
     private Context mContext;
-    private Common  mApp;
 
     //UI elements.
     private FrameLayout           mDrawerParentLayout;
@@ -59,8 +58,8 @@ public class MainActivity extends FragmentActivity {
     private RelativeLayout        mNavDrawerLayout;
     private RelativeLayout        mCurrentQueueDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
-    private QueueDrawerFragment   mQueueDrawerFragment;
     private Menu                  mMenu;
+    private Preferences mPreferences = null;
 
     private FragmentId mCurrentFragmentId = null;
 
@@ -72,10 +71,10 @@ public class MainActivity extends FragmentActivity {
     public void onCreate( Bundle savedInstanceState ) {
         //Context and Common object(s).
         mContext = getApplicationContext();
-        mApp = (Common) getApplicationContext();
+        mPreferences = new Preferences( mContext );
 
         //Set the theme and inflate the layout.
-        setTheme();
+        loadTheme();
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
 
@@ -97,25 +96,7 @@ public class MainActivity extends FragmentActivity {
         /**
          * Navigation drawer toggle.
          */
-        mDrawerToggle = new ActionBarDrawerToggle( this, mDrawerLayout, R.drawable.ic_navigation_drawer, 0, 0 ) {
-
-            @Override
-            public void onDrawerClosed( View view ) {
-                if( mQueueDrawerFragment != null && view == mCurrentQueueDrawerLayout ) {
-                    mQueueDrawerFragment.setIsDrawerOpen( false );
-                }
-
-            }
-
-            @Override
-            public void onDrawerOpened( View view ) {
-                if( mQueueDrawerFragment != null && view == mCurrentQueueDrawerLayout ) {
-                    mQueueDrawerFragment.setIsDrawerOpen( true );
-                }
-
-            }
-
-        };
+        mDrawerToggle = new ActionBarDrawerToggle( this, mDrawerLayout, R.drawable.ic_navigation_drawer, 0, 0 );
 
         //Apply the drawer toggle to the DrawerLayout.
         mDrawerLayout.setDrawerListener( mDrawerToggle );
@@ -126,9 +107,9 @@ public class MainActivity extends FragmentActivity {
         }
 
         //Check if this is the first time the app is being started.
-        if( mApp.getSharedPreferences().getBoolean( Common.FIRST_RUN, true ) ) {
+        if( mPreferences.isFirstRun() ) {
             showAlbumArtScanningDialog();
-            mApp.getSharedPreferences().edit().putBoolean( Common.FIRST_RUN, false ).commit();
+            mPreferences.clearFirstRun();
         }
     }
 
@@ -141,12 +122,15 @@ public class MainActivity extends FragmentActivity {
     /**
      * Sets the entire activity-wide theme.
      */
-    private void setTheme() {
+    private void loadTheme() {
         //Set the UI theme.
-        if( mApp.getCurrentTheme() == Common.DARK_THEME ) {
-            setTheme( R.style.AppTheme );
-        } else {
-            setTheme( R.style.AppThemeLight );
+        switch( mPreferences.getCurrentTheme() ) {
+            case DARK:
+                setTheme( R.style.AppTheme );
+                break;
+            case LIGHT:
+                setTheme( R.style.AppThemeLight );
+                break;
         }
     }
 
@@ -204,9 +188,9 @@ public class MainActivity extends FragmentActivity {
 
                 fragmentId = loadFragmentId( getIntent().getExtras() );
             } else {
-                // default
+                // persistent state
 
-                fragmentId = FragmentId.SONGS;
+                fragmentId = mPreferences.getCurrentMainFragmentId();
             }
         }
         if( fragmentId == mCurrentFragmentId ) {
@@ -222,6 +206,7 @@ public class MainActivity extends FragmentActivity {
         }
 
         mCurrentFragmentId = fragmentId;
+        mPreferences.setCurrentMainFragmentId( mCurrentFragmentId );
 
         // Switch fragment
         getSupportFragmentManager().beginTransaction()
@@ -258,6 +243,9 @@ public class MainActivity extends FragmentActivity {
                 bundle.putSerializable( Common.FRAGMENT_ID, fragmentId );
                 bundle.putString( FRAGMENT_HEADER, mContext.getResources().getString( R.string.genres ) );
                 break;
+            case NOW_PLAYING:
+                fragment = new NowPlayingListViewFragment();
+                break;
             case SONGS:
             default:
                 fragment = new SongListViewFragment();
@@ -274,14 +262,9 @@ public class MainActivity extends FragmentActivity {
     private void loadDrawerFragments() {
         //Load the navigation drawer.
         getSupportFragmentManager().beginTransaction()
-                                   .replace( R.id.nav_drawer_container, new NavigationDrawerFragment() )
+                                   .replace( R.id.nav_drawer_container, new MainMenuDrawerFragment() )
                                    .commit();
 
-        //Load the current queue drawer.
-        mQueueDrawerFragment = new QueueDrawerFragment();
-        getSupportFragmentManager().beginTransaction()
-                                   .replace( R.id.current_queue_drawer_container, mQueueDrawerFragment )
-                                   .commit();
     }
 
     /**

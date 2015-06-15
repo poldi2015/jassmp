@@ -27,8 +27,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jassmp.Helpers.TypefaceHelper;
-import com.jassmp.Helpers.UIElementsHelper;
+import com.jassmp.GuiHelper.TypefaceHelper;
+import com.jassmp.GuiHelper.UIElementsHelper;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 
@@ -42,7 +42,8 @@ public class SettingsMultiselectAdapter extends ArrayAdapter<String> {
     private boolean                    mDirChecked;
     private boolean                    mWelcomeSetup;
 
-    public SettingsMultiselectAdapter( Context context, SettingsMusicFoldersDialog fragment, boolean welcomeSetup, boolean dirChecked ) {
+    public SettingsMultiselectAdapter( Context context, SettingsMusicFoldersDialog fragment, boolean welcomeSetup,
+                                       boolean dirChecked ) {
 
         super( context, -1, fragment.getFileFolderNamesList() );
 

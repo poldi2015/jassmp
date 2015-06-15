@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/now_playing_drag"
+        android:layout_height="75dp"
+        android:layout_width="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/drag_handle"/>
+
+    <ImageView
+        android:id="@+id/now_playing_cover"
+        android:layout_height="@dimen/list_view_icon_height"
+        android:layout_width="@dimen/list_view_album_icon_width"
+        android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@id/now_playing_drag"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/empty_color_patch_circular"
+        android:paddingLeft="8dp"
+        android:layout_alignParentStart="false"/>
+
+    <LinearLayout
+        android:id="@+id/now_playing_leftContainer_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="75dp"
+        android:layout_toRightOf="@id/now_playing_cover"
+        android:layout_centerVertical="true"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/now_playing_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginLeft="10dp"
+                android:ellipsize="marquee"
+                android:fadingEdge="horizontal"
+                android:gravity="bottom"
+                android:singleLine="true"
+                android:text="Song Name"
+                android:layout_marginRight="15dp"
+                android:textSize="20sp"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/now_playing_artist_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/now_playing_artist"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="10dp"
+                android:fadingEdge="horizontal"
+                android:gravity="top"
+                android:text="Artist Name"
+                android:layout_marginRight="15dp"
+                android:textSize="14sp"
+                android:singleLine="true"
+                android:textColor="#AAAAAA"/>
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/now_playing_rightContainer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/now_playing_rating"
+        android:layout_toStartOf="@+id/now_playing_rating">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/now_playing_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:paddingRight="10dp"
+                android:text="0:00"
+                android:lines="1"
+                android:ellipsize="end"
+                android:textSize="14sp"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/now_playing_bpm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:gravity="top"
+                android:paddingRight="10dp"
+                android:text="00 bpm"
+                android:lines="1"
+                android:ellipsize="end"
+                android:textSize="20sp"
+                android:textColor="#60B0ff"
+                />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/now_playing_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:lines="1"
+        android:ellipsize="end"
+        android:visibility="visible"
+        android:scaleX="0.75"
+        android:scaleY="0.75"
+        android:src="@drawable/cross_light"/>
+
+    <ImageView
+        android:id="@+id/now_playing_rating"
+        android:layout_height="@dimen/list_view_icon_height"
+        android:layout_width="@dimen/song_list_view_rating_icon_width"
+        android:layout_toLeftOf="@id/now_playing_remove"
+        android:layout_centerVertical="true"
+        android:src="@drawable/empty_color_patch_box"
+        android:paddingLeft="1dp"/>
+
+
+</RelativeLayout>

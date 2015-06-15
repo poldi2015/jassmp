@@ -27,8 +27,10 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jassmp.Helpers.TypefaceHelper;
-import com.jassmp.Helpers.UIElementsHelper;
+import com.jassmp.GuiHelper.TypefaceHelper;
+import com.jassmp.GuiHelper.UIElementsHelper;
+import com.jassmp.Preferences.Preferences;
+import com.jassmp.Preferences.Theme;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 
@@ -42,7 +44,8 @@ public class MultiselectListViewAdapter extends ArrayAdapter<String> {
     private boolean                       mDirChecked;
     private boolean                       mWelcomeSetup;
 
-    public MultiselectListViewAdapter( Context context, MusicFoldersSelectionFragment fragment, boolean welcomeSetup, boolean dirChecked ) {
+    public MultiselectListViewAdapter( Context context, MusicFoldersSelectionFragment fragment, boolean welcomeSetup,
+                                       boolean dirChecked ) {
 
         super( context, -1, fragment.getFileFolderNamesList() );
 
@@ -69,12 +72,12 @@ public class MultiselectListViewAdapter extends ArrayAdapter<String> {
             holder.fileFolderSizeText = (TextView) convertView.findViewById( R.id.file_folder_size_multiselect );
 
             //Apply the card layout's background based on the color theme.
-            if( mWelcomeSetup == true || mApp.getCurrentTheme() == Common.LIGHT_THEME ) {
+            if( mWelcomeSetup == true || new Preferences( mApp ).getCurrentTheme() == Theme.LIGHT ) {
                 holder.fileFolderNameText.setTextColor( Color.parseColor( "#2F2F2F" ) );
                 holder.fileFolderSizeText.setTextColor( UIElementsHelper.getSmallTextColor( mContext ) );
 
-            } else if( mApp.getCurrentTheme() == Common.DARK_THEME ) {
-                holder.fileFolderNameText.setTextColor( UIElementsHelper.getThemeBasedTextColor( mContext ) );
+            } else {
+                holder.fileFolderNameText.setTextColor( UIElementsHelper.getRegularTextColor( mContext ) );
                 holder.fileFolderSizeText.setTextColor( UIElementsHelper.getSmallTextColor( mContext ) );
 
             }

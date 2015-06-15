@@ -305,6 +305,7 @@
     <string name="songs_enqueued_toast">songs added to queue.</string>
     <string name="song_enqueued_toast">song added to queue.</string>
     <string name="now_playing_queue_caps">NOW PLAYING QUEUE</string>
+    <string name="queue_empty_info">Queue empty</string>
     <string name="rotate_device_to_go_back">Rotate your device to portrait mode to go back to the previous screen.</string>
     <string name="error_queuing_playlist">The playlist could not be queued. Check if the songs in the playlist are valid.</string>
     <string name="artist_could_not_be_blacklisted">The artist could not be blacklisted.</string>
@@ -817,7 +818,7 @@
     <string name="field_5">field5</string>
     <string name="title_activity_horizontal_list_sub">HorizontalListSubActivity</string>
     <string name="horiz_list_sub_activity">HorizListSubActivity</string>
-    <string name="queue_empty_info">Your queue is empty.</string>
+    <string name="now_playing_empty_info">Your queue is empty.</string>
     <string name="play_all_caps">PLAY ALL</string>
     <string name="a_b_repeat">A-B Repeat</string>
     <string name="music_library_colon">Music Library: </string>

@@ -25,7 +25,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import com.jassmp.Helpers.UIElementsHelper;
+import com.jassmp.GuiHelper.UIElementsHelper;
 import com.jassmp.R;
 
 public class NowPlayingColorSchemesDialog extends DialogFragment {

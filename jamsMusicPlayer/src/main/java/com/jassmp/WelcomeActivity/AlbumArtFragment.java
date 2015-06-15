@@ -26,7 +26,9 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 
-import com.jassmp.Helpers.TypefaceHelper;
+import com.jassmp.GuiHelper.TypefaceHelper;
+import com.jassmp.Preferences.AlbumArtSource;
+import com.jassmp.Preferences.Preferences;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 
@@ -48,6 +50,7 @@ public class AlbumArtFragment extends Fragment {
 
         mContext = getActivity().getApplicationContext();
         mApp = (Common) mContext;
+        final Preferences preferences = new Preferences( mContext );
         View rootView = (View) getActivity().getLayoutInflater().inflate( R.layout.fragment_welcome_screen_4, null );
 
         welcomeHeader = (TextView) rootView.findViewById( R.id.welcome_header );
@@ -66,12 +69,18 @@ public class AlbumArtFragment extends Fragment {
         mUseFolderArtOnlyRadioButton.setTypeface( TypefaceHelper.getTypeface( getActivity(), "Roboto-Regular" ) );
 
         //Check which album art source is selected and set the appropriate flag.
-        if( mApp.getSharedPreferences().getInt( "ALBUM_ART_SOURCE", 0 ) == 0 ) {
-            mPickWhatsBestRadioButton.setChecked( true );
-        } else if( mApp.getSharedPreferences().getInt( "ALBUM_ART_SOURCE", 0 ) == 1 ) {
-            mUseEmbeddedArtOnlyRadioButton.setChecked( true );
-        } else if( mApp.getSharedPreferences().getInt( "ALBUM_ART_SOURCE", 0 ) == 2 ) {
-            mUseFolderArtOnlyRadioButton.setChecked( true );
+        switch( preferences.getAlbumArtSource() ) {
+            default:
+            case PREFER_EMBEDDED_ART:
+            case PREFER_FOLDER_ART:
+                mPickWhatsBestRadioButton.setChecked( true );
+                break;
+            case EMBEDDED_ART_ONLY:
+                mUseEmbeddedArtOnlyRadioButton.setChecked( true );
+                break;
+            case FOLDER_ART_OLNY:
+                mUseFolderArtOnlyRadioButton.setChecked( true );
+                break;
         }
 
         radioGroup.setOnCheckedChangeListener( new OnCheckedChangeListener() {
@@ -80,16 +89,15 @@ public class AlbumArtFragment extends Fragment {
             public void onCheckedChanged( RadioGroup group, int checkedId ) {
                 switch( checkedId ) {
                     case R.id.pick_whats_best_for_me:
-                        mApp.getSharedPreferences().edit().putInt( "ALBUM_ART_SOURCE", 0 ).commit();
+                        preferences.setAlbumArtSource( AlbumArtSource.PREFER_EMBEDDED_ART );
                         break;
                     case R.id.use_embedded_art_only:
-                        mApp.getSharedPreferences().edit().putInt( "ALBUM_ART_SOURCE", 1 ).commit();
+                        preferences.setAlbumArtSource( AlbumArtSource.EMBEDDED_ART_ONLY );
                         break;
                     case R.id.use_folder_art_only:
-                        mApp.getSharedPreferences().edit().putInt( "ALBUM_ART_SOURCE", 2 ).commit();
+                        preferences.setAlbumArtSource( AlbumArtSource.FOLDER_ART_OLNY );
                         break;
                 }
-
             }
 
         } );

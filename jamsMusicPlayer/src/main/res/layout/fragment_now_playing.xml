@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+
+    <com.mobeta.android.dslv.DragSortListView
+        xmlns:dslv="http://schemas.android.com/apk/res/com.jams.music.player"
+        android:id="@+id/now_playing_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:drawSelectorOnTop="true"
+        dslv:click_remove_id="@+id/now_playing_remove_song"
+        dslv:drag_enabled="true"
+        dslv:drag_handle_id="@+id/drag_handle"
+        dslv:drag_scroll_start="0.33"
+        dslv:drag_start_mode="onDown"
+        dslv:float_alpha="0.6"
+        dslv:max_drag_scroll_speed="0.8"
+        dslv:remove_enabled="true"
+        dslv:remove_mode="clickRemove"
+        dslv:slide_shuffle_speed="0.5"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/now_playing_empty_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/now_playing_empty_info"
+        android:layout_centerInParent="true"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:visibility="visible"/>
+
+
+    <RelativeLayout
+        android:id="@+id/player_layout"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_below="@+id/now_playing_list_view"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/player_albumArt"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#AA000000"/>
+
+        <TextView
+            android:id="@+id/player_song"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="15dp"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:text="Unknown Song Title"
+            android:scrollHorizontally="true"
+            android:textColor="#FFFFFF"
+            android:shadowColor="#FF454545"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="5"
+            android:textSize="18sp"/>
+
+        <TextView
+            android:id="@+id/player_albumAndArtist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/player_song"
+            android:layout_alignRight="@+id/player_song"
+            android:layout_below="@+id/player_song"
+            android:layout_marginBottom="10dp"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:text="Unknown Artist - Unknown Album"
+            android:textColor="#FFFFFF"
+            android:shadowColor="#FF454545"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="5"
+            android:textSize="14sp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="5dp"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/player_previousSong"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:alpha="0.9"
+                android:background="?android:selectableItemBackground"
+                android:src="@drawable/btn_playback_previous_light"/>
+
+            <RelativeLayout
+                android:id="@+id/player_playPause_layout"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:background="@drawable/shadowed_circle_red"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true">
+
+                <ImageButton
+                    android:id="@+id/player_playPause"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/pause_light"
+                    android:scaleType="centerInside"
+                    android:background="#00000000"
+                    android:visibility="visible"
+                    android:adjustViewBounds="true"/>
+
+            </RelativeLayout>
+
+            <ImageButton
+                android:id="@+id/player_nextSong"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:alpha="0.9"
+                android:background="?android:selectableItemBackground"
+                android:src="@drawable/btn_playback_next_light"/>
+        </LinearLayout>
+    </RelativeLayout>
+
+</RelativeLayout>

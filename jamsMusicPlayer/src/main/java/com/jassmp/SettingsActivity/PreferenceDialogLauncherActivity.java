@@ -26,6 +26,7 @@ import com.jassmp.Dialogs.AlbumArtSourceDialog;
 import com.jassmp.Dialogs.CustomizeScreensDialog;
 import com.jassmp.Dialogs.NowPlayingColorSchemesDialog;
 import com.jassmp.Dialogs.ScanFrequencyDialog;
+import com.jassmp.Preferences.Preferences;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 
@@ -46,12 +47,17 @@ public class PreferenceDialogLauncherActivity extends FragmentActivity {
     public void onCreate( Bundle savedInstanceState ) {
 
         mContext = this;
+        final Preferences preferences = new Preferences( mContext );
         mApp = (Common) mContext.getApplicationContext();
 
-        if( mApp.getCurrentTheme() == Common.DARK_THEME ) {
-            this.setTheme( R.style.AppThemeTransparent );
-        } else {
-            this.setTheme( R.style.AppThemeTransparentLight );
+
+        switch( preferences.getCurrentTheme() ) {
+            case DARK:
+                this.setTheme( R.style.AppThemeTransparent );
+                break;
+            case LIGHT:
+                this.setTheme( R.style.AppThemeTransparentLight );
+                break;
         }
 
         super.onCreate( savedInstanceState );
@@ -77,7 +83,7 @@ public class PreferenceDialogLauncherActivity extends FragmentActivity {
 
         } else if( index == 6 ) {
             //Seting the "REBUILD_LIBRARY" flag to true will force MainActivity to rescan the folders.
-            mApp.getSharedPreferences().edit().putBoolean( "REBUILD_LIBRARY", true ).commit();
+            preferences.setRebuildLibrary( true );
 
             //Restart the app.
             Intent i = getBaseContext().getPackageManager()

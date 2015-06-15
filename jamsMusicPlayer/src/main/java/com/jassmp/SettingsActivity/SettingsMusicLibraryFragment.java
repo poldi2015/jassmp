@@ -29,7 +29,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.jassmp.Helpers.UIElementsHelper;
+import com.jassmp.GuiHelper.UIElementsHelper;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 import com.jassmp.WelcomeActivity.WelcomeActivity;

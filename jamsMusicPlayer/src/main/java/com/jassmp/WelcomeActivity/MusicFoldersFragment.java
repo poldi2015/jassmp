@@ -32,15 +32,15 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.jassmp.Helpers.TypefaceHelper;
+import com.jassmp.GuiHelper.TypefaceHelper;
 import com.jassmp.MusicFoldersSelectionFragment.MusicFoldersSelectionFragment;
+import com.jassmp.Preferences.Preferences;
 import com.jassmp.R;
-import com.jassmp.Utils.Common;
 
 public class MusicFoldersFragment extends Fragment {
 
-    private Context         mContext;
-    private Common          mApp;
+    private Context     mContext     = null;
+    private Preferences mPreferences = null;
     private FragmentManager mChildFragmentManager;
     private MusicFoldersSelectionFragment mMusicFoldersSelectionFragment = null;
     private TextView           mWelcomeHeader;
@@ -53,11 +53,12 @@ public class MusicFoldersFragment extends Fragment {
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
 
         mContext = getActivity().getApplicationContext();
-        mApp = (Common) mContext;
-        View rootView = (View) getActivity().getLayoutInflater().inflate( R.layout.fragment_welcome_screen_2, null );
+        mPreferences = new Preferences( mContext );
+        final Preferences preferences = new Preferences( mContext );
+        View rootView = getActivity().getLayoutInflater().inflate( R.layout.fragment_welcome_screen_2, null );
 
         mFoldersLayout = (RelativeLayout) rootView.findViewById( R.id.folders_fragment_holder );
-        if( mApp.getSharedPreferences().getInt( "MUSIC_FOLDERS_SELECTION", 0 ) == 0 ) {
+        if( !preferences.isMusicFoldersSelected() ) {
             mFoldersLayout.setVisibility( View.INVISIBLE );
             mFoldersLayout.setEnabled( false );
         } else {
@@ -110,10 +111,12 @@ public class MusicFoldersFragment extends Fragment {
         public void onCheckedChanged( RadioGroup radioGroup, int radioButtonId ) {
             switch( radioButtonId ) {
                 case R.id.get_all_songs_radio:
+                    mPreferences.setMusicFoldersSelected( false );
                     mFoldersLayout.startAnimation( mSlideOutAnimation );
                     mFoldersLayout.setEnabled( false );
                     break;
                 case R.id.pick_folders_radio:
+                    mPreferences.setMusicFoldersSelected( true );
                     mFoldersLayout.startAnimation( mSlideInAnimation );
                     mFoldersLayout.setEnabled( true );
                     break;

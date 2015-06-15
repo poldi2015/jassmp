@@ -31,8 +31,9 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.jassmp.Helpers.TypefaceHelper;
+import com.jassmp.GuiHelper.TypefaceHelper;
 import com.jassmp.MainActivity.MainActivity;
+import com.jassmp.Preferences.Preferences;
 import com.jassmp.R;
 import com.jassmp.Services.BuildMusicLibraryService;
 import com.jassmp.Utils.Common;
@@ -62,11 +63,12 @@ public class LauncherActivity extends FragmentActivity {
         mContext = this;
         mActivity = this;
         mApp = (Common) mContext.getApplicationContext();
+        Preferences preferences = new Preferences( mContext );
         mHandler = new Handler();
 
         //Increment the start count. This value will be used to determine when the library should be rescanned.
-        int startCount = mApp.getSharedPreferences().getInt( "START_COUNT", 1 );
-        mApp.getSharedPreferences().edit().putInt( "START_COUNT", startCount + 1 ).commit();
+        final int startCount = preferences.getStartCount() + 1;
+        preferences.setStartCount( startCount );
 
         //Save the dimensions of the layout for later use on KitKat devices.
         final RelativeLayout launcherRootView = (RelativeLayout) findViewById( R.id.launcher_root_view );
@@ -95,15 +97,6 @@ public class LauncherActivity extends FragmentActivity {
                     int layoutWidth = launcherRootView.getWidth();
 
                     int extraHeight = screenHeight - layoutHeight;
-
-                    mApp.getSharedPreferences().edit().putInt( "KITKAT_HEIGHT", layoutHeight ).commit();
-                    mApp.getSharedPreferences().edit().putInt( "KITKAT_WIDTH", layoutWidth ).commit();
-                    mApp.getSharedPreferences()
-                        .edit()
-                        .putInt( "KITKAT_HEIGHT_LAND", layoutWidth - extraHeight )
-                        .commit();
-                    mApp.getSharedPreferences().edit().putInt( "KITKAT_WIDTH_LAND", screenHeight ).commit();
-
                 } catch( Exception e ) {
                     e.printStackTrace();
                 }
@@ -113,11 +106,10 @@ public class LauncherActivity extends FragmentActivity {
         } );
 
         //Build the music library based on the user's scan frequency preferences.
-        int scanFrequency = mApp.getSharedPreferences().getInt( "SCAN_FREQUENCY", 5 );
-        int updatedStartCount = mApp.getSharedPreferences().getInt( "START_COUNT", 1 );
+        final int scanFrequency = preferences.getLibraryScanFrequency();
 
         //Launch the appropriate activity based on the "FIRST RUN" flag.
-        if( mApp.getSharedPreferences().getBoolean( Common.FIRST_RUN, true ) == true ) {
+        if( preferences.isFirstRun() ) {
 
             //Send out a test broadcast to initialize the homescreen/lockscreen widgets.
             sendBroadcast( new Intent( Intent.ACTION_MAIN ).addCategory( Intent.CATEGORY_HOME ) );
@@ -147,7 +139,7 @@ public class LauncherActivity extends FragmentActivity {
             //Initialize the runnable that will fire once the scan process is complete.
             mHandler.post( scanFinishedCheckerRunnable );
 
-        } else if( mApp.getSharedPreferences().getBoolean( "RESCAN_ALBUM_ART", false ) == true ) {
+        } else if( preferences.getRescanAlbumArt() ) {
 
             buildingLibraryMainText = (TextView) findViewById( R.id.building_music_library_text );
             buildingLibraryInfoText = (TextView) findViewById( R.id.building_music_library_info );
@@ -166,12 +158,9 @@ public class LauncherActivity extends FragmentActivity {
             buildingLibraryMainText.setText( R.string.jams_is_caching_artwork );
             initScanProcess( 0 );
 
-        } else if( ( mApp.getSharedPreferences().getBoolean( "REBUILD_LIBRARY", false ) == true ) ||
-                   ( scanFrequency == 0 && mApp.isScanFinished() == false ) ||
-                   ( scanFrequency == 1 && mApp.isScanFinished() == false && updatedStartCount % 3 == 0 ) ||
-                   ( scanFrequency == 2 && mApp.isScanFinished() == false && updatedStartCount % 5 == 0 ) ||
-                   ( scanFrequency == 3 && mApp.isScanFinished() == false && updatedStartCount % 10 == 0 ) ||
-                   ( scanFrequency == 4 && mApp.isScanFinished() == false && updatedStartCount % 20 == 0 ) ) {
+        } else if( ( preferences.getRebuildLibrary() ) || ( mApp.isScanFinished()
+                                                            && ( startCount % scanFrequency ) == 0 ) ) {
+
 
             buildingLibraryMainText = (TextView) findViewById( R.id.building_music_library_text );
             buildingLibraryInfoText = (TextView) findViewById( R.id.building_music_library_info );
@@ -223,19 +212,19 @@ public class LauncherActivity extends FragmentActivity {
         //Start the service that will start scanning the user's library/caching album art.
         mApp.setIsBuildingLibrary( true );
         buildingLibraryLayout.setVisibility( View.VISIBLE );
+        final Preferences preferences = new Preferences( mApp );
         if( scanCode == 0 ) {
             Intent intent = new Intent( this, BuildMusicLibraryService.class );
             intent.putExtra( "SCAN_TYPE", "RESCAN_ALBUM_ART" );
             startService( intent );
 
-            mApp.getSharedPreferences().edit().putBoolean( "RESCAN_ALBUM_ART", false ).commit();
-
+            preferences.setRescanAlbumArt( false );
         } else if( scanCode == 1 ) {
             Intent intent = new Intent( this, BuildMusicLibraryService.class );
             intent.putExtra( "SCAN_TYPE", "FULL_SCAN" );
             startService( intent );
 
-            mApp.getSharedPreferences().edit().putBoolean( "REBUILD_LIBRARY", false ).commit();
+            preferences.setRebuildLibrary( false );
         }
 
         //Initialize the runnable that will fire once the scan process is complete.

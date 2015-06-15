@@ -7,12 +7,6 @@
         android:title="@string/appearance"/>
 
     <header
-        android:fragment="com.jassmp.SettingsActivity.SettingsLayoutsFragment"
-        android:icon="@drawable/default_screen"
-        android:summary="@string/layouts_description"
-        android:title="@string/layouts"/>
-
-    <header
         android:fragment="com.jassmp.SettingsActivity.SettingsAlbumArtFragment"
         android:icon="@drawable/cover_art_icon"
         android:summary="@string/album_art_description"

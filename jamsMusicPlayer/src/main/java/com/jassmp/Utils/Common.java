@@ -16,34 +16,17 @@
 package com.jassmp.Utils;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.multidex.MultiDexApplication;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.DisplayMetrics;
 
-import com.jassmp.Helpers.UIElementsHelper;
-import com.jassmp.JassMpDb.DBAccessHelper;
-import com.jassmp.NowPlayingActivity.NowPlayingActivity;
-import com.jassmp.PlaybackKickstarter.PlaybackKickstarter;
+import com.jassmp.GuiHelper.UIElementsHelper;
 import com.jassmp.R;
-import com.jassmp.Services.AudioPlaybackService;
 import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.squareup.picasso.Picasso;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Singleton class that provides access to common objects
@@ -52,22 +35,6 @@ import java.io.InputStream;
  * @author Saravan Pantham
  */
 public class Common extends MultiDexApplication {
-
-    //Context.
-    private Context mContext;
-
-    //Service reference and flags.
-    private AudioPlaybackService mService;
-    private boolean mIsServiceRunning = false;
-
-    //Playback kickstarter object.
-    private PlaybackKickstarter mPlaybackKickstarter;
-
-    //NowPlayingActivity reference.
-    private NowPlayingActivity mNowPlayingActivity;
-
-    //SharedPreferences.
-    private static SharedPreferences mSharedPreferences;
 
     //Picasso instance.
     private Picasso mPicasso;
@@ -79,9 +46,6 @@ public class Common extends MultiDexApplication {
     //ImageLoader/ImageLoaderConfiguration objects for ListViews and GridViews.
     private ImageLoader              mImageLoader;
     private ImageLoaderConfiguration mImageLoaderConfiguration;
-
-    //Image display options.
-    private DisplayImageOptions mDisplayImageOptions;
 
     //Broadcast elements.
     private LocalBroadcastManager mLocalBroadcastManager;
@@ -121,60 +85,16 @@ public class Common extends MultiDexApplication {
     public static final int    XLARGE_TABLET_PORTRAIT   = 6;
     public static final int    XLARGE_TABLET_LANDSCAPE  = 7;
 
-    //Miscellaneous flags/identifiers.
-    public static final String SONG_ID       = "SongId";
-    public static final String SONG_TITLE    = "SongTitle";
-    public static final String SONG_ALBUM    = "SongAlbum";
-    public static final String SONG_ARTIST   = "SongArtist";
-    public static final String ALBUM_ART     = "AlbumArt";
-    public static final String CURRENT_THEME = "CurrentTheme";
-    public static final int    DARK_THEME    = 0;
-    public static final int    LIGHT_THEME   = 1;
-
-    //SharedPreferences keys.
-    public static final String CROSSFADE_ENABLED        = "CrossfadeEnabled";
-    public static final String CROSSFADE_DURATION       = "CrossfadeDuration";
-    public static final String REPEAT_MODE              = "RepeatMode";
-    public static final String MUSIC_PLAYING            = "MusicPlaying";
-    public static final String SERVICE_RUNNING          = "ServiceRunning";
-    public static final String CURRENT_LIBRARY          = "CurrentLibrary";
-    public static final String CURRENT_LIBRARY_POSITION = "CurrentLibraryPosition";
-    public static final String SHUFFLE_ON               = "ShuffleOn";
-    public static final String FIRST_RUN                = "FirstRun";
-    public static final String STARTUP_BROWSER          = "StartupBrowser";
-    public static final String SHOW_LOCKSCREEN_CONTROLS = "ShowLockscreenControls";
-    public static final String ARTISTS_LAYOUT           = "ArtistsLayout";
-    public static final String ALBUM_ARTISTS_LAYOUT     = "AlbumArtistsLayout";
-    public static final String ALBUMS_LAYOUT            = "AlbumsLayout";
-    public static final String PLAYLISTS_LAYOUT         = "PlaylistsLayout";
-    public static final String GENRES_LAYOUT            = "GenresLayout";
-    public static final String FOLDERS_LAYOUT           = "FoldersLayout";
-
-    //Repeat mode constants.
-    public static final int REPEAT_OFF      = 0;
-    public static final int REPEAT_PLAYLIST = 1;
-    public static final int REPEAT_SONG     = 2;
-    public static final int A_B_REPEAT      = 3;
-
-    // Sorting
-    public static final String SORT_COLUMN           = "SortColumn";
-    public static final String SORT_DIRECTION_COLUMN = "SortDirectionColumn";
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         //Application context.
-        mContext = getApplicationContext();
-
-        //SharedPreferences.
-        mSharedPreferences = this.getSharedPreferences( "com.jams.music.player", Context.MODE_PRIVATE );
-
-        //Playback kickstarter.
-        mPlaybackKickstarter = new PlaybackKickstarter( this.getApplicationContext() );
+        final Context context = getApplicationContext();
 
         //Picasso.
-        mPicasso = new Picasso.Builder( mContext ).build();
+        mPicasso = new Picasso.Builder( context ).build();
 
         //ImageLoader.
         mImageLoader = ImageLoader.getInstance();
@@ -184,7 +104,8 @@ public class Common extends MultiDexApplication {
                                                                                                            13 )
                                                                                                    .imageDownloader(
                                                                                                            new ByteArrayUniversalImageLoader(
-                                                                                                                   mContext ) )
+
+                                                                                                                   context ) )
                                                                                                    .build();
         mImageLoader.init( mImageLoaderConfiguration );
 
@@ -205,126 +126,6 @@ public class Common extends MultiDexApplication {
         options.inPurgeable = true;
 
         int emptyColorPatch = UIElementsHelper.getEmptyColorPatch( this );
-        mDisplayImageOptions = null;
-        mDisplayImageOptions = new DisplayImageOptions.Builder().showImageForEmptyUri( emptyColorPatch )
-                                                                .showImageOnFail( emptyColorPatch )
-                                                                .showImageOnLoading( emptyColorPatch )
-                                                                .cacheInMemory( true )
-                                                                .cacheOnDisc( true )
-                                                                .decodingOptions( options )
-                                                                .imageScaleType( ImageScaleType.IN_SAMPLE_POWER_OF_2 )
-                                                                .bitmapConfig( Bitmap.Config.ARGB_4444 )
-                                                                .delayBeforeLoading( 400 )
-                                                                .displayer( new FadeInBitmapDisplayer( 200 ) )
-                                                                .build();
-
-    }
-
-    /**
-     * Sends out a local broadcast that notifies all receivers to update
-     * their respective UI elements.
-     */
-    public void broadcastUpdateUICommand( String[] updateFlags, String[] flagValues ) {
-        Intent intent = new Intent( UPDATE_UI_BROADCAST );
-        for( int i = 0; i < updateFlags.length; i++ ) {
-            intent.putExtra( updateFlags[ i ], flagValues[ i ] );
-        }
-
-        mLocalBroadcastManager = LocalBroadcastManager.getInstance( mContext );
-        mLocalBroadcastManager.sendBroadcast( intent );
-
-    }
-
-    /**
-     * Resamples a resource image to avoid OOM errors.
-     *
-     * @param resID     Resource ID of the image to be downsampled.
-     * @param reqWidth  Width of output image.
-     * @param reqHeight Height of output image.
-     * @return A bitmap of the resampled image.
-     */
-    public Bitmap decodeSampledBitmapFromResource( int resID, int reqWidth, int reqHeight ) {
-
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        options.inSampleSize = calculateInSampleSize( options, reqWidth, reqHeight );
-        options.inJustDecodeBounds = false;
-        options.inPurgeable = true;
-
-        return BitmapFactory.decodeResource( mContext.getResources(), resID, options );
-    }
-
-    /**
-     * Resamples the specified input image file to avoid OOM errors.
-     *
-     * @param inputFile Input file to be downsampled
-     * @param reqWidth  Width of the output file.
-     * @param reqHeight Height of the output file.
-     * @return The downsampled bitmap.
-     */
-    public Bitmap decodeSampledBitmapFromFile( File inputFile, int reqWidth, int reqHeight ) {
-
-        InputStream is = null;
-        try {
-
-            try {
-                is = new FileInputStream( inputFile );
-            } catch( Exception e ) {
-                //Return a null bitmap if there's an error reading the file.
-                return null;
-            }
-
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream( is, null, options );
-
-            options.inSampleSize = calculateInSampleSize( options, reqWidth, reqHeight );
-            options.inJustDecodeBounds = false;
-            options.inPurgeable = true;
-
-            try {
-                is = new FileInputStream( inputFile );
-            } catch( FileNotFoundException e ) {
-                //Return a null bitmap if there's an error reading the file.
-                return null;
-            }
-
-            return BitmapFactory.decodeStream( is, null, options );
-        } finally {
-            try {
-                if( is != null ) {
-                    is.close();
-                }
-            } catch( IOException e ) {
-                e.printStackTrace();
-            }
-
-        }
-
-    }
-
-    /**
-     * Calculates the sample size for the resampling process.
-     *
-     * @param options
-     * @param reqWidth
-     * @param reqHeight
-     * @return The sample size.
-     */
-    private static int calculateInSampleSize( BitmapFactory.Options options, int reqWidth, int reqHeight ) {
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if( height > reqHeight || width > reqWidth ) {
-            if( width > height ) {
-                inSampleSize = Math.round( (float) height / (float) reqHeight );
-            } else {
-                inSampleSize = Math.round( (float) width / (float) reqWidth );
-            }
-        }
-
-        return inSampleSize;
     }
 
     /*
@@ -351,21 +152,6 @@ public class Common extends MultiDexApplication {
         }
 
         return 0;
-    }
-
-    /**
-     * Converts dp unit to equivalent pixels, depending on device density.
-     *
-     * @param dp      A value in dp (density independent pixels) unit. Which we need to convert
-     *                into pixels
-     * @param context Context to get resources and device specific display metrics
-     * @return A float value to represent px equivalent to dp depending on device density
-     */
-    public float convertDpToPixels( float dp, Context context ) {
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        float px = dp * ( metrics.densityDpi / 160f );
-        return px;
     }
 
     /**
@@ -465,14 +251,6 @@ public class Common extends MultiDexApplication {
      * Getter methods.
      */
 
-    public DBAccessHelper getDBAccessHelper() {
-        return DBAccessHelper.getInstance( mContext );
-    }
-
-    public SharedPreferences getSharedPreferences() {
-        return mSharedPreferences;
-    }
-
     public Picasso getPicasso() {
         return mPicasso;
     }
@@ -485,40 +263,8 @@ public class Common extends MultiDexApplication {
         return mIsScanFinished;
     }
 
-    public AudioPlaybackService getAudioPlaybackService() {
-        return mService;
-    }
-
-    public NowPlayingActivity getNowPlayingActivity() {
-        return mNowPlayingActivity;
-    }
-
     public ImageLoader getImageLoader() {
         return mImageLoader;
-    }
-
-    public int getCurrentTheme() {
-        return getSharedPreferences().getInt( CURRENT_THEME, DARK_THEME );
-    }
-
-    public boolean isServiceRunning() {
-        return mIsServiceRunning;
-    }
-
-    public boolean isEqualizerEnabled() {
-        return getSharedPreferences().getBoolean( "EQUALIZER_ENABLED", true );
-    }
-
-    public boolean isCrossfadeEnabled() {
-        return getSharedPreferences().getBoolean( CROSSFADE_ENABLED, false );
-    }
-
-    public int getCrossfadeDuration() {
-        return getSharedPreferences().getInt( CROSSFADE_DURATION, 5 );
-    }
-
-    public PlaybackKickstarter getPlaybackKickstarter() {
-        return mPlaybackKickstarter;
     }
 
 	/*
@@ -531,18 +277,6 @@ public class Common extends MultiDexApplication {
 
     public void setIsScanFinished( boolean isScanFinished ) {
         mIsScanFinished = isScanFinished;
-    }
-
-    public void setService( AudioPlaybackService service ) {
-        mService = service;
-    }
-
-    public void setNowPlayingActivity( NowPlayingActivity activity ) {
-        mNowPlayingActivity = activity;
-    }
-
-    public void setIsServiceRunning( boolean running ) {
-        mIsServiceRunning = running;
     }
 
 }

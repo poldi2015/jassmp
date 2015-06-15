@@ -43,11 +43,24 @@ public class SongTableAccessor extends AbstractTableAccessor {
         replaceEntry( song.getContentValues() );
     }
 
+    public SongDao getSong( final String key ) {
+        final QueryBuilder builder = new QueryBuilder().where( SongDao.COLUMN_KEY ).whereEq().whereText( key );
+        final SongCursorAdapter songCursorAdapter = getSongCursorAdapter( builder, null, null );
+        if( songCursorAdapter.getCount() < 1 ) {
+            return null;
+        }
+        final SongDao dao = songCursorAdapter.getDaoFromCursor( 0 );
+        songCursorAdapter.close();
+
+        return dao;
+    }
+
     public SongCursorAdapter getAllSongsCursorAdapter( final Column orderBy, final OrderDirection orderDirection ) {
         return getSongCursorAdapter( null, orderBy, orderDirection );
     }
 
-    public SongCursorAdapter getFilteredSongsCursorAdapter( final Column orderBy, final OrderDirection orderDirection ) {
+    public SongCursorAdapter getFilteredSongsCursorAdapter( final Column orderBy, final OrderDirection orderDirection
+                                                          ) {
         final QueryBuilder builder = new QueryBuilder();
         for( final AbstractFilterTableAccessor filter : DatabaseAccessor.getInstance( getContext() )
                                                                         .getFilterTableAccessors() ) {
@@ -69,7 +82,8 @@ public class SongTableAccessor extends AbstractTableAccessor {
         return builder;
     }
 
-    private SongCursorAdapter getSongCursorAdapter( QueryBuilder builder, final Column orderBy, final OrderDirection orderDirection ) {
+    private SongCursorAdapter getSongCursorAdapter( QueryBuilder builder, final Column orderBy,
+                                                    final OrderDirection orderDirection ) {
         if( builder == null ) {
             builder = new QueryBuilder();
         }

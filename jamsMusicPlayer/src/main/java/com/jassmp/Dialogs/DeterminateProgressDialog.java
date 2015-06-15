@@ -25,7 +25,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.jassmp.Helpers.TypefaceHelper;
+import com.jassmp.GuiHelper.TypefaceHelper;
 import com.jassmp.R;
 
 public class DeterminateProgressDialog extends DialogFragment {

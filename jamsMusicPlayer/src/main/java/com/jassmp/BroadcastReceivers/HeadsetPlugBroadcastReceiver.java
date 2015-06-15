@@ -19,6 +19,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.jassmp.Playback.Playback;
 import com.jassmp.Utils.Common;
 
 /**
@@ -33,26 +34,19 @@ public class HeadsetPlugBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive( Context context, Intent intent ) {
+        assert intent.getAction().equals( Intent.ACTION_HEADSET_PLUG );
 
-        mApp = (Common) context.getApplicationContext();
-
-        if( intent.getAction().equals( Intent.ACTION_HEADSET_PLUG ) ) {
-            int state = intent.getIntExtra( "state", -1 );
-            switch( state ) {
-                case 0:
-                    //Headset unplug event.
-                    mApp.getAudioPlaybackService().pausePlayback();
-                    break;
-                case 1:
-                    //Headset plug-in event.
-                    mApp.getAudioPlaybackService().startPlayback();
-                    break;
-                default:
-                    //No idea what just happened.
-            }
-
+        final Playback playback = new Playback( context.getApplicationContext(), null );
+        switch( intent.getIntExtra( "state", -1 ) ) {
+            case 0:
+                //Headset unplug event.
+                playback.pause();
+                break;
+            case 1:
+                //Headset plug-in event.
+                playback.play();
+                break;
         }
-
     }
 
 }

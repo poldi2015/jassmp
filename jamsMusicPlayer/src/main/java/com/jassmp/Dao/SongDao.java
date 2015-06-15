@@ -1,9 +1,16 @@
 package com.jassmp.Dao;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 
+import com.jassmp.ImageTransformers.PicassoMirrorReflectionTransformer;
 import com.jassmp.JassMpDb.SongTableAccessor;
 import com.jassmp.R;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -71,6 +78,7 @@ public class SongDao {
     private static final String HASH_PADDING = "000000000000000000000000000000";
 
     private final Map<Column, Object> mValues;
+    private Bitmap mAlbumArt = null;
 
     public SongDao( final Map<Column, Object> values ) {
         mValues = new HashMap<Column, Object>( COLUMNS.length );
@@ -108,6 +116,10 @@ public class SongDao {
 
     public String getFilePath() {
         return (String) mValues.get( COLUMN_SONG_FILE_PATH );
+    }
+
+    public Uri getFileUri() {
+        return Uri.parse( (String) mValues.get( COLUMN_SONG_FILE_PATH ) );
     }
 
     public int getTrackNumber() {
@@ -248,11 +260,45 @@ public class SongDao {
         }
     }
 
+    public void loadAlbumArt( final Context context, final AlbumArtLoadedListener listener ) {
+        if( mAlbumArt != null ) {
+            listener.artLoaded( mAlbumArt );
+        } else {
+            final Picasso picasso = new Picasso.Builder( context ).build();
+            picasso.load( getAlbumArtPath() ).transform( new PicassoMirrorReflectionTransformer() ).into( new Target() {
+
+                @Override
+                public void onBitmapLoaded( Bitmap bitmap, Picasso.LoadedFrom from ) {
+                    mAlbumArt = bitmap;
+                    listener.artLoaded( mAlbumArt );
+                }
+
+                @Override
+                public void onBitmapFailed( Drawable errorDrawable ) {
+                    onBitmapLoaded( mAlbumArt, null );
+
+                }
+
+                @Override
+                public void onPrepareLoad( Drawable placeHolderDrawable ) {
+                }
+
+            } );
+        }
+    }
+
+
     @Override
     public String toString() {
         return "SongDao{" +
                "id=" + mValues.get( COLUMN_ID ) +
                ",title=" + mValues.get( COLUMN_SONG_TITLE ) +
                '}';
+    }
+
+    public interface AlbumArtLoadedListener {
+
+        public void artLoaded( Bitmap bitmap );
+
     }
 }

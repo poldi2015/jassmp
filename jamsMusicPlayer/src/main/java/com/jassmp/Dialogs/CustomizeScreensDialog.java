@@ -35,14 +35,14 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jassmp.Helpers.TypefaceHelper;
+import com.jassmp.GuiHelper.TypefaceHelper;
 import com.jassmp.R;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.SimpleFloatViewManager;
 
 import java.util.ArrayList;
 
-@SuppressLint( "DefaultLocale" )
+@SuppressLint("DefaultLocale")
 public class CustomizeScreensDialog extends DialogFragment {
 
     private       Activity                    parentActivity;

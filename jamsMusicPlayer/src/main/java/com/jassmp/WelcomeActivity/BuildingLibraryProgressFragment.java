@@ -32,7 +32,7 @@ import android.widget.TextView;
 
 import com.jassmp.AsyncTasks.AsyncBuildLibraryTask;
 import com.jassmp.AsyncTasks.AsyncBuildLibraryTask.OnBuildLibraryProgressUpdate;
-import com.jassmp.Helpers.TypefaceHelper;
+import com.jassmp.GuiHelper.TypefaceHelper;
 import com.jassmp.MainActivity.MainActivity;
 import com.jassmp.R;
 
@@ -94,7 +94,8 @@ public class BuildingLibraryProgressFragment extends Fragment implements OnBuild
     }
 
     @Override
-    public void onProgressUpdate( AsyncBuildLibraryTask task, String mCurrentTask, int overallProgress, int maxProgress, boolean mediaStoreTransferDone ) {
+    public void onProgressUpdate( AsyncBuildLibraryTask task, String mCurrentTask, int overallProgress,
+                                  int maxProgress, boolean mediaStoreTransferDone ) {
         /**
          * overallProgress refers to the progress that the service's notification
          * progress bar will display. Since this fragment will only show the progress
