@@ -19,11 +19,9 @@
         android:layout_width="@dimen/list_view_album_icon_width"
         android:layout_marginLeft="5dp"
         android:layout_toRightOf="@id/now_playing_drag"
-        android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:src="@drawable/empty_color_patch_circular"
-        android:paddingLeft="8dp"
-        android:layout_alignParentStart="false"/>
+        android:paddingLeft="8dp"/>
 
     <LinearLayout
         android:id="@+id/now_playing_leftContainer_layout"

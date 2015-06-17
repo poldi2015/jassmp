@@ -40,6 +40,7 @@ import com.jassmp.Utils.Common;
 import com.squareup.picasso.RequestCreator;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Shows the Library
@@ -61,7 +62,7 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
     private final Common               mApp;
     private       SongListViewFragment mListViewFragment;
     public static Holder mHolder = null;
-    private String mKey = "";
+    private       String mKey    = "";
 
     public SongListViewItemAdapter( final Context context, final SongCursorAdapter cursorAdapter,
                                     final SongListViewFragment listViewFragment ) {
@@ -70,7 +71,7 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
         mContext = context;
         mListViewFragment = listViewFragment;
         mApp = (Common) mContext.getApplicationContext();
-        mPlayback = new Playback( context, null );
+        mPlayback = new Playback( context );
     }
 
     @Override
@@ -257,9 +258,16 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
             artistTextView.setText( artist );
         }
 
-        public void setDuration( int duration ) {
-            this.duration = duration;
-            durationTextView.setText( Integer.toString( duration ) );
+        public void setDuration( final int millis ) {
+            if( millis > 0 ) {
+                final String duration = String.format( "%d:%02d", TimeUnit.MILLISECONDS.toMinutes( millis ),
+                                                       TimeUnit.MILLISECONDS.toSeconds( millis )
+                                                       - TimeUnit.MINUTES.toSeconds(
+                                                               TimeUnit.MILLISECONDS.toMinutes( millis ) ) );
+                durationTextView.setText( duration );
+            } else {
+                durationTextView.setText( "0:00" );
+            }
         }
 
         public void setBpm( int bpm ) {

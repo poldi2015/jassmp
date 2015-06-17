@@ -2,10 +2,10 @@ package com.jassmp.Playback;
 
 public interface PlaybackStateListener {
 
-    void playStateChanged( PlayerState state );
+    void onPlayStateChanged( PlayerState state );
 
-    void queueChanged( QueueState state );
+    void onQueueChanged( QueueState state );
 
-    void playPositionChanged( PlayPositionState state );
+    void onPlayPositionChanged( PlayPositionState state );
 
 }

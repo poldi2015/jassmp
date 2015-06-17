@@ -36,7 +36,7 @@ public class HeadsetPlugBroadcastReceiver extends BroadcastReceiver {
     public void onReceive( Context context, Intent intent ) {
         assert intent.getAction().equals( Intent.ACTION_HEADSET_PLUG );
 
-        final Playback playback = new Playback( context.getApplicationContext(), null );
+        final Playback playback = new Playback( context.getApplicationContext() );
         switch( intent.getIntExtra( "state", -1 ) ) {
             case 0:
                 //Headset unplug event.

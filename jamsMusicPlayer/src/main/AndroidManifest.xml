@@ -25,15 +25,6 @@
         android:label="@string/app_name"
         android:largeHeap="true">
 
-        <!-- Now Playing Activity -->
-
-        <activity
-            android:name=".NowPlayingActivity.NowPlayingActivity"
-            android:exported="true"
-            android:label="@string/now_playing"
-            android:launchMode="singleTask">
-        </activity>
-
         <!-- Launcher Activity -->
 
         <activity android:name=".LauncherActivity.LauncherActivity">
@@ -61,6 +52,7 @@
         <!-- Services -->
 
         <service android:name=".Playback.PlaybackService"/>
+
         <service android:name=".Services.AutoFetchAlbumArtService"/>
 
         <service

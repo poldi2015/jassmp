@@ -35,13 +35,9 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class NowPlayingListViewItemAdapter extends ArrayAdapter<String> {
-
-    //
-    // defines
-
-    public static final String INVALID_POSITION = " N/A ";
 
     //
     // private members
@@ -63,15 +59,14 @@ public class NowPlayingListViewItemAdapter extends ArrayAdapter<String> {
     @Override
     public synchronized View getView( int position, View convertView, ViewGroup parent ) {
         if( convertView == null ) {
-            convertView = LayoutInflater.from( mContext ).inflate( R.layout.songlist_view_item, parent, false );
+            convertView = LayoutInflater.from( mContext ).inflate( R.layout.now_playing_list_item, parent, false );
             mHolder = new Holder( convertView, mContext );
-            mHolder.setCoverImage( (ImageView) convertView.findViewById( R.id.now_playing_cover ) );
+            mHolder.setCoverImageView( (ImageView) convertView.findViewById( R.id.now_playing_cover ) );
             mHolder.setTitleTextView( (TextView) convertView.findViewById( R.id.now_playing_title ) );
             mHolder.setArtistTextView( (TextView) convertView.findViewById( R.id.now_playing_artist ) );
             mHolder.setDurationTextView( (TextView) convertView.findViewById( R.id.now_playing_duration ) );
             mHolder.setBpmTextView( (TextView) convertView.findViewById( R.id.now_playing_bpm ) );
             mHolder.setRatingIcon( (ImageView) convertView.findViewById( R.id.now_playing_rating ) );
-            mHolder.setRemoveIcon( (ImageView) convertView.findViewById( R.id.now_playing_remove ) );
         } else {
             mHolder = (Holder) convertView.getTag();
         }
@@ -94,6 +89,14 @@ public class NowPlayingListViewItemAdapter extends ArrayAdapter<String> {
         }
 
         return convertView;
+    }
+
+    @Override
+    public String getItem( final int position ) {
+        if( position < 0 || position >= getCount() ) {
+            return null;
+        }
+        return super.getItem( position );
     }
 
     public void setCurrentIndex( final int currentIndex ) {
@@ -131,7 +134,6 @@ public class NowPlayingListViewItemAdapter extends ArrayAdapter<String> {
         private TextView  mDurationTextView;
         private TextView  mBpmTextView;
         private ImageView mRatingIcon;
-        private ImageView mRemoveIcon;
 
         private       Context mContext;
         private final Picasso mPicasso;
@@ -151,7 +153,7 @@ public class NowPlayingListViewItemAdapter extends ArrayAdapter<String> {
             setBpm( -1 );
             setRating( 0 );
             setCoverPath( null );
-            setCoverImage( null );
+            setCoverPath( null );
         }
 
         public void setIsCurrentIndex( final boolean currentIndex ) {
@@ -183,8 +185,16 @@ public class NowPlayingListViewItemAdapter extends ArrayAdapter<String> {
             mArtistTextView.setText( artist );
         }
 
-        public void setDuration( int duration ) {
-            mDurationTextView.setText( duration >= 0 ? Integer.toString( duration ) : "" );
+        public void setDuration( final int millis ) {
+            if( millis > 0 ) {
+                final String duration = String.format( "%d:%02d", TimeUnit.MILLISECONDS.toMinutes( millis ),
+                                                       TimeUnit.MILLISECONDS.toSeconds( millis )
+                                                       - TimeUnit.MINUTES.toSeconds(
+                                                               TimeUnit.MILLISECONDS.toMinutes( millis ) ) );
+                mDurationTextView.setText( duration );
+            } else {
+                mDurationTextView.setText( "0:00" );
+            }
         }
 
         public void setBpm( int bpm ) {
@@ -199,7 +209,7 @@ public class NowPlayingListViewItemAdapter extends ArrayAdapter<String> {
             loadCoverImage( coverPath );
         }
 
-        public void setCoverImage( ImageView coverImage ) {
+        public void setCoverImageView( ImageView coverImage ) {
             this.mCoverImage = coverImage;
             coverImage.setImageResource( UIElementsHelper.getEmptyCircularColorPatch( mContext ) );
             coverImage.setTag( this );
@@ -235,11 +245,6 @@ public class NowPlayingListViewItemAdapter extends ArrayAdapter<String> {
         public void setRatingIcon( ImageView ratingIcon ) {
             this.mRatingIcon = ratingIcon;
             ratingIcon.setTag( this );
-        }
-
-        public void setRemoveIcon( ImageView removeIcon ) {
-            this.mRemoveIcon = removeIcon;
-            removeIcon.setTag( this );
         }
 
         private void setRatingBitmap( final int id ) {

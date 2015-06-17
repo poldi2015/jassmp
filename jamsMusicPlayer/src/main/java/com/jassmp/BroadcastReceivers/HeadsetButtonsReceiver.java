@@ -18,7 +18,7 @@ public class HeadsetButtonsReceiver extends BroadcastReceiver {
             return;
         }
 
-        final Playback playback = new Playback( context.getApplicationContext(), null );
+        final Playback playback = new Playback( context.getApplicationContext() );
         switch( event.getKeyCode() ) {
             case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
             case KeyEvent.KEYCODE_HEADSETHOOK:

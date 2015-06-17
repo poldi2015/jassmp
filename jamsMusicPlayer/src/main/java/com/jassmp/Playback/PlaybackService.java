@@ -1,6 +1,5 @@
 package com.jassmp.Playback;
 
-import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
@@ -15,15 +14,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class PlaybackService extends IntentService {
+public class PlaybackService extends PersistentService {
 
     //
     // defines
 
-    public static final String NAME            = PlaybackService.class.getSimpleName();
-    public static final int    NOTIFICATION_ID = 1080;
-
-    public enum RepeatMode {NONE, ALL, SONG}
+    public static final String NAME = PlaybackService.class.getSimpleName();
 
     //
     // private members
@@ -58,10 +54,11 @@ public class PlaybackService extends IntentService {
         if( isInitialized() ) {
             // Already initialized
             if( !mCurrentMediaPlayer.isInitialized() ) {
-                mCurrentMediaPlayer = new PlaybackMediaPlayer( mContext, mAudioManagement, mMediaPlayerListern );
+                mCurrentMediaPlayer = new PlaybackMediaPlayer( mContext, mAudioManagement, mMediaPlayerStatusListener );
             }
             if( !mAlternativeMediaPlayer.isInitialized() ) {
-                mAlternativeMediaPlayer = new PlaybackMediaPlayer( mContext, mAudioManagement, mMediaPlayerListern );
+                mAlternativeMediaPlayer = new PlaybackMediaPlayer( mContext, mAudioManagement,
+                                                                   mMediaPlayerStatusListener );
             }
             updateRepeatMode( mRepeatMode );
         } else {
@@ -71,15 +68,21 @@ public class PlaybackService extends IntentService {
             mPreferences = new Preferences( mContext );
             mQueue = mPreferences.getPlaybackQueue();
             mCurrentIndex = mPreferences.getPlaybackCurrentIndex();
-            mCurrentPosition = mPreferences.getPlaybackPosition();
+            if( mCurrentIndex >= mQueue.size() ) {
+                mCurrentIndex = -1;
+                mCurrentPosition = 0;
+            } else {
+                mCurrentPosition = mPreferences.getPlaybackPosition();
+            }
             mPlayState = PlayerState.State.PAUSED;
-            updateRepeatMode( mPreferences.getRepeatMode() );
 
             mAudioManagement = new AudioManagement( mContext, mAudioFocusListener );
-            mCurrentMediaPlayer = new PlaybackMediaPlayer( mContext, mAudioManagement, mMediaPlayerListern );
-            mAlternativeMediaPlayer = new PlaybackMediaPlayer( mContext, mAudioManagement, mMediaPlayerListern );
+            mCurrentMediaPlayer = new PlaybackMediaPlayer( mContext, mAudioManagement, mMediaPlayerStatusListener );
+            mAlternativeMediaPlayer = new PlaybackMediaPlayer( mContext, mAudioManagement, mMediaPlayerStatusListener );
             mAudioManagement.requestAudioFocus();
             mRemoteControlClient = new RemoteControlClient( mContext, mAudioManagement.getAudioManager() );
+
+            updateRepeatMode( mPreferences.getRepeatMode() );
         }
         updateCrossFade( mPreferences.isCrossFadeEnabled(), mPreferences.getCrossFadeDuration() );
     }
@@ -104,7 +107,7 @@ public class PlaybackService extends IntentService {
         mContext = null;
         mPreferences = null;
         mQueue = null;
-        mCurrentIndex = 0;
+        mCurrentIndex = -1;
         mSongTableAccessor = null;
     }
 
@@ -194,8 +197,19 @@ public class PlaybackService extends IntentService {
         }
     }
 
-    private void handleSetRepeat( final Intent intent ) {
-        RepeatMode repeatMode = RepeatMode.valueOf( intent.getStringExtra( Playback.EXTRA_REPEAT_MODE ) );
+    private void handleToggleRepeat() {
+        RepeatMode repeatMode = RepeatMode.NONE;
+        switch( mRepeatMode ) {
+            case NONE:
+                repeatMode = RepeatMode.ALL;
+                break;
+            case ALL:
+                repeatMode = RepeatMode.SONG;
+                break;
+            case SONG:
+                repeatMode = RepeatMode.NONE;
+                break;
+        }
         updateRepeatMode( repeatMode );
     }
 
@@ -246,8 +260,8 @@ public class PlaybackService extends IntentService {
             case PLAY_INDEX:
                 handlePlayIndex( intent );
                 break;
-            case SET_REPEAT:
-                handleSetRepeat( intent );
+            case TOGGLE_REPEAT:
+                handleToggleRepeat();
                 break;
         }
     }
@@ -279,7 +293,8 @@ public class PlaybackService extends IntentService {
         final Intent intent;
         synchronized( mLock ) {
             context = mContext;
-            intent = new PlayerState( mCurrentIndex, mPlayState, mCurrentPosition ).getIntent();
+            intent = new PlayerState( mCurrentIndex, mCurrentIndex == 0, mCurrentIndex >= mQueue.size() - 1, mPlayState,
+                                      mRepeatMode, mCurrentPosition ).getIntent();
         }
         LocalBroadcastManager.getInstance( context ).sendBroadcast( intent );
     }
@@ -292,7 +307,7 @@ public class PlaybackService extends IntentService {
         final Intent intent;
         synchronized( mLock ) {
             context = mContext;
-            intent = new PlayPositionState( mCurrentPosition ).getIntent();
+            intent = new PlayPositionState( mCurrentIndex, mCurrentPosition ).getIntent();
         }
         LocalBroadcastManager.getInstance( context ).sendBroadcast( intent );
     }
@@ -503,7 +518,13 @@ public class PlaybackService extends IntentService {
         mAlternativeMediaPlayer.setCrossFadingDuration( crossFadeDuration );
     }
 
-    public void updateState() {
+    private int updatePosition( final int position ) {
+        synchronized( mLock ) {
+            return mCurrentPosition = position;
+        }
+    }
+
+    private PlayerState.State updateState() {
         synchronized( mLock ) {
             final PlayerState.State currentState =
                     getCurrentMediaPlayer().getState() == PlaybackMediaPlayer.State.PLAYING ? PlayerState.State.PLAYING
@@ -514,8 +535,8 @@ public class PlaybackService extends IntentService {
             mPlayState = currentState == PlayerState.State.PLAYING || alternateState == PlayerState.State.PLAYING
                          ? PlayerState.State.PLAYING : PlayerState.State.PAUSED;
 
+            return mPlayState;
         }
-
     }
 
     private PlaybackMediaPlayer getCurrentMediaPlayer() {
@@ -561,12 +582,16 @@ public class PlaybackService extends IntentService {
         }
     };
 
-    private final PlaybackMediaPlayer.MediaPlayerStatusListener mMediaPlayerListern
+    private final PlaybackMediaPlayer.MediaPlayerStatusListener mMediaPlayerStatusListener
             = new PlaybackMediaPlayer.MediaPlayerStatusListener() {
 
         @Override
-        public void preparePlaying() {
-            startForeground( NOTIFICATION_ID, null );
+        public void preparePlaying( final SongDao song ) {
+            final NotificationBuilder notificationBuilder = new NotificationBuilder( mContext );
+            final PlayerState state = new PlayerState( mCurrentIndex, mCurrentIndex == 0,
+                                                       mCurrentIndex >= mQueue.size() - 1, mPlayState, mRepeatMode,
+                                                       mCurrentPosition );
+            startForeground( NotificationBuilder.NOTIFICATION_ID, notificationBuilder.build( state, song ) );
         }
 
         @Override
@@ -577,18 +602,25 @@ public class PlaybackService extends IntentService {
 
         @Override
         public void stateChanged( final PlaybackMediaPlayer.State state ) {
-            updateState();
+            final PlayerState.State playbackState = updateState();
+            if( playbackState != PlayerState.State.PLAYING ) { stopForeground( true ); }
             publishPlayerChanged();
         }
 
         @Override
         public void songStarting( final SongDao song, final int position ) {
             // TODO: Show toast
+            final NotificationBuilder notificationBuilder = new NotificationBuilder( mContext );
+            final PlayerState state = new PlayerState( mCurrentIndex, mCurrentIndex == 0,
+                                                       mCurrentIndex >= mQueue.size() - 1, mPlayState, mRepeatMode,
+                                                       mCurrentPosition );
+            notificationBuilder.updateNotification( state, song );
             publishPlayerChanged();
         }
 
         @Override
         public void positionChanged( final SongDao song, final int position ) {
+            updatePosition( position );
             publishPositionChanged();
         }
 
@@ -599,6 +631,7 @@ public class PlaybackService extends IntentService {
                 swapMediaPlayer();
                 playNewSong();
             } else {
+                stopForeground( true );
                 stopSelf();
             }
         }

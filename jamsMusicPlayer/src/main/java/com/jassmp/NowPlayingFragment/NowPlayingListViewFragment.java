@@ -29,11 +29,14 @@ import com.jassmp.Playback.Playback;
 import com.jassmp.Playback.PlaybackStateListener;
 import com.jassmp.Playback.PlayerState;
 import com.jassmp.Playback.QueueState;
+import com.jassmp.Playback.RepeatMode;
 import com.jassmp.Preferences.Preferences;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.SimpleFloatViewManager;
+
+import java.util.concurrent.TimeUnit;
 
 public class NowPlayingListViewFragment extends Fragment implements PlaybackStateListener {
 
@@ -45,12 +48,15 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
     private       Preferences mPreferences = null;
     private final Object      mLock        = new Object();
 
+    private View        mRootView     = null;
     private RelativeLayout mMiniPlayerLayout    = null;
     private ImageView      mMiniPlayerAlbumArt  = null;
     private RelativeLayout mPlayPauseBackground = null;
     private ImageButton    mPlayPauseButton     = null;
     private ImageButton    mNextButton          = null;
     private ImageButton    mPreviousButton      = null;
+    private ImageButton mRepeatButton = null;
+    private TextView    mPosition     = null;
     private TextView       mTitleText           = null;
     private TextView       mSubText             = null;
 
@@ -58,7 +64,9 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
     private NowPlayingListViewItemAdapter mListViewAdapter = null;
     private TextView                      mEmptyInfoText   = null;
 
-    private boolean mIsPlaying = false;
+    private boolean    mIsPlaying       = false;
+    private boolean    mShowElapsedTime = true;
+    private RepeatMode mRepeatMode      = RepeatMode.NONE;
 
 
     @Override
@@ -66,24 +74,27 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
         mContext = getActivity().getApplicationContext();
         mPreferences = new Preferences( mContext );
         mPlayback = new Playback( mContext, this );
+        mShowElapsedTime = mPreferences.getShowElapsedTime();
 
-        final View rootView = inflater.inflate( R.layout.fragment_now_playing, container, false );
-        rootView.setBackgroundColor( UIElementsHelper.getGridViewBackground( mContext ) );
+        mRootView = inflater.inflate( R.layout.fragment_now_playing, container, false );
+        mRootView.setBackgroundColor( UIElementsHelper.getGridViewBackground( mContext ) );
 
-        initMiniPlayer( rootView );
-        initListViewer( rootView );
+        initMiniPlayer( mRootView );
+        initListViewer( mRootView );
         reloadPlayState();
 
-        return rootView;
+        return mRootView;
     }
 
     private void initMiniPlayer( final View rootView ) {
         mMiniPlayerLayout = (RelativeLayout) rootView.findViewById( R.id.player_layout );
         mMiniPlayerAlbumArt = (ImageView) rootView.findViewById( R.id.player_albumArt );
+        mPosition = (TextView) rootView.findViewById( R.id.player_position );
         mPlayPauseBackground = (RelativeLayout) rootView.findViewById( R.id.player_playPause_layout );
         mPlayPauseButton = (ImageButton) rootView.findViewById( R.id.player_playPause );
         mNextButton = (ImageButton) rootView.findViewById( R.id.player_nextSong );
         mPreviousButton = (ImageButton) rootView.findViewById( R.id.player_previousSong );
+        mRepeatButton = (ImageButton) rootView.findViewById( R.id.player_repeat );
         mTitleText = (TextView) rootView.findViewById( R.id.player_song );
         mSubText = (TextView) rootView.findViewById( R.id.player_albumAndArtist );
 
@@ -91,6 +102,7 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
         mTitleText.setTypeface( UIElementsHelper.getRegularTypeface( mContext ) );
         mSubText.setTypeface( UIElementsHelper.getRegularTypeface( mContext ) );
 
+        mPosition.setOnClickListener( mPositionClickListener );
         mPlayPauseBackground.setOnClickListener( mPlayPauseClickListener );
         mPlayPauseButton.setOnClickListener( mPlayPauseClickListener );
         mNextButton.setOnClickListener( mOnClickNextListener );
@@ -175,18 +187,18 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
     }
 
     @Override
-    public void playStateChanged( final PlayerState state ) {
+    public void onPlayStateChanged( final PlayerState state ) {
         updateMiniPlayerState( state );
         updateListAdapterIndex( state );
     }
 
     @Override
-    public void queueChanged( final QueueState state ) {
+    public void onQueueChanged( final QueueState state ) {
         updateListAdapterQueue( state );
     }
 
     @Override
-    public void playPositionChanged( final PlayPositionState state ) {
+    public void onPlayPositionChanged( final PlayPositionState state ) {
         updateMiniPlayerPosition( state );
     }
 
@@ -203,12 +215,23 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
 
     public void toggleEmptyPresentation( final boolean queueIsEmpty ) {
         if( queueIsEmpty ) {
-            mMiniPlayerLayout.setVisibility( View.GONE );
-            mListView.setVisibility( View.INVISIBLE );
-            mEmptyInfoText.setVisibility( View.VISIBLE );
+            mRootView.post( new Runnable() {
+                @Override
+                public void run() {
+                    mMiniPlayerLayout.setVisibility( View.GONE );
+                    mListView.setVisibility( View.INVISIBLE );
+                    mEmptyInfoText.setVisibility( View.VISIBLE );
+                }
+            } );
         } else {
-            mEmptyInfoText.setVisibility( View.INVISIBLE );
-            mListView.setVisibility( View.VISIBLE );
+            mRootView.post( new Runnable() {
+                @Override
+                public void run() {
+                    mEmptyInfoText.setVisibility( View.INVISIBLE );
+                    mListView.setVisibility( View.VISIBLE );
+                }
+            } );
+
         }
     }
 
@@ -217,34 +240,43 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
             if( !isInitialized() ) {
                 return;
             }
-            switch( playerState.getState() ) {
-                case PAUSED:
-                    animatePlayToPause();
-                    break;
-                case PLAYING:
-                    animatePauseToPlay();
-                    break;
-            }
-            mMiniPlayerLayout.setVisibility( View.VISIBLE );
-            final SongDao song = SongTableAccessor.getInstance( mContext )
-                                                  .getSong( mListViewAdapter.getItem( playerState.getCurrentIndex() ) );
-            final String title = song != null ? song.getTitle() : "";
-            final String subTitle = song != null ? song.getAlbum() + " - " + song.getArtist() : "";
-            mTitleText.setText( title );
-            mSubText.setText( subTitle );
-            if( song != null ) {
-                song.loadAlbumArt( mContext, new SongDao.AlbumArtLoadedListener() {
-                    @Override
-                    public void artLoaded( final Bitmap bitmap ) {
-                        synchronized( mLock ) {
-                            if( !isInitialized() ) {
-                                return;
-                            }
-                            mMiniPlayerAlbumArt.setImageBitmap( bitmap );
-                        }
+            mRootView.post( new Runnable() {
+                @Override
+                public void run() {
+
+                    switch( playerState.getState() ) {
+                        case PAUSED:
+                            animatePauseToPlay();
+                            break;
+                        case PLAYING:
+                            animatePlayToPause();
+                            break;
                     }
-                } );
-            }
+                    mMiniPlayerLayout.setVisibility( View.VISIBLE );
+                    final String key = mListViewAdapter.getItem( playerState.getCurrentIndex() );
+                    final SongDao song = key != null ? SongTableAccessor.getInstance( mContext ).getSong( key ) : null;
+                    final String title = song != null ? song.getTitle() : "";
+                    final String subTitle = song != null ? song.getAlbum() + " - " + song.getArtist() : "";
+                    mTitleText.setText( title );
+                    mSubText.setText( subTitle );
+                    mPreviousButton.setEnabled( !playerState.isFirstSong() );
+                    mNextButton.setEnabled( !playerState.isLastSong() );
+                    updateRepeatMode( playerState );
+                    if( song != null ) {
+                        song.loadAlbumArt( mContext, new SongDao.AlbumArtLoadedListener() {
+                            @Override
+                            public void artLoaded( final Bitmap bitmap ) {
+                                synchronized( mLock ) {
+                                    if( !isInitialized() ) {
+                                        return;
+                                    }
+                                    mMiniPlayerAlbumArt.setImageBitmap( bitmap );
+                                }
+                            }
+                        } );
+                    }
+                }
+            } );
         }
     }
 
@@ -254,8 +286,29 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
                 return;
             }
             mMiniPlayerLayout.setVisibility( View.VISIBLE );
-            // TODO Update Position
+            final int millis = getMillis( playPositionState );
+            final String position = String.format( mShowElapsedTime ? "%d:%02d" : "-%d:%02d",
+                                                   TimeUnit.MILLISECONDS.toMinutes( millis ),
+                                                   TimeUnit.MILLISECONDS.toSeconds( millis )
+                                                   - TimeUnit.MINUTES.toSeconds(
+                                                           TimeUnit.MILLISECONDS.toMinutes( millis ) ) );
+            mPosition.setText( position );
         }
+    }
+
+    private int getMillis( final PlayPositionState playPositionState ) {
+        int millis = playPositionState.getPlayPosition();
+        if( !mShowElapsedTime ) {
+            final String key = mListViewAdapter.getItem( playPositionState.getCurrentIndex() );
+            final SongDao song = key != null ? SongTableAccessor.getInstance( mContext ).getSong( key ) : null;
+            if( song != null ) {
+                millis = song.getDuration() - millis;
+            } else {
+                millis = 0;
+            }
+        }
+
+        return millis;
     }
 
     private void updateListAdapterQueue( final QueueState queueState ) {
@@ -276,6 +329,22 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
 
     }
 
+    private void updateRepeatMode( final PlayerState playerState ) {
+        mRepeatMode = playerState.getRepeatMode();
+        switch( playerState.getRepeatMode() ) {
+            case NONE:
+                mRepeatButton.setImageResource( UIElementsHelper.getIcon( mContext, "repeat" ) );
+                break;
+            case ALL:
+                mRepeatButton.setImageResource( R.drawable.repeat_highlighted );
+                break;
+            case SONG:
+                mRepeatButton.setImageResource( R.drawable.repeat_song );
+                break;
+        }
+    }
+
+
     private void updateListAdapterIndex( final PlayerState state ) {
         synchronized( mLock ) {
             if( !isInitialized() ) {
@@ -287,6 +356,16 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
             mListViewAdapter.setCurrentIndex( state.getCurrentIndex() );
         }
     }
+
+    private View.OnClickListener mPositionClickListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick( View view ) {
+            mShowElapsedTime = !mShowElapsedTime;
+            mPreferences.setShowElapsedTime( mShowElapsedTime );
+        }
+
+    };
 
     private View.OnClickListener mPlayPauseClickListener = new View.OnClickListener() {
 
@@ -308,6 +387,16 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
     };
 
     private View.OnClickListener mOnClickNextListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick( View arg0 ) {
+            mPlayback.next();
+
+        }
+
+    };
+
+    private View.OnClickListener mOnCLickRepeatListener = new View.OnClickListener() {
 
         @Override
         public void onClick( View arg0 ) {

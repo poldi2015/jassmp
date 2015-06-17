@@ -4,7 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Playback {
@@ -17,7 +19,7 @@ public class Playback {
         PAUSE,
         NEXT,
         PREVIOUS,
-        PLAY_INDEX, SET_REPEAT, PLAY_POSITION
+        PLAY_INDEX, TOGGLE_REPEAT, PLAY_POSITION
     }
 
     public static final String EXTRA_SONGS        = "songs";
@@ -27,7 +29,6 @@ public class Playback {
     public static final String EXTRA_CURRENT_SONG = "currentSong";
     public static final String EXTRA_POSITION     = "position";
     public static final String EXTRA_INDICES      = "indices";
-    public static final String EXTRA_REPEAT_MODE  = "RepeatMode";
 
 
     //
@@ -35,6 +36,10 @@ public class Playback {
 
     private final Context               mContext;
     private final PlaybackStateReceiver mPlaybackStateReceiver;
+
+    public Playback( final Context context ) {
+        this( context, null );
+    }
 
     public Playback( final Context context, final PlaybackStateListener playbackStateListener ) {
         mContext = context;
@@ -51,20 +56,25 @@ public class Playback {
         }
     }
 
+    private Intent createIntent( final Action action ) {
+        return new Intent( mContext, PlaybackService.class ).setAction( action.name() )
+                                                            .setClass( mContext, PlaybackService
+                                                                    .class );
+    }
+
     public void status() {
-        final Intent intent = new Intent( Action.STATUS.name() );
-        mContext.startService( intent );
+        mContext.startService( createIntent( Action.STATUS ) );
     }
 
     public void addSongsAfterCurrent( final List<String> keys ) {
-        final Intent intent = new Intent( Action.ADD_SONGS_AFTER_CURRENT.name() );
-        intent.putExtra( EXTRA_SONGS, keys.toArray( new String[ keys.size() ] ) );
+        final Intent intent = createIntent( Action.ADD_SONGS_AFTER_CURRENT );
+        intent.putStringArrayListExtra( EXTRA_SONGS, new ArrayList( keys ) );
         mContext.startService( intent );
     }
 
     public void addSongsAtEnd( final List<String> keys ) {
-        final Intent intent = new Intent( Action.ADD_SONGS_AT_END.name() );
-        intent.putExtra( EXTRA_SONGS, keys.toArray( new String[ keys.size() ] ) );
+        final Intent intent = createIntent( Action.ADD_SONGS_AT_END );
+        intent.putStringArrayListExtra( EXTRA_SONGS, new ArrayList( keys ) );
         mContext.startService( intent );
     }
 
@@ -72,63 +82,76 @@ public class Playback {
         if( fromIndex == toIndex ) {
             return;
         }
-        final Intent intent = new Intent( Action.MOVE_SONG.name() );
+        final Intent intent = createIntent( Action.MOVE_SONG );
         intent.putExtra( EXTRA_FROM_INDEX, fromIndex );
         intent.putExtra( EXTRA_TO_INDEX, toIndex );
         mContext.startService( intent );
     }
 
     public void deleteSongs( final int[] indices ) {
-        final Intent intent = new Intent( Action.DELETE_SONGS.name() );
+        final Intent intent = createIntent( Action.DELETE_SONGS );
         intent.putExtra( EXTRA_INDICES, indices );
         mContext.startService( intent );
     }
 
     public void clearSongs() {
-        final Intent intent = new Intent( Action.CLEAR_SONGS.name() );
-        mContext.startService( intent );
+        mContext.startService( createIntent( Action.CLEAR_SONGS ) );
     }
 
     public void play() {
-        final Intent intent = new Intent( Action.PLAY.name() );
-        mContext.startService( intent );
+        mContext.startService( createPlayIntent() );
+    }
+
+    protected Intent createPlayIntent() {
+        return createIntent( Action.PLAY );
     }
 
     public void pause() {
-        final Intent intent = new Intent( Action.PAUSE.name() );
-        mContext.startService( intent );
+        mContext.startService( createPauseIntent() );
+    }
+
+    protected Intent createPauseIntent() {
+        return createIntent( Action.PAUSE );
     }
 
     public void playPause() {
-        final Intent intent = new Intent( Action.PLAY_PAUSE.name() );
-        mContext.startService( intent );
+        mContext.startService( createPlayPauseIntent() );
+    }
+
+    protected Intent createPlayPauseIntent() {
+        return createIntent( Action.PLAY_PAUSE );
     }
 
     public void setPlayPosition( final int position ) {
-        final Intent intent = new Intent( Action.PLAY_POSITION.name() );
+        final Intent intent = createIntent( Action.PLAY_POSITION );
         intent.putExtra( EXTRA_POSITION, position );
         mContext.startService( intent );
     }
 
     public void next() {
-        final Intent intent = new Intent( Action.NEXT.name() );
-        mContext.startService( intent );
+        mContext.startService( createNextIntent() );
+    }
+
+    protected Intent createNextIntent() {
+        return createIntent( Action.NEXT );
     }
 
     public void previous() {
-        final Intent intent = new Intent( Action.PREVIOUS.name() );
-        mContext.startService( intent );
+        mContext.startService( createPreviousIntent() );
+    }
+
+    protected Intent createPreviousIntent() {
+        return createIntent( Action.PREVIOUS );
     }
 
     public void play( final int index ) {
-        final Intent intent = new Intent( Action.PLAY_INDEX.name() );
+        final Intent intent = createIntent( Action.PLAY_INDEX );
         intent.putExtra( EXTRA_INDEX, index );
         mContext.startService( intent );
     }
 
-    public void setRepeat( final PlaybackService.RepeatMode repeatMode ) {
-        final Intent intent = new Intent( Action.SET_REPEAT.name() );
-        intent.putExtra( EXTRA_REPEAT_MODE, repeatMode.name() );
+    public void toggleRepeat() {
+        final Intent intent = createIntent( Action.TOGGLE_REPEAT );
         mContext.startService( intent );
     }
 
@@ -143,16 +166,26 @@ public class Playback {
         public PlaybackStateReceiver( final Context context, final PlaybackStateListener listener ) {
             mContext = context;
             mListener = listener;
-            mContext.registerReceiver( this, new IntentFilter( PlayerState.ACTION ) );
+            final IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction( PlayerState.ACTION );
+            intentFilter.addAction( QueueState.ACTION );
+            intentFilter.addAction( PlayPositionState.ACTION );
+            LocalBroadcastManager.getInstance( context ).registerReceiver( this, intentFilter );
         }
 
         @Override
         public void onReceive( final Context context, final Intent intent ) {
-            mListener.playStateChanged( new PlayerState( intent ) );
+            if( PlayerState.ACTION.equals( intent.getAction() ) ) {
+                mListener.onPlayStateChanged( new PlayerState( intent ) );
+            } else if( QueueState.ACTION.equals( intent.getAction() ) ) {
+                mListener.onQueueChanged( new QueueState( intent ) );
+            } else if( PlayPositionState.ACTION.equals( intent.getAction() ) ) {
+                mListener.onPlayPositionChanged( new PlayPositionState( intent ) );
+            }
         }
 
         public void destroy() {
-            mContext.unregisterReceiver( this );
+            LocalBroadcastManager.getInstance( mContext ).unregisterReceiver( this );
         }
     }
 

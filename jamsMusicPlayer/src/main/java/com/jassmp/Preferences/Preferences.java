@@ -7,8 +7,9 @@ import android.text.TextUtils;
 import com.jassmp.Dao.Column;
 import com.jassmp.JassMpDb.OrderDirection;
 import com.jassmp.MainActivity.MainActivity;
-import com.jassmp.Playback.PlaybackService;
+import com.jassmp.Playback.RepeatMode;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class Preferences {
     public static final  String MUSIC_FOLDERS_SELECTION           = "MUSIC_FOLDERS_SELECTION";
     public static final  String CURRENT_MAIN_FRAGMENT_ID          = "CurrentMainFragmentId";
     public static final  String ALBUM_ART_SOURCE                  = "ALBUM_ART_SOURCE";
+    public static final  String SHOW_ELAPSED_TIME                 = "showElapsedTime";
 
 
     //
@@ -68,7 +70,7 @@ public class Preferences {
 
     public List<String> getPlaybackQueue() {
         final String playBackQueue = mPreferences.getString( PLAYBACK_QUEUE, "" );
-        return Arrays.asList( playBackQueue.split( "," ) );
+        return new ArrayList( Arrays.asList( playBackQueue.split( "," ) ) );
     }
 
     public void setPlaybackQueue( final List<String> queue ) {
@@ -100,13 +102,13 @@ public class Preferences {
         mPreferences.edit().putInt( CROSS_FADE_DURATION, duration ).apply();
     }
 
-    public PlaybackService.RepeatMode getRepeatMode() {
+    public RepeatMode getRepeatMode() {
         final int repeatMode = mPreferences.getInt( REPEAT_MODE, 0 );
-        final PlaybackService.RepeatMode[] values = PlaybackService.RepeatMode.values();
-        return repeatMode >= 0 && repeatMode <= values.length ? values[ repeatMode ] : PlaybackService.RepeatMode.NONE;
+        final RepeatMode[] values = RepeatMode.values();
+        return repeatMode >= 0 && repeatMode <= values.length ? values[ repeatMode ] : RepeatMode.NONE;
     }
 
-    public void setRepeatMode( final PlaybackService.RepeatMode repeatMode ) {
+    public void setRepeatMode( final RepeatMode repeatMode ) {
         mPreferences.edit().putInt( REPEAT_MODE, repeatMode.ordinal() ).apply();
     }
 
@@ -229,6 +231,14 @@ public class Preferences {
 
     public void setAlbumArtSource( final AlbumArtSource albumArtSource ) {
         mPreferences.edit().putInt( ALBUM_ART_SOURCE, albumArtSource.ordinal() ).apply();
+    }
+
+    public boolean getShowElapsedTime() {
+        return mPreferences.getBoolean( SHOW_ELAPSED_TIME, true );
+    }
+
+    public void setShowElapsedTime( final boolean showElapsedTime ) {
+        mPreferences.edit().putBoolean( SHOW_ELAPSED_TIME, showElapsedTime ).apply();
     }
 
 

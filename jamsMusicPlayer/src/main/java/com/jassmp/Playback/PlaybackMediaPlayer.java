@@ -126,11 +126,11 @@ public class PlaybackMediaPlayer {
         handleStart( song, position );
     }
 
-    public void setRepeatMode( final PlaybackService.RepeatMode repeatMode ) {
+    public void setRepeatMode( final RepeatMode repeatMode ) {
         if( !isInitialized() ) {
             return;
         }
-        mLoopSong = repeatMode == PlaybackService.RepeatMode.SONG;
+        mLoopSong = repeatMode == RepeatMode.SONG;
     }
 
     public void setCrossFadingDuration( final int crossFadeDuration ) {
@@ -152,7 +152,7 @@ public class PlaybackMediaPlayer {
     private void handleStart( final SongDao song, final int position ) {
         mMediaPlayer.reset();
         if( getState() != State.PLAYING ) {
-            mListener.preparePlaying();
+            mListener.preparePlaying( song );
         }
         try {
             mMediaPlayer.setDataSource( mContext, song.getFileUri() );
@@ -314,7 +314,7 @@ public class PlaybackMediaPlayer {
 
     public interface MediaPlayerStatusListener {
 
-        void preparePlaying();
+        void preparePlaying( SongDao song );
 
         void songFailed( SongDao song, IOException e );
 

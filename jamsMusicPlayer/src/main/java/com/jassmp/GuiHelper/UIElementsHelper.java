@@ -182,19 +182,19 @@ public class UIElementsHelper {
 
     public static int getEmptyColorPatch( Context context ) {
         switch( getCurrentTheme( context ) ) {
+            default:
             case DARK:
                 return context.getResources()
                               .getIdentifier( "empty_color_patch", "drawable", context.getPackageName() );
             case LIGHT:
                 return context.getResources()
                               .getIdentifier( "empty_color_patch_light", "drawable", context.getPackageName() );
-            default:
-                return 0;
         }
     }
 
     public static int getEmptyCircularColorPatch( Context context ) {
         switch( getCurrentTheme( context ) ) {
+            default:
             case DARK:
                 return context.getResources()
                               .getIdentifier( "empty_color_patch_circular", "drawable", context.getPackageName() );
@@ -202,8 +202,6 @@ public class UIElementsHelper {
                 return context.getResources()
                               .getIdentifier( "empty_color_patch_circular_light", "drawable",
                                               context.getPackageName() );
-            default:
-                return 0;
         }
     }
 

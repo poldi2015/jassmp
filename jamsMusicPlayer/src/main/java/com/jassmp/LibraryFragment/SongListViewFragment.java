@@ -122,7 +122,7 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
         options.inJustDecodeBounds = false;
         options.inPurgeable = true;
 
-        reloadDatabase( 400, null );
+        reloadDatabase( 100, null );
 
         return mRootView;
     }
@@ -302,7 +302,7 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
                                                                    Animation.RELATIVE_TO_SELF, 2.0f,
                                                                    Animation.RELATIVE_TO_SELF, 0.0f );
 
-            animation.setDuration( 300 );
+            animation.setDuration( 200 );
             animation.setInterpolator( new AccelerateDecelerateInterpolator() );
 
             animation.setAnimationListener( new AnimationListener() {

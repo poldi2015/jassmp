@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Handler;
 
 import com.jassmp.ImageTransformers.PicassoMirrorReflectionTransformer;
 import com.jassmp.JassMpDb.SongTableAccessor;
@@ -264,25 +265,32 @@ public class SongDao {
         if( mAlbumArt != null ) {
             listener.artLoaded( mAlbumArt );
         } else {
-            final Picasso picasso = new Picasso.Builder( context ).build();
-            picasso.load( getAlbumArtPath() ).transform( new PicassoMirrorReflectionTransformer() ).into( new Target() {
-
+            new Handler( context.getMainLooper() ).post( new Runnable() {
                 @Override
-                public void onBitmapLoaded( Bitmap bitmap, Picasso.LoadedFrom from ) {
-                    mAlbumArt = bitmap;
-                    listener.artLoaded( mAlbumArt );
+                public void run() {
+                    final Picasso picasso = new Picasso.Builder( context ).build();
+                    picasso.load( getAlbumArtPath() )
+                           .transform( new PicassoMirrorReflectionTransformer() )
+                           .into( new Target() {
+
+                               @Override
+                               public void onBitmapLoaded( Bitmap bitmap, Picasso.LoadedFrom from ) {
+                                   mAlbumArt = bitmap;
+                                   listener.artLoaded( mAlbumArt );
+                               }
+
+                               @Override
+                               public void onBitmapFailed( Drawable errorDrawable ) {
+                                   onBitmapLoaded( mAlbumArt, null );
+
+                               }
+
+                               @Override
+                               public void onPrepareLoad( Drawable placeHolderDrawable ) {
+                               }
+
+                           } );
                 }
-
-                @Override
-                public void onBitmapFailed( Drawable errorDrawable ) {
-                    onBitmapLoaded( mAlbumArt, null );
-
-                }
-
-                @Override
-                public void onPrepareLoad( Drawable placeHolderDrawable ) {
-                }
-
             } );
         }
     }

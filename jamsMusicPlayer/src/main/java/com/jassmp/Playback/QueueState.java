@@ -2,6 +2,7 @@ package com.jassmp.Playback;
 
 import android.content.Intent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class QueueState {
@@ -35,7 +36,7 @@ public class QueueState {
     public Intent getIntent() {
         if( mIntent == null ) {
             mIntent = new Intent( ACTION );
-            mIntent.putExtra( EXTRA_QUEUE, mQueue.toArray( new String[ mQueue.size() ] ) );
+            mIntent.putStringArrayListExtra( EXTRA_QUEUE, new ArrayList<String>( mQueue ) );
             mIntent.putExtra( EXTRA_CURRENT_INDEX, mCurrentIndex );
         }
 
