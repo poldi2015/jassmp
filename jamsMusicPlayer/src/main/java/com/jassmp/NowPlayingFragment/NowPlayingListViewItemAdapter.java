@@ -108,12 +108,13 @@ public class NowPlayingListViewItemAdapter extends ArrayAdapter<String> {
         return getCount() > 0;
     }
 
-    public synchronized void swapItems( final List<String> queueItems ) {
+    public synchronized void swapItems( final List<String> queueItems, final int currentIndex ) {
         setNotifyOnChange( false );
         clear();
         if( queueItems != null ) {
             addAll( queueItems );
         }
+        setCurrentIndex( currentIndex );
     }
 
 

@@ -55,7 +55,7 @@ public class UIElementsHelper {
     }
 
     public static int getHighLightTextColor( Context context ) {
-        return getThemeBasedColor( context, "#FFFFFF", "#000000" );
+        return getThemeBasedColor( context, "#60B0ff", "#60B0ff" );
     }
 
     public static int getSmallTextColor( Context context ) {
@@ -63,7 +63,7 @@ public class UIElementsHelper {
     }
 
     public static int getHighLightSmallTextColor( Context context ) {
-        return getThemeBasedColor( context, "#E0E0E0", "#202020" );
+        return getThemeBasedColor( context, "#60B0ff", "#60B0ff" );
     }
 
     /**

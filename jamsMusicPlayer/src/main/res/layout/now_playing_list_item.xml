@@ -136,6 +136,7 @@
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_marginRight="10dp"
+        android:paddingLeft="10dp"
         android:lines="1"
         android:ellipsize="end"
         android:visibility="visible"

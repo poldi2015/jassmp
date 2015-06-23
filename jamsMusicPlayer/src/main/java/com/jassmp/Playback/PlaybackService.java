@@ -21,6 +21,8 @@ public class PlaybackService extends PersistentService {
 
     public static final String NAME = PlaybackService.class.getSimpleName();
 
+    private static final int PREVIOUS_SONG_SEEK_THRESHOLD_MS = 3000;
+
     //
     // private members
 
@@ -40,8 +42,6 @@ public class PlaybackService extends PersistentService {
 
     private final Object mLock = new Object();
 
-    // TODO: Preferences: Loop
-
     public PlaybackService() {
         super( NAME );
     }
@@ -60,7 +60,7 @@ public class PlaybackService extends PersistentService {
                 mAlternativeMediaPlayer = new PlaybackMediaPlayer( mContext, mAudioManagement,
                                                                    mMediaPlayerStatusListener );
             }
-            updateRepeatMode( mRepeatMode );
+            //updateRepeatMode( mRepeatMode );
         } else {
             // First time
             mContext = getApplicationContext();
@@ -95,6 +95,7 @@ public class PlaybackService extends PersistentService {
         if( !isInitialized() ) {
             return;
         }
+        stop();
         mPreferences.setPlaybackQueue( mQueue );
         mPreferences.setPlaybackCurrentIndex( mCurrentIndex );
         mPreferences.setPlaybackPosition( getCurrentMediaPlayer().getPosition() );
@@ -142,11 +143,9 @@ public class PlaybackService extends PersistentService {
     private void handleDeleteSongs( final Intent intent ) {
         final int[] songIndices = intent.getIntArrayExtra( Playback.EXTRA_INDICES );
         deleteSongs( songIndices );
-        for( final int index : songIndices ) {
-            if( index == getCurrentIndex() ) {
-                stop();
-                return;
-            }
+        if( getCurrentIndex() == -1 ) {
+            stopForeground( true );
+            stopSelf();
         }
         publishQueueChanged();
     }
@@ -154,6 +153,7 @@ public class PlaybackService extends PersistentService {
     private void handleClearSongs() {
         clearSongs();
         stop();
+        setCurrentIndex( -1 );
         publishQueueChanged();
     }
 
@@ -162,6 +162,7 @@ public class PlaybackService extends PersistentService {
     }
 
     private void handlePause() {
+        // TODO: Stop service
         pause();
     }
 
@@ -184,7 +185,14 @@ public class PlaybackService extends PersistentService {
     }
 
     private void handlePrevious() {
-        // TODO Implement
+        if( getPlayerState() == PlayerState.State.PLAYING && getCurrentPosition() > PREVIOUS_SONG_SEEK_THRESHOLD_MS ) {
+            seekTo( 0 );
+        } else if( previousSong() != -1 ) {
+            stop();
+            playNewSong();
+        } else {
+            stopSelf();
+        }
     }
 
     private void handlePlayIndex( final Intent intent ) {
@@ -293,7 +301,23 @@ public class PlaybackService extends PersistentService {
         final Intent intent;
         synchronized( mLock ) {
             context = mContext;
-            intent = new PlayerState( mCurrentIndex, mCurrentIndex == 0, mCurrentIndex >= mQueue.size() - 1, mPlayState,
+            boolean firstSong = false;
+            boolean lastSong = false;
+            switch( mRepeatMode ) {
+                case NONE:
+                    firstSong = mCurrentIndex == 0;
+                    lastSong = mCurrentIndex >= mQueue.size() - 1;
+                    break;
+                case ALL:
+                    firstSong = mQueue.size() == 0;
+                    lastSong = mQueue.size() == 0;
+                    break;
+                case SONG:
+                    firstSong = true;
+                    lastSong = true;
+                    break;
+            }
+            intent = new PlayerState( mCurrentIndex, firstSong, lastSong, mPlayState,
                                       mRepeatMode, mCurrentPosition ).getIntent();
         }
         LocalBroadcastManager.getInstance( context ).sendBroadcast( intent );
@@ -316,6 +340,12 @@ public class PlaybackService extends PersistentService {
     //
     // Play Queue
 
+    private PlayerState.State getPlayerState() {
+        synchronized( mLock ) {
+            return mPlayState;
+        }
+    }
+
     private int getCurrentIndex() {
         if( !isInitialized() ) {
             return -1;
@@ -334,6 +364,12 @@ public class PlaybackService extends PersistentService {
                 return null;
             }
             return mSongTableAccessor.getSong( mQueue.get( mCurrentIndex ) );
+        }
+    }
+
+    private int getCurrentPosition() {
+        synchronized( mLock ) {
+            return mCurrentPosition;
         }
     }
 
@@ -377,9 +413,6 @@ public class PlaybackService extends PersistentService {
             }
             final String key = mQueue.get( fromIndex );
             mQueue.remove( fromIndex );
-            if( toIndex > fromIndex ) {
-                toIndex--;
-            }
             if( toIndex < mQueue.size() ) {
                 mQueue.add( toIndex, key );
             } else {
@@ -404,6 +437,11 @@ public class PlaybackService extends PersistentService {
                 if( indices[ i ] >= 0 && indices[ i ] < mQueue.size() ) {
                     mQueue.remove( indices[ i ] );
                 }
+                if( indices[ i ] < mCurrentIndex ) {
+                    mCurrentIndex--;
+                } else if( indices[ i ] == mCurrentIndex ) {
+                    mCurrentIndex = -1;
+                }
             }
         }
     }
@@ -418,27 +456,51 @@ public class PlaybackService extends PersistentService {
     }
 
     private int nextSong() {
+        // TODO: Rework to skip to next-song with wrap around all time
         synchronized( mLock ) {
             if( mQueue.size() == 0 ) {
                 mCurrentIndex = -1;
             } else if( mCurrentIndex < 0 ) {
                 mCurrentIndex = 0;
-            } else //noinspection StatementWithEmptyBody
-                if( mRepeatMode == RepeatMode.SONG ) {
-                    // Do nothing
-                } else if( mCurrentIndex == ( mQueue.size() - 1 ) ) {
-                    if( mRepeatMode == RepeatMode.ALL ) {
-                        mCurrentIndex = 0;
-                    } else {
-                        mCurrentIndex = -1;
-                    }
+            } else if( mRepeatMode == RepeatMode.SONG ) {
+                // Do nothing
+            } else if( mCurrentIndex == ( mQueue.size() - 1 ) ) {
+                if( mRepeatMode == RepeatMode.ALL ) {
+                    mCurrentIndex = 0;
                 } else {
-                    mCurrentIndex++;
+                    mCurrentIndex = -1;
                 }
+            } else {
+                mCurrentIndex++;
+            }
 
             return mCurrentIndex;
         }
     }
+
+    private int previousSong() {
+        // TODO: Rework to skip to next-song with wrap around all time
+        synchronized( mLock ) {
+            if( mQueue.size() == 0 ) {
+                mCurrentIndex = -1;
+            } else if( mCurrentIndex < 0 ) {
+                mCurrentIndex = mQueue.size() - 1;
+            } else if( mRepeatMode == RepeatMode.SONG ) {
+                // Do nothing
+            } else if( mCurrentIndex == 0 ) {
+                if( mRepeatMode == RepeatMode.ALL ) {
+                    mCurrentIndex = mQueue.size() - 1;
+                } else {
+                    mCurrentIndex = -1;
+                }
+            } else {
+                mCurrentIndex--;
+            }
+
+            return mCurrentIndex;
+        }
+    }
+
 
     private int setCurrentIndex( final int index ) {
         synchronized( mLock ) {
@@ -495,6 +557,10 @@ public class PlaybackService extends PersistentService {
         }
     }
 
+    private void seekTo( final int position ) {
+        getCurrentMediaPlayer().seekTo( position );
+    }
+
     private void stop() {
         getCurrentMediaPlayer().stop();
         getAlternativeMediaPlayer().stop();
@@ -507,6 +573,7 @@ public class PlaybackService extends PersistentService {
         }
         mCurrentMediaPlayer.setRepeatMode( repeatMode );
         mAlternativeMediaPlayer.setRepeatMode( repeatMode );
+        publishPlayerChanged();
     }
 
     private void updateCrossFade( final boolean crossFadeEnabled, int crossFadeDuration ) {

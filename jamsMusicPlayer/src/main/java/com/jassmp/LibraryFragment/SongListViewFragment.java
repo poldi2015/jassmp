@@ -1,7 +1,6 @@
 package com.jassmp.LibraryFragment;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
@@ -59,7 +58,6 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
 
     private QuickScroll             mQuickScroll     = null;
     private ListView                mListView        = null;
-    private SongListViewItemAdapter mListViewAdapter = null;
 
     private Preferences mPreferences = null;
 
@@ -115,12 +113,6 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
         mEmptyTextView.setTypeface( TypefaceHelper.getTypeface( mContext, "Roboto-Light" ) );
         mEmptyTextView.setPaintFlags(
                 mEmptyTextView.getPaintFlags() | Paint.ANTI_ALIAS_FLAG | Paint.SUBPIXEL_TEXT_FLAG );
-
-        //Create a set of options to optimize the bitmap memory usage.
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        options.inJustDecodeBounds = false;
-        options.inPurgeable = true;
 
         reloadDatabase( 100, null );
 
@@ -204,7 +196,7 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
      */
     private Column getOrderByFromPreferences() {
         final int key = mPreferences.getSongListSortColumn();
-        if( key == -1 ) {
+        if( key == -1 || key >= ITEM_TO_ORDER_BY.size() ) {
             return SongDao.COLUMN_SONG_TITLE;
         }
         return ITEM_TO_ORDER_BY.get( key );
@@ -231,7 +223,7 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
             orderBy = getOrderByFromPreferences();
         }
 
-        return mPreferences.getSongListSortDirection( orderBy );
+        return orderBy != null ? mPreferences.getSongListSortDirection( orderBy ) : OrderDirection.ASC;
     }
 
     private void setOrderDirectionInPreferences( final Column orderBy, final OrderDirection orderDirection ) {
@@ -244,6 +236,7 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
      */
     public class AsyncRunQuery extends SynchronizedAsyncTask.Executor {
 
+        private SongListViewItemAdapter mListViewAdapter = null;
         private SongCursorAdapter mCursorAdapter = null;
 
         private Column         mOrderBy        = SongDao.COLUMN_SONG_TITLE;

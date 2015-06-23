@@ -126,6 +126,16 @@ public class PlaybackMediaPlayer {
         handleStart( song, position );
     }
 
+    public void seekTo( final int position ) {
+        switch( getState() ) {
+            case PAUSED:
+            case PLAYING:
+                mMediaPlayer.seekTo( position );
+                break;
+        }
+    }
+
+
     public void setRepeatMode( final RepeatMode repeatMode ) {
         if( !isInitialized() ) {
             return;
@@ -145,6 +155,7 @@ public class PlaybackMediaPlayer {
         }
         return 0;
     }
+
 
     //
     // event handler

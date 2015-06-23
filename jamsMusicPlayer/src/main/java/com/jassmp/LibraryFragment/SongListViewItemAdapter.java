@@ -78,6 +78,7 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
     public synchronized View getView( int position, View convertView, ViewGroup parent ) {
         if( convertView == null ) {
             convertView = LayoutInflater.from( mContext ).inflate( R.layout.songlist_view_item, parent, false );
+            convertView.setOnClickListener( mItemClickListener );
 
             mHolder = new Holder( convertView, mContext );
             mHolder.setCoverImage( (ImageView) convertView.findViewById( R.id.songListViewCoverIcon ) );
@@ -175,33 +176,47 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
         }
     }
 
+    private final OnClickListener mItemClickListener = new OnClickListener() {
+        @Override
+        public void onClick( final View v ) {
+            final Holder holder = (Holder) v.getTag();
+            if( holder == null ) {
+                return;
+            }
+            mPlayback.addSongsAfterCurrent( Arrays.asList( new String[]{ holder.key } ) );
+            mPlayback.next();
+        }
+    };
 
-    private OnClickListener mOverflowClickListener = new OnClickListener() {
+
+    private final OnClickListener mOverflowClickListener = new OnClickListener() {
 
         @Override
         public void onClick( View v ) {
             PopupMenu menu = new PopupMenu( mContext, v );
-            menu.inflate( R.menu.artist_overflow_menu );
+            menu.inflate( R.menu.song_overflow_menu );
             menu.setOnMenuItemClickListener( mOnOverflowMenuItemClickListener );
             mKey = ( (Holder) v.getTag() ).key;
             menu.show();
 
         }
-
     };
 
-    private OnMenuItemClickListener mOnOverflowMenuItemClickListener = new OnMenuItemClickListener() {
+    private final OnMenuItemClickListener mOnOverflowMenuItemClickListener = new OnMenuItemClickListener() {
 
         @Override
         public boolean onMenuItemClick( MenuItem item ) {
 
             switch( item.getItemId() ) {
-                case R.id.add_to_queue:
-                    mPlayback.addSongsAfterCurrent( Arrays.asList( new String[]{ mKey } ) );
-                    break;
-                case R.id.play_next:
+                case R.id.song_play_now:
                     mPlayback.addSongsAfterCurrent( Arrays.asList( new String[]{ mKey } ) );
                     mPlayback.next();
+                    break;
+                case R.id.song_play_next:
+                    mPlayback.addSongsAfterCurrent( Arrays.asList( new String[]{ mKey } ) );
+                    break;
+                case R.id.song_play_last:
+                    mPlayback.addSongsAtEnd( Arrays.asList( new String[]{ mKey } ) );
                     break;
             }
 
