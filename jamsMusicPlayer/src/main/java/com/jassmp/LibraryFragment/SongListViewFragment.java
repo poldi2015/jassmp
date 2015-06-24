@@ -17,8 +17,6 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.TranslateAnimation;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -32,6 +30,7 @@ import com.jassmp.GuiHelper.UIElementsHelper;
 import com.jassmp.Helpers.PauseOnScrollHelper;
 import com.jassmp.JassMpDb.OrderDirection;
 import com.jassmp.JassMpDb.SongTableAccessor;
+import com.jassmp.MainActivity.MainActivity;
 import com.jassmp.Preferences.Preferences;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
@@ -56,8 +55,8 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
 
     private SynchronizedAsyncTask mAsyncExecutorTask = null;
 
-    private QuickScroll             mQuickScroll     = null;
-    private ListView                mListView        = null;
+    private QuickScroll mQuickScroll = null;
+    private ListView    mListView    = null;
 
     private Preferences mPreferences = null;
 
@@ -114,7 +113,7 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
         mEmptyTextView.setPaintFlags(
                 mEmptyTextView.getPaintFlags() | Paint.ANTI_ALIAS_FLAG | Paint.SUBPIXEL_TEXT_FLAG );
 
-        reloadDatabase( 100, null );
+        reloadDatabase( 100, null, null );
 
         return mRootView;
     }
@@ -135,7 +134,6 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
         mAsyncExecutorTask.dispose();
 
         mRootView = null;
-        onItemClickListener = null;
         mListView = null;
         mListView = null;
         mContext = null;
@@ -149,11 +147,11 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
      * @param delay   delay in millis
      * @param orderBy column to order with
      */
-    public void reloadDatabase( final int delay, final Column orderBy ) {
+    public void reloadDatabase( final int delay, final Column orderBy, final OrderDirection orderDirection ) {
         if( mAsyncExecutorTask.isDisposed() ) {
             mAsyncExecutorTask = new SynchronizedAsyncTask();
         }
-        mAsyncExecutorTask.execute( delay, new AsyncRunQuery( orderBy, null ) );
+        mAsyncExecutorTask.execute( delay, new AsyncRunQuery( orderBy, orderDirection ) );
     }
 
     @Override
@@ -166,40 +164,29 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
     public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
             case R.id.action_order:
-                new OrderDialog( this ).show( getFragmentManager(), "OrderDialog" );
+                final Column orderBy = getOrderByFromPreferences();
+                new OrderDialog( this, 0 ).show( getFragmentManager(), "OrderDialog" );
                 break;
         }
         return super.onOptionsItemSelected( item );
     }
 
     @Override
-    public void onOrderDialogClick( int which ) {
-        reloadDatabase( 0, ITEM_TO_ORDER_BY.valueAt( which ) );
+    public void onOrderDialogClick( final int orderItem, final OrderDirection orderDirection ) {
+        final Column orderColumn = ITEM_TO_ORDER_BY.valueAt( orderItem );
+        reloadDatabase( 0, orderColumn, orderDirection );
     }
 
-
-    /**
-     * Item click listener for the ListView.
-     */
-    private OnItemClickListener onItemClickListener = new OnItemClickListener() {
-
-        @Override
-        public void onItemClick( AdapterView<?> arg0, View view, int index, long id ) {
-            // TODO Move to adapter
-
-        }
-
-    };
 
     /**
      * @return current sort order from the preferences
      */
     private Column getOrderByFromPreferences() {
-        final int key = mPreferences.getSongListSortColumn();
-        if( key == -1 || key >= ITEM_TO_ORDER_BY.size() ) {
+        final int index = mPreferences.getOrderByColumnIndex();
+        if( index < 0 || index >= ITEM_TO_ORDER_BY.size() ) {
             return SongDao.COLUMN_SONG_TITLE;
         }
-        return ITEM_TO_ORDER_BY.get( key );
+        return ITEM_TO_ORDER_BY.valueAt( index );
     }
 
     /**
@@ -208,8 +195,8 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
      * @param orderBy the new sort order
      */
     private void setOrderByInPreferences( final Column orderBy ) {
-        final int key = ITEM_TO_ORDER_BY.keyAt( ITEM_TO_ORDER_BY.indexOfValue( orderBy ) );
-        mPreferences.setSongListSortColumn( key );
+        final int index = ITEM_TO_ORDER_BY.indexOfValue( orderBy );
+        mPreferences.setOrderByColumnIndex( index );
     }
 
     /**
@@ -236,6 +223,9 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
      */
     public class AsyncRunQuery extends SynchronizedAsyncTask.Executor {
 
+        //
+        // private members
+
         private SongListViewItemAdapter mListViewAdapter = null;
         private SongCursorAdapter mCursorAdapter = null;
 
@@ -258,10 +248,6 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
 
             mOrderBy = orderBy;
             mOrderDirection = orderDirection;
-
-            // Reverse order Direction
-            setOrderDirectionInPreferences( orderBy, orderDirection == OrderDirection.ASC ? OrderDirection.DESC
-                                                                                          : OrderDirection.ASC );
         }
 
         @Override
@@ -289,13 +275,13 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
             }
         }
 
-        private Animation createAnimation() {
+        private Animation createSlideInAnimation() {
             TranslateAnimation animation = new TranslateAnimation( Animation.RELATIVE_TO_SELF, 0.0f,
                                                                    Animation.RELATIVE_TO_SELF, 0.0f,
                                                                    Animation.RELATIVE_TO_SELF, 2.0f,
                                                                    Animation.RELATIVE_TO_SELF, 0.0f );
 
-            animation.setDuration( 200 );
+            animation.setDuration( 400 );
             animation.setInterpolator( new AccelerateDecelerateInterpolator() );
 
             animation.setAnimationListener( new AnimationListener() {
@@ -322,9 +308,8 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
         }
 
         private void createList() {
-            mListViewAdapter = new SongListViewItemAdapter( mContext, mCursorAdapter, SongListViewFragment.this );
+            mListViewAdapter = new SongListViewItemAdapter( (MainActivity) getActivity(), mCursorAdapter );
             mListView.setAdapter( mListViewAdapter );
-            mListView.setOnItemClickListener( onItemClickListener );
 
             //Init the quick scroll widget.
             mQuickScroll.init( QuickScroll.TYPE_INDICATOR_WITH_HANDLE, mListView, mListViewAdapter,
@@ -340,12 +325,12 @@ public class SongListViewFragment extends Fragment implements OrderDialog.OrderD
             mQuickScroll.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 48 );
 
 
-            mListView.startAnimation( createAnimation() );
+            mListView.startAnimation( createSlideInAnimation() );
         }
 
         private void reloadList() {
             mListViewAdapter.swapCursorAdapter( mCursorAdapter );
-            mListView.startAnimation( createAnimation() );
+            mListView.startAnimation( createSlideInAnimation() );
         }
 
     }

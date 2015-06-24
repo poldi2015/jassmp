@@ -3,9 +3,6 @@ package com.jassmp.Playback;
 import android.content.Intent;
 
 public class PlayerState {
-    public static final String EXTRA_IS_LAST_SONG  = "isLastSong";
-    public static final String EXTRA_IS_FIRST_SONG = "isFirstSong";
-    public static final String EXTRA_REPEAT_MODE   = "repeatMode";
 
     //
     // defines
@@ -16,13 +13,16 @@ public class PlayerState {
     public static final String EXTRA_PLAY_STATE    = "playState";
     public static final String EXTRA_CURRENT_INDEX = "currentIndex";
     public static final String EXTRA_PLAY_POSITION = "playPosition";
+    public static final String EXTRA_IS_FIRST_SONG = "isFirstSong";
+    public static final String EXTRA_IS_LAST_SONG  = "isLastSong";
+    public static final String EXTRA_REPEAT_MODE   = "repeatMode";
 
     //
     // private members
 
-    private final State mState;
-    private final int   mCurrentIndex;
-    private final int   mPlayPosition;
+    private final State      mState;
+    private final int        mCurrentIndex;
+    private final int        mPlayPosition;
     private final boolean    mIsFirstSong;
     private final boolean    mIsLastSong;
     private final RepeatMode mRepeatMode;

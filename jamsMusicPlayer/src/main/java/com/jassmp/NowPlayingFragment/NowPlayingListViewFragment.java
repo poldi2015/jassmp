@@ -1,5 +1,6 @@
 package com.jassmp.NowPlayingFragment;
 
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.jassmp.Dao.SongDao;
@@ -44,6 +46,8 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class NowPlayingListViewFragment extends Fragment implements PlaybackStateListener {
+    public static final String SEEK_BAR_PROGRESS_PROPERTY_NAME = "progress";
+    public static final int    SEEKBAR_SMOOTH_SCROLL_DURATION  = 200;
 
     //
     // private members
@@ -54,17 +58,21 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
     private final Object      mLock        = new Object();
 
     // TODO: Refactor player into own class
-    private View        mRootView     = null;
-    private RelativeLayout mMiniPlayerLayout    = null;
-    private ImageView      mMiniPlayerAlbumArt  = null;
-    private RelativeLayout mPlayPauseBackground = null;
-    private ImageButton    mPlayPauseButton     = null;
-    private ImageButton    mNextButton          = null;
-    private ImageButton    mPreviousButton      = null;
-    private ImageButton mRepeatButton = null;
-    private TextView    mPosition     = null;
-    private TextView       mTitleText           = null;
-    private TextView       mSubText             = null;
+    // TODO: Fadin in player
+    private View           mRootView             = null;
+    private RelativeLayout mMiniPlayerLayout     = null;
+    private View           mMiniPlayerSongLayout = null;
+    private ImageView      mMiniPlayerAlbumArt   = null;
+    private RelativeLayout mPlayPauseBackground  = null;
+    private ImageButton    mPlayPauseButton      = null;
+    private ImageButton    mNextButton           = null;
+    private ImageButton    mPreviousButton       = null;
+    private ImageButton    mRepeatButton         = null;
+    private TextView       mPosition             = null;
+    private TextView       mTitleText            = null;
+    private TextView       mSubText              = null;
+    private SeekBar        mSeekBar              = null;
+
 
     private DragSortListView              mListView        = null;
     private NowPlayingListViewItemAdapter mListViewAdapter = null;
@@ -72,6 +80,7 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
 
     private boolean mIsPlaying       = false;
     private boolean mShowElapsedTime = true;
+    private boolean mIsSeeking       = false;
 
 
     @Override
@@ -96,6 +105,7 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
 
     private void initMiniPlayer( final View rootView ) {
         mMiniPlayerLayout = (RelativeLayout) rootView.findViewById( R.id.player_layout );
+        mMiniPlayerSongLayout = rootView.findViewById( R.id.player_songLayout );
         mMiniPlayerAlbumArt = (ImageView) rootView.findViewById( R.id.player_albumArt );
         mPosition = (TextView) rootView.findViewById( R.id.player_position );
         mPlayPauseBackground = (RelativeLayout) rootView.findViewById( R.id.player_playPause_layout );
@@ -105,17 +115,21 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
         mRepeatButton = (ImageButton) rootView.findViewById( R.id.player_repeat );
         mTitleText = (TextView) rootView.findViewById( R.id.player_song );
         mSubText = (TextView) rootView.findViewById( R.id.player_albumAndArtist );
+        mSeekBar = (SeekBar) rootView.findViewById( R.id.player_seekBar );
 
         mPlayPauseBackground.setBackgroundResource( UIElementsHelper.getShadowedCircle( mContext ) );
         mTitleText.setTypeface( UIElementsHelper.getRegularTypeface( mContext ) );
         mSubText.setTypeface( UIElementsHelper.getRegularTypeface( mContext ) );
+        mSeekBar.setThumb( getResources().getDrawable( R.drawable.transparent_drawable ) );
 
         mPosition.setOnClickListener( mPositionClickListener );
+        mMiniPlayerSongLayout.setOnClickListener( mSongClickListener );
         mPlayPauseBackground.setOnClickListener( mPlayPauseClickListener );
         mPlayPauseButton.setOnClickListener( mPlayPauseClickListener );
-        mNextButton.setOnClickListener( mOnClickNextListener );
-        mPreviousButton.setOnClickListener( mOnClickPreviousListener );
-        mRepeatButton.setOnClickListener( mOnCLickRepeatListener );
+        mNextButton.setOnClickListener( mNextClickListener );
+        mPreviousButton.setOnClickListener( mPreviousClickListener );
+        mRepeatButton.setOnClickListener( mRepeatClickListener );
+        mSeekBar.setOnSeekBarChangeListener( mSeekBarChangeListener );
     }
 
     private void initListViewer( final View rootView ) {
@@ -150,9 +164,9 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
             mListView.setPadding( 0, topPadding, 0, navigationBarHeight );
         }
 
-        mListView.setOnItemClickListener( mOnClick );
-        mListView.setDropListener( mOnDrop );
-        mListView.setRemoveListener( mOnRemove );
+        mListView.setOnItemClickListener( mOnItemClickListener );
+        mListView.setDropListener( mOnDropListener );
+        mListView.setRemoveListener( mOnRemoveListener );
 
         SimpleFloatViewManager simpleFloatViewManager = new SimpleFloatViewManager( mListView );
         simpleFloatViewManager.setBackgroundColor( Color.TRANSPARENT );
@@ -254,7 +268,6 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
             if( !isInitialized() ) {
                 return;
             }
-            // TODO: Do not disable prev,next buttons when there are songs in queue
             mRootView.post( new Runnable() {
                 @Override
                 public void run() {
@@ -273,9 +286,8 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
                     final String subTitle = song != null ? song.getAlbum() + " - " + song.getArtist() : "";
                     mTitleText.setText( title );
                     mSubText.setText( subTitle );
-                    mPreviousButton.setEnabled( !playerState.isFirstSong() );
-                    mNextButton.setEnabled( !playerState.isLastSong() );
                     updateRepeatMode( playerState );
+                    mSeekBar.setMax( song != null ? song.getDuration() : 0 );
                     updateMiniPlayerPosition(
                             new PlayPositionState( playerState.getCurrentIndex(), playerState.getPlayPosition() ) );
                     if( song != null ) {
@@ -301,31 +313,70 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
             if( !isInitialized() ) {
                 return;
             }
+            if( mIsSeeking ) {
+                return;
+            }
             mMiniPlayerLayout.setVisibility( View.VISIBLE );
-            final int millis = getMillis( playPositionState );
-            final String position = String.format( mShowElapsedTime ? "%d:%02d" : "-%d:%02d",
-                                                   TimeUnit.MILLISECONDS.toMinutes( millis ),
-                                                   TimeUnit.MILLISECONDS.toSeconds( millis )
-                                                   - TimeUnit.MINUTES.toSeconds(
-                                                           TimeUnit.MILLISECONDS.toMinutes( millis ) ) );
-            mPosition.setText( position );
+            updatePositionIndicator( playPositionState );
+            updateSeekBarSmoothly( playPositionState );
+
         }
     }
 
-    private int getMillis( final PlayPositionState playPositionState ) {
-        int millis = playPositionState.getPlayPosition();
+    private void updatePositionIndicator( final int position, final int duration ) {
+        synchronized( mLock ) {
+            if( !isInitialized() ) {
+                return;
+            }
+            mPosition.setText( formatPositionForIndicator( mShowElapsedTime ? position : ( duration - position ) ) );
+        }
+    }
+
+    private void updatePositionIndicator( final PlayPositionState playPositionState ) {
+        synchronized( mLock ) {
+            if( !isInitialized() ) {
+                return;
+            }
+            mPosition.setText( formatPositionForIndicator( getIndicatorPosition( playPositionState ) ) );
+        }
+    }
+
+    private int getIndicatorPosition( final PlayPositionState playPositionState ) {
+        int position = playPositionState.getPlayPosition();
         if( !mShowElapsedTime ) {
             final String key = mListViewAdapter.getItem( playPositionState.getCurrentIndex() );
             final SongDao song = key != null ? SongTableAccessor.getInstance( mContext ).getSong( key ) : null;
             if( song != null ) {
-                millis = song.getDuration() - millis;
+                position = song.getDuration() - position;
             } else {
-                millis = 0;
+                position = 0;
             }
         }
 
-        return millis;
+        return position;
     }
+
+    private String formatPositionForIndicator( final int position ) {
+        return String.format( mShowElapsedTime ? "%d:%02d" : "-%d:%02d", TimeUnit.MILLISECONDS.toMinutes( position ),
+                              TimeUnit.MILLISECONDS.toSeconds( position ) - TimeUnit.MINUTES.toSeconds(
+                                      TimeUnit.MILLISECONDS.toMinutes( position ) ) );
+    }
+
+    private void updateSeekBarSmoothly( final PlayPositionState playPositionState ) {
+        synchronized( mLock ) {
+            if( !isInitialized() ) {
+                return;
+            }
+
+            int position = playPositionState.getPlayPosition();
+            final ObjectAnimator animation = ObjectAnimator.ofInt( mSeekBar, SEEK_BAR_PROGRESS_PROPERTY_NAME,
+                                                                   position );
+            animation.setDuration( SEEKBAR_SMOOTH_SCROLL_DURATION );
+            animation.setInterpolator( new DecelerateInterpolator() );
+            animation.start();
+        }
+    }
+
 
     private void updateListAdapterQueue( final QueueState queueState ) {
         synchronized( mLock ) {
@@ -362,10 +413,39 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
                 return;
             }
             mListViewAdapter.setCurrentIndex( state.getCurrentIndex() );
+            mListView.smoothScrollToPosition( state.getCurrentIndex() );
         }
     }
 
-    private View.OnClickListener mPositionClickListener = new View.OnClickListener() {
+    private final SeekBar.OnSeekBarChangeListener mSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+
+        @Override
+        public void onProgressChanged( final SeekBar seekBar, final int seekBarPosition, final boolean changedByUser ) {
+            if( changedByUser ) {
+                updatePositionIndicator( seekBarPosition, seekBar.getMax() );
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch( SeekBar seekBar ) {
+            synchronized( mLock ) {
+                mIsSeeking = true;
+            }
+        }
+
+        @Override
+        public void onStopTrackingTouch( SeekBar seekBar ) {
+            synchronized( mLock ) {
+                mPlayback.setPlayPosition( seekBar.getProgress() );
+                // TODO: set mIsSeeking to false after setPlayPosition is finished
+                mIsSeeking = false;
+            }
+
+        }
+
+    };
+
+    private final View.OnClickListener mPositionClickListener = new View.OnClickListener() {
 
         @Override
         public void onClick( View view ) {
@@ -375,7 +455,14 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
 
     };
 
-    private View.OnClickListener mPlayPauseClickListener = new View.OnClickListener() {
+    private final View.OnClickListener mSongClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick( final View v ) {
+            scrollToCurrentIndex();
+        }
+    };
+
+    private final View.OnClickListener mPlayPauseClickListener = new View.OnClickListener() {
 
         @Override
         public void onClick( View view ) {
@@ -385,7 +472,7 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
 
     };
 
-    private View.OnClickListener mOnClickPreviousListener = new View.OnClickListener() {
+    private final View.OnClickListener mPreviousClickListener = new View.OnClickListener() {
 
         @Override
         public void onClick( View arg0 ) {
@@ -394,7 +481,7 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
 
     };
 
-    private View.OnClickListener mOnClickNextListener = new View.OnClickListener() {
+    private final View.OnClickListener mNextClickListener = new View.OnClickListener() {
 
         @Override
         public void onClick( View arg0 ) {
@@ -404,7 +491,7 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
 
     };
 
-    private View.OnClickListener mOnCLickRepeatListener = new View.OnClickListener() {
+    private final View.OnClickListener mRepeatClickListener = new View.OnClickListener() {
 
         @Override
         public void onClick( View arg0 ) {
@@ -413,7 +500,7 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
 
     };
 
-    private AdapterView.OnItemClickListener mOnClick = new AdapterView.OnItemClickListener() {
+    private final AdapterView.OnItemClickListener mOnItemClickListener = new AdapterView.OnItemClickListener() {
 
         @Override
         public void onItemClick( AdapterView<?> parent, View view, int position, long id ) {
@@ -422,7 +509,7 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
 
     };
 
-    private DragSortListView.DropListener mOnDrop = new DragSortListView.DropListener() {
+    private final DragSortListView.DropListener mOnDropListener = new DragSortListView.DropListener() {
 
         @Override
         public void drop( int from, int to ) {
@@ -431,7 +518,7 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
         }
     };
 
-    private DragSortListView.RemoveListener mOnRemove = new DragSortListView.RemoveListener() {
+    private final DragSortListView.RemoveListener mOnRemoveListener = new DragSortListView.RemoveListener() {
 
         @Override
         public void remove( int which ) {
@@ -439,6 +526,15 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
             mPlayback.deleteSongs( indices );
         }
     };
+
+    private void scrollToCurrentIndex() {
+        synchronized( mLock ) {
+            if( !isInitialized() ) {
+                return;
+            }
+            mListView.smoothScrollToPosition( mListViewAdapter.getCurrentIndex() );
+        }
+    }
 
     private void animatePlayToPause() {
         if( !mIsPlaying ) {
@@ -576,28 +672,30 @@ public class NowPlayingListViewFragment extends Fragment implements PlaybackStat
     public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
             case R.id.action_clear_all:
-                // TODO: Fix title of dialog
-                // TODO: Refactor dialog into own method
-                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder( getActivity() );
-                alertDialogBuilder.setTitle( mContext.getString( R.string.now_playing_clear_title ) )
-                                  .setMessage( mContext.getString( R.string.now_playing_clear_message ) );
-                alertDialogBuilder.setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick( final DialogInterface dialog, final int which ) {
-                        dialog.dismiss();
-                    }
-                } );
-                alertDialogBuilder.setPositiveButton( R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick( final DialogInterface dialog, final int which ) {
-                        mPlayback.clearSongs();
-                        dialog.dismiss();
-                    }
-                } );
-                alertDialogBuilder.create().show();
+                handleClearAll();
                 break;
         }
         return super.onOptionsItemSelected( item );
+    }
+
+    private void handleClearAll() {
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder( getActivity() );
+        alertDialogBuilder.setTitle( mContext.getString( R.string.now_playing_clear_title ) )
+                          .setMessage( mContext.getString( R.string.now_playing_clear_message ) );
+        alertDialogBuilder.setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick( final DialogInterface dialog, final int which ) {
+                dialog.dismiss();
+            }
+        } );
+        alertDialogBuilder.setPositiveButton( R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick( final DialogInterface dialog, final int which ) {
+                mPlayback.clearSongs();
+                dialog.dismiss();
+            }
+        } );
+        alertDialogBuilder.create().show();
     }
 
 }

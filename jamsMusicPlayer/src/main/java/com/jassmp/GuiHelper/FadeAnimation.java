@@ -94,8 +94,6 @@ public class FadeAnimation extends AlphaAnimation {
 
         @Override
         public void onAnimationRepeat( Animation arg0 ) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override

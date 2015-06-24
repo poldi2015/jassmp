@@ -22,13 +22,12 @@ public class Playback {
         PLAY_INDEX, TOGGLE_REPEAT, PLAY_POSITION
     }
 
-    public static final String EXTRA_SONGS        = "songs";
-    public static final String EXTRA_FROM_INDEX   = "fromIndex";
-    public static final String EXTRA_TO_INDEX     = "toIndex";
-    public static final String EXTRA_INDEX        = "index";
-    public static final String EXTRA_CURRENT_SONG = "currentSong";
-    public static final String EXTRA_POSITION     = "position";
-    public static final String EXTRA_INDICES      = "indices";
+    public static final String EXTRA_SONGS      = "songs";
+    public static final String EXTRA_FROM_INDEX = "fromIndex";
+    public static final String EXTRA_TO_INDEX   = "toIndex";
+    public static final String EXTRA_INDEX      = "index";
+    public static final String EXTRA_POSITION   = "position";
+    public static final String EXTRA_INDICES    = "indices";
 
 
     //
@@ -68,13 +67,13 @@ public class Playback {
 
     public void addSongsAfterCurrent( final List<String> keys ) {
         final Intent intent = createIntent( Action.ADD_SONGS_AFTER_CURRENT );
-        intent.putStringArrayListExtra( EXTRA_SONGS, new ArrayList( keys ) );
+        intent.putStringArrayListExtra( EXTRA_SONGS, new ArrayList<String>( keys ) );
         mContext.startService( intent );
     }
 
     public void addSongsAtEnd( final List<String> keys ) {
         final Intent intent = createIntent( Action.ADD_SONGS_AT_END );
-        intent.putStringArrayListExtra( EXTRA_SONGS, new ArrayList( keys ) );
+        intent.putStringArrayListExtra( EXTRA_SONGS, new ArrayList<String>( keys ) );
         mContext.startService( intent );
     }
 

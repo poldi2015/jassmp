@@ -34,6 +34,7 @@ import com.jassmp.Dao.SongDao;
 import com.jassmp.GuiHelper.TypefaceHelper;
 import com.jassmp.GuiHelper.UIElementsHelper;
 import com.jassmp.ImageTransformers.PicassoCircularTransformer;
+import com.jassmp.MainActivity.MainActivity;
 import com.jassmp.Playback.Playback;
 import com.jassmp.R;
 import com.jassmp.Utils.Common;
@@ -59,19 +60,18 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
     private       SongCursorAdapter mCursorAdapter;
     private final Playback          mPlayback;
 
-    private final Common               mApp;
-    private       SongListViewFragment mListViewFragment;
+    private final MainActivity mMainActivity;
+    private final Common       mApp;
     public static Holder mHolder = null;
     private       String mKey    = "";
 
-    public SongListViewItemAdapter( final Context context, final SongCursorAdapter cursorAdapter,
-                                    final SongListViewFragment listViewFragment ) {
-        super( context, -1, cursorAdapter.getCursor(), new String[]{ }, new int[]{ }, 0 );
+    public SongListViewItemAdapter( final MainActivity mainActivity, final SongCursorAdapter cursorAdapter ) {
+        super( mainActivity.getApplicationContext(), -1, cursorAdapter.getCursor(), new String[]{ }, new int[]{ }, 0 );
         mCursorAdapter = cursorAdapter;
-        mContext = context;
-        mListViewFragment = listViewFragment;
+        mMainActivity = mainActivity;
+        mContext = mainActivity.getApplicationContext();
         mApp = (Common) mContext.getApplicationContext();
-        mPlayback = new Playback( context );
+        mPlayback = new Playback( mContext );
     }
 
     @Override
@@ -183,7 +183,8 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
             if( holder == null ) {
                 return;
             }
-            mPlayback.addSongsAfterCurrent( Arrays.asList( new String[]{ holder.key } ) );
+            mMainActivity.switchFragment( MainActivity.FragmentId.NOW_PLAYING );
+            mPlayback.addSongsAfterCurrent( Arrays.asList( holder.key ) );
             mPlayback.next();
         }
     };
@@ -209,14 +210,14 @@ public class SongListViewItemAdapter extends SimpleCursorAdapter implements Scro
 
             switch( item.getItemId() ) {
                 case R.id.song_play_now:
-                    mPlayback.addSongsAfterCurrent( Arrays.asList( new String[]{ mKey } ) );
+                    mPlayback.addSongsAfterCurrent( Arrays.asList( mKey ) );
                     mPlayback.next();
                     break;
                 case R.id.song_play_next:
-                    mPlayback.addSongsAfterCurrent( Arrays.asList( new String[]{ mKey } ) );
+                    mPlayback.addSongsAfterCurrent( Arrays.asList( mKey ) );
                     break;
                 case R.id.song_play_last:
-                    mPlayback.addSongsAtEnd( Arrays.asList( new String[]{ mKey } ) );
+                    mPlayback.addSongsAtEnd( Arrays.asList( mKey ) );
                     break;
             }
 

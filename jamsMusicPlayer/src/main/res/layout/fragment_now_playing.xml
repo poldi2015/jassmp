@@ -43,8 +43,7 @@
         android:layout_width="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_height="150dp"
-        >
-        <!--        android:visibility="gone"-->
+        android:visibility="gone">
 
         <SeekBar
             android:id="@+id/player_seekBar"
@@ -60,6 +59,7 @@
             android:indeterminate="false"/>
 
         <LinearLayout
+            android:id="@+id/player_songLayout"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_marginBottom="5dp"
@@ -75,10 +75,9 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                >
+                android:layout_height="match_parent">
 
-                <TextView
+            <TextView
                     android:id="@+id/player_song"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

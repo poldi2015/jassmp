@@ -28,7 +28,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.jassmp.GuiHelper.UIElementsHelper;
@@ -100,8 +99,8 @@ public class MainMenuDrawerFragment extends Fragment {
     private ListView mmMenuItemsView;
     private Handler  mHandler;
 
-    @SuppressWarnings("deprecation")
-    @SuppressLint("NewApi")
+    @SuppressWarnings( "deprecation" )
+    @SuppressLint( "NewApi" )
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
         final Context context = getActivity();
@@ -147,16 +146,6 @@ public class MainMenuDrawerFragment extends Fragment {
             }
 
             resetAdapter( getActivity() );
-
-            //Reset the ActionBar after 500ms.
-            mHandler.postDelayed( new Runnable() {
-                @Override
-                public void run() {
-                    getActivity().invalidateOptionsMenu();
-
-                }
-            }, 500 );
-
         }
 
     };
@@ -168,30 +157,6 @@ public class MainMenuDrawerFragment extends Fragment {
 
         }
         mmMenuItemsView.setAdapter( new MainMenuDrawerAdapter( activity, currentFragment ) );
-    }
-
-
-    /**
-     * Clips ListViews to fit within the drawer's boundaries.
-     */
-    private void setListViewHeightBasedOnChildren( ListView listView ) {
-        ListAdapter listAdapter = listView.getAdapter();
-        if( listAdapter == null ) {
-            // pre-condition
-            return;
-        }
-
-        int totalHeight = 0;
-        for( int i = 0; i < listAdapter.getCount(); i++ ) {
-            View listItem = listAdapter.getView( i, null, listView );
-            listItem.measure( 0, 0 );
-            totalHeight += listItem.getMeasuredHeight();
-        }
-
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight + ( listView.getDividerHeight() * ( listAdapter.getCount() - 1 ) );
-        listView.setLayoutParams( params );
-        listView.requestLayout();
     }
 
 }

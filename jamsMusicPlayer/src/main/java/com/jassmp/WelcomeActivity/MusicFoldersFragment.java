@@ -139,8 +139,6 @@ public class MusicFoldersFragment extends Fragment {
 
         @Override
         public void onAnimationRepeat( Animation arg0 ) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
@@ -164,8 +162,6 @@ public class MusicFoldersFragment extends Fragment {
 
         @Override
         public void onAnimationRepeat( Animation arg0 ) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override

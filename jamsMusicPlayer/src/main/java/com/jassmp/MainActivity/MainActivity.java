@@ -193,25 +193,24 @@ public class MainActivity extends FragmentActivity {
                 fragmentId = mPreferences.getCurrentMainFragmentId();
             }
         }
-        if( fragmentId == mCurrentFragmentId ) {
-            return;
+        if( fragmentId != mCurrentFragmentId ) {
+
+            // Update ActionBar
+            final ActionBar actionBar = getActionBar();
+            if( actionBar != null ) {
+                getActionBar().setDisplayHomeAsUpEnabled( true );
+                getActionBar().setDisplayShowHomeEnabled( true );
+                getActionBar().setDisplayShowCustomEnabled( false );
+            }
+
+            mCurrentFragmentId = fragmentId;
+            mPreferences.setCurrentMainFragmentId( mCurrentFragmentId );
+
+            // Switch fragment
+            getSupportFragmentManager().beginTransaction()
+                                       .replace( R.id.mainActivityContainer, getLayoutFragment( mCurrentFragmentId ) )
+                                       .commit();
         }
-
-        // Update ActionBar
-        final ActionBar actionBar = getActionBar();
-        if( actionBar != null ) {
-            getActionBar().setDisplayHomeAsUpEnabled( true );
-            getActionBar().setDisplayShowHomeEnabled( true );
-            getActionBar().setDisplayShowCustomEnabled( false );
-        }
-
-        mCurrentFragmentId = fragmentId;
-        mPreferences.setCurrentMainFragmentId( mCurrentFragmentId );
-
-        // Switch fragment
-        getSupportFragmentManager().beginTransaction()
-                                   .replace( R.id.mainActivityContainer, getLayoutFragment( mCurrentFragmentId ) )
-                                   .commit();
 
         //Close the drawer(s).
         mDrawerLayout.closeDrawer( Gravity.START );

@@ -78,17 +78,28 @@ public class NotificationBuilder extends Playback {
                                                                  R.layout.notification_custom_expanded_layout );
 
         //Initialize the notification layout buttons.
+        // TODO: Buttons are not working, it seems that intents are not connected to buttons
         final PendingIntent previousTrackPendingIntent = PendingIntent.getBroadcast( mContext.getApplicationContext(),
                                                                                      0, createPreviousIntent(), 0 );
+        notificationView.setOnClickPendingIntent( R.id.notification_base_previous, previousTrackPendingIntent );
+        expNotificationView.setOnClickPendingIntent( R.id.notification_expanded_base_previous,
+                                                     previousTrackPendingIntent );
 
         final PendingIntent playPauseTrackPendingIntent = PendingIntent.getBroadcast( mContext.getApplicationContext(),
                                                                                       0, createPlayPauseIntent(), 0 );
+        notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
 
         final PendingIntent nextTrackPendingIntent = PendingIntent.getBroadcast( mContext.getApplicationContext(), 0,
                                                                                  createNextIntent(), 0 );
+        notificationView.setOnClickPendingIntent( R.id.notification_base_next, nextTrackPendingIntent );
+        expNotificationView.setOnClickPendingIntent( R.id.notification_expanded_base_next, nextTrackPendingIntent );
+
 
         final PendingIntent stopServicePendingIntent = PendingIntent.getBroadcast( mContext.getApplicationContext(), 0,
                                                                                    createPauseIntent(), 0 );
+        expNotificationView.setOnClickPendingIntent( R.id.notification_expanded_base_collapse,
+                                                     stopServicePendingIntent );
+        notificationView.setOnClickPendingIntent( R.id.notification_base_collapse, stopServicePendingIntent );
 
         //Check if audio is playing and set the appropriate play/pause button.
         if( state.getState() == PlayerState.State.PLAYING ) {
@@ -102,82 +113,31 @@ public class NotificationBuilder extends Playback {
         }
 
         //Set the notification content.
-        expNotificationView.setTextViewText( R.id.notification_expanded_base_line_one, song.getTitle() );
-        expNotificationView.setTextViewText( R.id.notification_expanded_base_line_two, song.getArtist() );
-        expNotificationView.setTextViewText( R.id.notification_expanded_base_line_three, song.getAlbum() );
-
-        notificationView.setTextViewText( R.id.notification_base_line_one, song.getTitle() );
-        notificationView.setTextViewText( R.id.notification_base_line_two, song.getArtist() );
-
-        //Set the states of the next/previous buttons and their pending intents.
-        if( state.isFirstSong() && state.isLastSong() ) {
-            //This is the only song in the queue, so disable the previous/next buttons.
-            expNotificationView.setViewVisibility( R.id.notification_expanded_base_next, View.INVISIBLE );
-            expNotificationView.setViewVisibility( R.id.notification_expanded_base_previous, View.INVISIBLE );
-            expNotificationView.setOnClickPendingIntent( R.id.notification_expanded_base_play,
-                                                         playPauseTrackPendingIntent );
-
-            notificationView.setViewVisibility( R.id.notification_base_next, View.INVISIBLE );
-            notificationView.setViewVisibility( R.id.notification_base_previous, View.INVISIBLE );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
-
-        } else if( state.isFirstSong() ) {
-            //This is the the first song in the queue, so disable the previous button.
-            expNotificationView.setViewVisibility( R.id.notification_expanded_base_previous, View.INVISIBLE );
-            expNotificationView.setViewVisibility( R.id.notification_expanded_base_next, View.VISIBLE );
-            expNotificationView.setOnClickPendingIntent( R.id.notification_expanded_base_play,
-                                                         playPauseTrackPendingIntent );
-            expNotificationView.setOnClickPendingIntent( R.id.notification_expanded_base_next, nextTrackPendingIntent );
-
-            notificationView.setViewVisibility( R.id.notification_base_previous, View.INVISIBLE );
-            notificationView.setViewVisibility( R.id.notification_base_next, View.VISIBLE );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_next, nextTrackPendingIntent );
-
-        } else if( state.isLastSong() ) {
-            //This is the last song in the cursor, so disable the next button.
-            expNotificationView.setViewVisibility( R.id.notification_expanded_base_previous, View.VISIBLE );
-            expNotificationView.setViewVisibility( R.id.notification_expanded_base_next, View.INVISIBLE );
-            expNotificationView.setOnClickPendingIntent( R.id.notification_expanded_base_play,
-                                                         playPauseTrackPendingIntent );
-            expNotificationView.setOnClickPendingIntent( R.id.notification_expanded_base_next, nextTrackPendingIntent );
-
-            notificationView.setViewVisibility( R.id.notification_base_previous, View.VISIBLE );
-            notificationView.setViewVisibility( R.id.notification_base_next, View.INVISIBLE );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_next, nextTrackPendingIntent );
-
-        } else {
-            //We're smack dab in the middle of the queue, so keep the previous and next buttons enabled.
-            expNotificationView.setViewVisibility( R.id.notification_expanded_base_previous, View.VISIBLE );
-            expNotificationView.setViewVisibility( R.id.notification_expanded_base_next, View.VISIBLE );
-            expNotificationView.setOnClickPendingIntent( R.id.notification_expanded_base_play,
-                                                         playPauseTrackPendingIntent );
-            expNotificationView.setOnClickPendingIntent( R.id.notification_expanded_base_next, nextTrackPendingIntent );
-            expNotificationView.setOnClickPendingIntent( R.id.notification_expanded_base_previous,
-                                                         previousTrackPendingIntent );
-
-            notificationView.setViewVisibility( R.id.notification_base_previous, View.VISIBLE );
-            notificationView.setViewVisibility( R.id.notification_base_next, View.VISIBLE );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_next, nextTrackPendingIntent );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_previous, previousTrackPendingIntent );
-
-        }
-
-        //Set the "Stop Service" pending intents.
-        expNotificationView.setOnClickPendingIntent( R.id.notification_expanded_base_collapse,
-                                                     stopServicePendingIntent );
-        notificationView.setOnClickPendingIntent( R.id.notification_base_collapse, stopServicePendingIntent );
+        expNotificationView.setTextViewText( R.id.notification_expanded_base_line_one,
+                                             song != null ? song.getTitle() : "" );
+        notificationView.setTextViewText( R.id.notification_base_line_one, song != null ? song.getTitle() : "" );
+        expNotificationView.setTextViewText( R.id.notification_expanded_base_line_two,
+                                             song != null ? song.getArtist() : "" );
+        notificationView.setTextViewText( R.id.notification_base_line_two, song != null ? song.getArtist() : "" );
+        expNotificationView.setTextViewText( R.id.notification_expanded_base_line_three,
+                                             song != null ? song.getAlbum() : "" );
+        expNotificationView.setViewVisibility( R.id.notification_expanded_base_previous, View.VISIBLE );
+        expNotificationView.setViewVisibility( R.id.notification_expanded_base_next, View.VISIBLE );
+        expNotificationView.setOnClickPendingIntent( R.id.notification_expanded_base_play,
+                                                     playPauseTrackPendingIntent );
+        notificationView.setViewVisibility( R.id.notification_base_previous, View.VISIBLE );
+        notificationView.setViewVisibility( R.id.notification_base_next, View.VISIBLE );
 
         //Set the album art.
-        song.loadAlbumArt( mContext, new SongDao.AlbumArtLoadedListener() {
-            @Override
-            public void artLoaded( final Bitmap bitmap ) {
-                expNotificationView.setImageViewBitmap( R.id.notification_expanded_base_image, bitmap );
-                notificationView.setImageViewBitmap( R.id.notification_base_image, bitmap );
-            }
-        } );
+        if( song != null ) {
+            song.loadAlbumArt( mContext, new SongDao.AlbumArtLoadedListener() {
+                @Override
+                public void artLoaded( final Bitmap bitmap ) {
+                    expNotificationView.setImageViewBitmap( R.id.notification_expanded_base_image, bitmap );
+                    notificationView.setImageViewBitmap( R.id.notification_base_image, bitmap );
+                }
+            } );
+        }
 
         //Attach the shrunken layout to the notification.
         builder.setContent( notificationView );
@@ -217,15 +177,19 @@ public class NotificationBuilder extends Playback {
         //Initialize the notification layout buttons.
         final PendingIntent previousTrackPendingIntent = PendingIntent.getBroadcast( mContext.getApplicationContext(),
                                                                                      0, createPreviousIntent(), 0 );
+        notificationView.setOnClickPendingIntent( R.id.notification_base_previous, previousTrackPendingIntent );
 
         final PendingIntent playPauseTrackPendingIntent = PendingIntent.getBroadcast( mContext.getApplicationContext(),
                                                                                       0, createPlayPauseIntent(), 0 );
+        notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
 
         final PendingIntent nextTrackPendingIntent = PendingIntent.getBroadcast( mContext.getApplicationContext(), 0,
                                                                                  createNextIntent(), 0 );
+        notificationView.setOnClickPendingIntent( R.id.notification_base_next, nextTrackPendingIntent );
 
         final PendingIntent stopServicePendingIntent = PendingIntent.getBroadcast( mContext.getApplicationContext(), 0,
                                                                                    createPauseIntent(), 0 );
+        notificationView.setOnClickPendingIntent( R.id.notification_base_collapse, stopServicePendingIntent );
 
         //Check if audio is playing and set the appropriate play/pause button.
         if( state.getState() == PlayerState.State.PLAYING ) {
@@ -235,50 +199,20 @@ public class NotificationBuilder extends Playback {
         }
 
         //Set the notification content.
-        notificationView.setTextViewText( R.id.notification_base_line_one, song.getTitle() );
-        notificationView.setTextViewText( R.id.notification_base_line_two, song.getArtist() );
-
-        //Set the states of the next/previous buttons and their pending intents.
-        if( state.isFirstSong() && state.isLastSong() ) {
-            //This is the only song in the queue, so disable the previous/next buttons.
-            notificationView.setViewVisibility( R.id.notification_base_next, View.INVISIBLE );
-            notificationView.setViewVisibility( R.id.notification_base_previous, View.INVISIBLE );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
-
-        } else if( state.isFirstSong() ) {
-            //This is the the first song in the queue, so disable the previous button.
-            notificationView.setViewVisibility( R.id.notification_base_previous, View.INVISIBLE );
-            notificationView.setViewVisibility( R.id.notification_base_next, View.VISIBLE );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_next, nextTrackPendingIntent );
-
-        } else if( state.isLastSong() ) {
-            //This is the last song in the cursor, so disable the next button.
-            notificationView.setViewVisibility( R.id.notification_base_previous, View.VISIBLE );
-            notificationView.setViewVisibility( R.id.notification_base_next, View.INVISIBLE );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_next, nextTrackPendingIntent );
-
-        } else {
-            //We're smack dab in the middle of the queue, so keep the previous and next buttons enabled.
-            notificationView.setViewVisibility( R.id.notification_base_previous, View.VISIBLE );
-            notificationView.setViewVisibility( R.id.notification_base_next, View.VISIBLE );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_play, playPauseTrackPendingIntent );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_next, nextTrackPendingIntent );
-            notificationView.setOnClickPendingIntent( R.id.notification_base_previous, previousTrackPendingIntent );
-
-        }
-
-        //Set the "Stop Service" pending intent.
-        notificationView.setOnClickPendingIntent( R.id.notification_base_collapse, stopServicePendingIntent );
+        notificationView.setTextViewText( R.id.notification_base_line_one, song != null ? song.getTitle() : "" );
+        notificationView.setTextViewText( R.id.notification_base_line_two, song != null ? song.getArtist() : "" );
+        notificationView.setViewVisibility( R.id.notification_base_previous, View.VISIBLE );
+        notificationView.setViewVisibility( R.id.notification_base_next, View.VISIBLE );
 
         //Set the album art.
-        song.loadAlbumArt( mContext, new SongDao.AlbumArtLoadedListener() {
-            @Override
-            public void artLoaded( final Bitmap bitmap ) {
-                notificationView.setImageViewBitmap( R.id.notification_base_image, bitmap );
-            }
-        } );
+        if( song != null ) {
+            song.loadAlbumArt( mContext, new SongDao.AlbumArtLoadedListener() {
+                @Override
+                public void artLoaded( final Bitmap bitmap ) {
+                    notificationView.setImageViewBitmap( R.id.notification_base_image, bitmap );
+                }
+            } );
+        }
 
         //Attach the shrunken layout to the notification.
         builder.setContent( notificationView );

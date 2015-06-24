@@ -34,9 +34,7 @@ public class Preferences {
     public static final  String RESCAN_ALBUM_ART                  = "RESCAN_ALBUM_ART";
     public static final  String REBUILD_LIBRARY                   = "REBUILD_LIBRARY";
     public static final  String SONG_LIST_SORT_COLUMN             = "SongListSortColumn";
-    public static final  String NOW_PLAYING_SORT_COLUMN           = "NowPlayingSortColumn";
     public static final  String SONG_LIST_SORT_DIRECTION_COLUMN   = "SongListSortDirectionColumn";
-    public static final  String NOW_PLAYING_SORT_DIRECTION_COLUMN = "NowPlayingSortDirectionColumn";
     public static final  String MUSIC_FOLDERS_SELECTION           = "MUSIC_FOLDERS_SELECTION";
     public static final  String CURRENT_MAIN_FRAGMENT_ID          = "CurrentMainFragmentId";
     public static final  String ALBUM_ART_SOURCE                  = "ALBUM_ART_SOURCE";
@@ -70,7 +68,7 @@ public class Preferences {
 
     public List<String> getPlaybackQueue() {
         final String playBackQueue = mPreferences.getString( PLAYBACK_QUEUE, "" );
-        return new ArrayList( Arrays.asList( playBackQueue.split( "," ) ) );
+        return new ArrayList<String>( Arrays.asList( playBackQueue.split( "," ) ) );
     }
 
     public void setPlaybackQueue( final List<String> queue ) {
@@ -160,20 +158,12 @@ public class Preferences {
         mPreferences.edit().putBoolean( REBUILD_LIBRARY, rescan ).apply();
     }
 
-    public int getSongListSortColumn() {
+    public int getOrderByColumnIndex() {
         return mPreferences.getInt( SONG_LIST_SORT_COLUMN, -1 );
     }
 
-    public void setSongListSortColumn( final int column ) {
+    public void setOrderByColumnIndex( final int column ) {
         mPreferences.edit().putInt( SONG_LIST_SORT_COLUMN, column ).apply();
-    }
-
-    public int getNowPlayingSortColumn() {
-        return mPreferences.getInt( NOW_PLAYING_SORT_COLUMN, -1 );
-    }
-
-    public void setNowPlayingSortColumn( final int column ) {
-        mPreferences.edit().putInt( NOW_PLAYING_SORT_COLUMN, column ).apply();
     }
 
     public OrderDirection getSongListSortDirection( final Column column ) {
@@ -184,17 +174,6 @@ public class Preferences {
     public void setSongListSortDirection( final Column column, final OrderDirection orderDirection ) {
         mPreferences.edit()
                     .putString( SONG_LIST_SORT_DIRECTION_COLUMN + "_" + column.name, orderDirection.name() )
-                    .apply();
-    }
-
-    public OrderDirection getNowPlayingSortDirection( final Column column ) {
-        return OrderDirection.valueOf( mPreferences.getString( NOW_PLAYING_SORT_DIRECTION_COLUMN + "_" + column.name,
-                                                               OrderDirection.ASC.name() ) );
-    }
-
-    public void setNowPlayingSortDirection( final Column column, final OrderDirection orderDirection ) {
-        mPreferences.edit()
-                    .putString( NOW_PLAYING_SORT_DIRECTION_COLUMN + "_" + column.name, orderDirection.name() )
                     .apply();
     }
 

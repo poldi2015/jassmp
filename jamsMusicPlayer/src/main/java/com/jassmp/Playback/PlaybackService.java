@@ -172,11 +172,11 @@ public class PlaybackService extends PersistentService {
 
     private void handleSetPlayPosition( final Intent intent ) {
         final int position = intent.getIntExtra( Playback.EXTRA_POSITION, 0 );
-        getCurrentMediaPlayer().play( getCurrentSong(), position );
+        getCurrentMediaPlayer().seekTo( position );
     }
 
     private void handleNext() {
-        if( nextSong() != -1 ) {
+        if( nextSong( true ) != -1 ) {
             stop();
             playNewSong();
         } else {
@@ -187,7 +187,7 @@ public class PlaybackService extends PersistentService {
     private void handlePrevious() {
         if( getPlayerState() == PlayerState.State.PLAYING && getCurrentPosition() > PREVIOUS_SONG_SEEK_THRESHOLD_MS ) {
             seekTo( 0 );
-        } else if( previousSong() != -1 ) {
+        } else if( previousSong( true ) != -1 ) {
             stop();
             playNewSong();
         } else {
@@ -199,7 +199,7 @@ public class PlaybackService extends PersistentService {
         final int index = intent.getIntExtra( Playback.EXTRA_INDEX, -1 );
         if( setCurrentIndex( index ) != -1 ) {
             stop();
-            play();
+            playNewSong();
         } else {
             stopSelf();
         }
@@ -317,8 +317,8 @@ public class PlaybackService extends PersistentService {
                     lastSong = true;
                     break;
             }
-            intent = new PlayerState( mCurrentIndex, firstSong, lastSong, mPlayState,
-                                      mRepeatMode, mCurrentPosition ).getIntent();
+            intent = new PlayerState( mCurrentIndex, firstSong, lastSong, mPlayState, mRepeatMode,
+                                      mCurrentPosition ).getIntent();
         }
         LocalBroadcastManager.getInstance( context ).sendBroadcast( intent );
     }
@@ -408,6 +408,7 @@ public class PlaybackService extends PersistentService {
             return false;
         }
         synchronized( mLock ) {
+            // TODO: Does not work if to == from +1
             if( fromIndex < 0 || fromIndex >= mQueue.size() ) {
                 return false;
             }
@@ -455,17 +456,16 @@ public class PlaybackService extends PersistentService {
         }
     }
 
-    private int nextSong() {
-        // TODO: Rework to skip to next-song with wrap around all time
+    private int nextSong( final boolean force ) {
         synchronized( mLock ) {
             if( mQueue.size() == 0 ) {
                 mCurrentIndex = -1;
             } else if( mCurrentIndex < 0 ) {
                 mCurrentIndex = 0;
-            } else if( mRepeatMode == RepeatMode.SONG ) {
+            } else if( mRepeatMode == RepeatMode.SONG && !force ) {
                 // Do nothing
             } else if( mCurrentIndex == ( mQueue.size() - 1 ) ) {
-                if( mRepeatMode == RepeatMode.ALL ) {
+                if( mRepeatMode == RepeatMode.ALL || force ) {
                     mCurrentIndex = 0;
                 } else {
                     mCurrentIndex = -1;
@@ -478,17 +478,16 @@ public class PlaybackService extends PersistentService {
         }
     }
 
-    private int previousSong() {
-        // TODO: Rework to skip to next-song with wrap around all time
+    private int previousSong( final boolean force ) {
         synchronized( mLock ) {
             if( mQueue.size() == 0 ) {
                 mCurrentIndex = -1;
             } else if( mCurrentIndex < 0 ) {
                 mCurrentIndex = mQueue.size() - 1;
-            } else if( mRepeatMode == RepeatMode.SONG ) {
+            } else if( mRepeatMode == RepeatMode.SONG && !force ) {
                 // Do nothing
             } else if( mCurrentIndex == 0 ) {
-                if( mRepeatMode == RepeatMode.ALL ) {
+                if( mRepeatMode == RepeatMode.ALL || force ) {
                     mCurrentIndex = mQueue.size() - 1;
                 } else {
                     mCurrentIndex = -1;
@@ -640,7 +639,11 @@ public class PlaybackService extends PersistentService {
                 return;
             }
             getCurrentMediaPlayer().pause();
-            // TODO: mNotificationManager.updateNotification( getCurrentSong() );
+            final NotificationBuilder notificationBuilder = new NotificationBuilder( mContext );
+            final PlayerState state = new PlayerState( mCurrentIndex, mCurrentIndex == 0,
+                                                       mCurrentIndex >= mQueue.size() - 1, mPlayState, mRepeatMode,
+                                                       mCurrentPosition );
+            notificationBuilder.updateNotification( state, null );
         }
 
         @Override
@@ -664,7 +667,12 @@ public class PlaybackService extends PersistentService {
         @Override
         public void songFailed( final SongDao song, final IOException e ) {
             Toast.makeText( mContext, R.string.song_failed_to_load, Toast.LENGTH_SHORT ).show();
-            // TODO: backlist song, skip to next song
+            if( nextSong( false ) != -1 ) {
+                playNewSong();
+            } else {
+                stopForeground( true );
+                stopSelf();
+            }
         }
 
         @Override
@@ -676,7 +684,7 @@ public class PlaybackService extends PersistentService {
 
         @Override
         public void songStarting( final SongDao song, final int position ) {
-            // TODO: Show toast
+            Toast.makeText( mContext, song.getTitle(), Toast.LENGTH_SHORT ).show();
             final NotificationBuilder notificationBuilder = new NotificationBuilder( mContext );
             final PlayerState state = new PlayerState( mCurrentIndex, mCurrentIndex == 0,
                                                        mCurrentIndex >= mQueue.size() - 1, mPlayState, mRepeatMode,
@@ -694,7 +702,7 @@ public class PlaybackService extends PersistentService {
         @Override
         public void songFinished( final SongDao song ) {
             publishPlayerChanged();
-            if( nextSong() != -1 ) {
+            if( nextSong( false ) != -1 ) {
                 swapMediaPlayer();
                 playNewSong();
             } else {

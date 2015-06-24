@@ -104,6 +104,10 @@ public class NowPlayingListViewItemAdapter extends ArrayAdapter<String> {
         notifyDataSetChanged();
     }
 
+    public int getCurrentIndex() {
+        return mCurrentIndex;
+    }
+
     public synchronized boolean isValid() {
         return getCount() > 0;
     }

@@ -875,8 +875,8 @@
     <string name="option_clear_all">Delete all</string>
     <string name="dialog_menu_filter">Filter songs</string>
     <string name="dialog_menu_order">Sort by</string>
-    <string name="now_playing_clear_title">Clear</string>
-    <string name="now_playing_clear_message">Clear all songs from now playing queue?</string>
+    <string name="now_playing_clear_title">Remove all</string>
+    <string name="now_playing_clear_message">Remove all songs from now playing queue?</string>
     <string name="song_play_last">Play Last</string>
     <string name="song_play_now">Play Now</string>
     <string name="song_play_next">Play Next</string>

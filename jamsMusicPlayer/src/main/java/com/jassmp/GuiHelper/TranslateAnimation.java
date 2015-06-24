@@ -109,14 +109,10 @@ public class TranslateAnimation extends android.view.animation.TranslateAnimatio
 
         @Override
         public void onAnimationRepeat( Animation arg0 ) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         public void onAnimationStart( Animation arg0 ) {
-            // TODO Auto-generated method stub
-
         }
 
     };
