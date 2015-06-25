@@ -422,6 +422,11 @@ public class PlaybackService extends PersistentService {
             }
             if( mCurrentIndex == fromIndex ) {
                 mCurrentIndex = toIndex;
+            } else if( fromIndex < toIndex ) {
+                // Moving a song to the position of the currently playing pushes the currently playing one up
+                mCurrentIndex--;
+            } else if( fromIndex > toIndex ) {
+                mCurrentIndex++;
             }
 
             return true;

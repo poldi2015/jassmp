@@ -1754,7 +1754,7 @@ public class DragSortListView extends ListView {
      * 0.5f.
      * 
      */
-    public void setDragScrollStart(float heightFraction) {
+    public void setDragScrollStart( float heightFraction ) {
         setDragScrollStarts(heightFraction, heightFraction);
     }
 
